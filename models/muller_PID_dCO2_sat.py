@@ -43,7 +43,7 @@ def model(x,t,dCO2_sat):
 
     return xdot
 
-# required constants and varaibles
+# required constants and variables
 VARS = ['A_m', 'HA', 'OH_m', 'H_p', 'CO3_2m', 'HCO3_m', 'dCO2']
 plotting_vars = ['CO3_2m', 'dCO2']
 SCALE = 1e6

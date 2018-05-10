@@ -10,6 +10,14 @@ import progress
 # constants
 COLOURS = "bgcmykw"
 
+def controlModel():
+	assert len(model.plotting_vars) != 0, "There has to be at least one observable variable!"
+	assert model.SCALE != 0, "Scale cannot be zero!"
+	assert model.kP + model.k + model.kD != 0, "Sum of PID parameters cannot be zero!"
+	assert len(model.t) != 0, "There has to be defined time point!"
+	assert len(model.t) == len(model.sp), "A set point has to be defined for every time point!"
+
+
 def controlLoop():
 	print("Computing control...")
 	controller = PID.PID(model.kP, model.kI, model.kD)
@@ -97,6 +105,7 @@ def visualisePlotly():
 
 if __name__ == '__main__':
 	# use argparse instead !
+	assert len(sys.argv) == 3, "Not enough arguments!"
 	modelFile = sys.argv[2]
 	controllerType = sys.argv[1]
 	modelName = ""
@@ -107,6 +116,7 @@ if __name__ == '__main__':
 	if controllerType == "PID":
 		import PID
 
+	controlModel()
 	controlLoop()
 	#visualiseMatplotlib()
 	visualisePlotly()
