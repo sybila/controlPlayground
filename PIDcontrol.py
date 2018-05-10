@@ -1,32 +1,22 @@
 import sys
 import os.path
-#import matplotlib.pyplot as plt
-
-import plotly.plotly as py
-import plotly.graph_objs as go
-
 from scipy.integrate import odeint
+
 sys.path.append(os.path.abspath('controllers/'))
 sys.path.append(os.path.abspath('models/'))
-
-# use argparse instead
-modelFile = sys.argv[2]
-controllerType = sys.argv[1]
-modelName = ""
-
-if modelFile:
-	modelName = os.path.splitext(os.path.basename(modelFile))[0]
-	exec("import " + modelName + " as model")
-if controllerType == "PID":
-	import PID
+sys.path.append(os.path.abspath('libs/'))
+import progress
 
 # constants
 COLOURS = "bgcmykw"
 
 def controlLoop():
+	print("Computing control...")
 	controller = PID.PID(model.kP, model.kI, model.kD)
+	progress_bar = progress.Progressbar(len(model.t) - 2)
 
-	for i in range(len(model.t)-1):
+	for i in range(len(model.t) - 1):
+		progress_bar.printProgress(i)
 		if i >= 1:  # calculate starting on second cycle
 			model.u[i + 1] = controller.update(model.x0[6], model.sp[i], model.t[i+1])
 		ts = [model.t[i], model.t[i+1]]
@@ -37,23 +27,33 @@ def controlLoop():
 			model.observables[j][i+1] = y[-1][j]
 			model.x0[j] = y[-1][j]
 
-# def visualiseMatplotlib():
-# 	# Plot the results
-# 	plt.figure(1)
-# 	plt.subplot(1,1,1)
+	print()
 
-# 	for j, variable_name in enumerate(model.plotting_vars):
-# 		i = model.VARS.index(variable_name)
-# 		plt.plot(model.t, model.observables[i] * model.SCALE, 'g-', color=COLOURS[j], label=variable_name)
+def visualiseMatplotlib():
+	print("Importing visualisation library...")
+	import matplotlib.pyplot as plt
+	print("Visualising...")
 
-# 	plt.plot(model.t, model.u * model.SCALE, 'k:', color='r', label='Control signal')
-# 	plt.plot(model.t, model.sp * model.SCALE, 'r--', color='r', label='Set Point')
-# 	plt.ylabel('Concentration x {0:.2e}'.format(model.SCALE))
-# 	plt.xlabel('Time')
-# 	plt.legend(loc='best')
-# 	plt.show()
+	plt.figure(1)
+	plt.subplot(1,1,1)
+
+	for j, variable_name in enumerate(model.plotting_vars):
+		i = model.VARS.index(variable_name)
+		plt.plot(model.t, model.observables[i] * model.SCALE, 'g-', color=COLOURS[j], label=variable_name)
+
+	plt.plot(model.t, model.u * model.SCALE, 'k:', color='r', label='Control signal')
+	plt.plot(model.t, model.sp * model.SCALE, 'r--', color='r', label='Set Point')
+	plt.ylabel('Concentration x {0:.2e}'.format(model.SCALE))
+	plt.xlabel('Time')
+	plt.legend(loc='best')
+	plt.show()
 
 def visualisePlotly():
+	print("Importing visualisation library...")
+	import plotly.plotly as py
+	import plotly.graph_objs as go
+	print("Visualising...")
+
 	data = []
 	for j, variable_name in enumerate(model.plotting_vars):
 		i = model.VARS.index(variable_name)
@@ -95,6 +95,18 @@ def visualisePlotly():
 	fig = dict(data=data, layout=layout)
 	py.plot(fig, filename = modelName + "_" + controllerType + "_plot")
 
-controlLoop()
-#visualiseMatplotlib()
-visualisePlotly()
+if __name__ == '__main__':
+	# use argparse instead !
+	modelFile = sys.argv[2]
+	controllerType = sys.argv[1]
+	modelName = ""
+
+	if modelFile:
+		modelName = os.path.splitext(os.path.basename(modelFile))[0]
+		exec("import " + modelName + " as model")
+	if controllerType == "PID":
+		import PID
+
+	controlLoop()
+	#visualiseMatplotlib()
+	visualisePlotly()
