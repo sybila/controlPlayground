@@ -12,7 +12,7 @@ controllerType = sys.argv[1]
 if modelFile:
 	exec("import " + os.path.splitext(os.path.basename(modelFile))[0] + " as model")
 if controllerType == "PID":
-	import PID as PID
+	import PID
 
 # constants
 COLOURS = "bgcmykw"
@@ -42,7 +42,7 @@ def visualise():
 
 	plt.plot(model.t, model.u * model.SCALE, 'k:', color='r', label='Control signal')
 	plt.plot(model.t, model.sp * model.SCALE, 'r--', color='r', label='Set Point')
-	plt.ylabel('concentration x {0:.2e}'.format(model.SCALE))
+	plt.ylabel('Concentration x {0:.2e}'.format(model.SCALE))
 	plt.xlabel('Time')
 	plt.legend(loc='best')
 
