@@ -13,10 +13,9 @@ COLOURS = "bgcmykw"
 def controlModel():
 	assert len(model.plotting_vars) != 0, "There has to be at least one observable variable!"
 	assert model.SCALE != 0, "Scale cannot be zero!"
-	assert model.kP + model.k + model.kD != 0, "Sum of PID parameters cannot be zero!"
+	assert model.kP + model.kI + model.kD != 0, "Sum of PID parameters cannot be zero!"
 	assert len(model.t) != 0, "There has to be defined time point!"
-	assert len(model.t) == len(model.sp), "A set point has to be defined for every time point!"
-
+	assert len(model.t) == len(model.sp), "A set point has to be defined for every time point"
 
 def controlLoop():
 	print("Computing control...")
