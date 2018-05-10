@@ -1,10 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.integrate import odeint
-import PID
 
 VARS = ['A_m', 'HA', 'OH_m', 'H_p', 'CO3_2m', 'HCO3_m', 'dCO2']
-COLOURS = "bgrcmykw"
+plotting_vars = ['CO3_2m', 'dCO2']
+SCALE = 1e6
 
 # PID parameters
 kP = 4.61730615181
@@ -12,7 +10,7 @@ kI = 40.4386149656
 kD = 0.0
 
 # Define model
-def muller(x,t,dCO2_sat):
+def model(x,t,dCO2_sat):
     # Constants
     kH_cp = 0.03
     P_in_atm = 1
@@ -86,35 +84,3 @@ sp = np.zeros(len(t))
 sp[0:] = u_ss
 sp[100:200] = 0.000175
 sp[200:] = 0.0002
-
-controller = PID.PID(kP, kI, kD)
-
-# loop through time steps    
-for i in range(len(t)-1):
-    if i >= 1:  # calculate starting on second cycle
-        u[i + 1] = controller.update(x0[6], sp[i], t[i+1])
-    ts = [t[i],t[i+1]]
-
-    y = odeint(muller, x0, ts, args=(u[i + 1],))
-
-    for j in range(7):
-        observables[j][i+1] = y[-1][j]*1e6
-        x0[j] = y[-1][j]
-
-# Plot the results
-plt.figure(1)
-plt.subplot(1,1,1)
-
-# for i, observable in enumerate(observables):
-#     plt.plot(t, observable, 'g-', color=COLOURS[i], label=VARS[i])
-
-plt.plot(t,observables[6],'-',color='r',label='dCO2')
-plt.plot(t,observables[4],'-',color='c',label='CO3_2m')
-
-plt.plot(t,u*1e6,'k:',color='b',label='Control signal')
-plt.plot(t,sp*1e6,'r--',color='r',label='Set Point')
-plt.ylabel('concentration x 1e6')
-plt.xlabel('Time (min)')
-plt.legend(loc='best')
-
-plt.show()
