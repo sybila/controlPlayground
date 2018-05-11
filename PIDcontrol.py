@@ -7,6 +7,11 @@ sys.path.append(os.path.abspath('models/'))
 sys.path.append(os.path.abspath('libs/'))
 import progress
 
+import argparse
+parser = argparse.ArgumentParser(description='PID control of a given model.')
+parser.add_argument('model', metavar='model', type=str, help='The file containing the definition of a model.')
+parser.add_argument('-t', '--type', type=str, help='Type of the controller.', choices=['PID', 'lMPC', 'nMPC'], default='PID')
+
 # constants
 COLOURS = "bgcmykw"
 
@@ -94,25 +99,20 @@ def visualisePlotly():
 		)
 	data.append(trace_sp)
 
-	layout = dict(title = controllerType + ' control of model ' + modelName,
+	layout = dict(title = args.type + ' control of model ' + modelName,
 			  xaxis = dict(title = 'Time'),
 			  yaxis = dict(title = 'Concentration x {0:.2e}'.format(model.SCALE)),
 			  )
 
 	fig = dict(data=data, layout=layout)
-	py.plot(fig, filename = modelName + "_" + controllerType + "_plot")
+	py.plot(fig, filename = modelName + "_" + args.type + "_plot")
 
 if __name__ == '__main__':
-	# use argparse instead !
-	assert len(sys.argv) == 3, "Not enough arguments!"
-	modelFile = sys.argv[2]
-	controllerType = sys.argv[1]
-	modelName = ""
+	args = parser.parse_args()
 
-	if modelFile:
-		modelName = os.path.splitext(os.path.basename(modelFile))[0]
-		exec("import " + modelName + " as model")
-	if controllerType == "PID":
+	modelName = os.path.splitext(os.path.basename(args.model))[0]
+	exec("import " + modelName + " as model")
+	if args.type == "PID":
 		import PID
 
 	controlModel()
