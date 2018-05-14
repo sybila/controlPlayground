@@ -1,21 +1,30 @@
 import sys
 import os.path
 from scipy.integrate import odeint
+import datetime
 
 sys.path.append(os.path.abspath('controllers/'))
 sys.path.append(os.path.abspath('models/'))
 sys.path.append(os.path.abspath('libs/'))
 import progress
 
+controller_choices = ['PID', 'lMPC', 'nMPC']
+visual_choices = ['plotly', 'matplotlib']
+
 import argparse
 parser = argparse.ArgumentParser(description='PID control of a given model.')
 parser.add_argument('model', metavar='model', type=str, help='The file containing the definition of a model.')
-parser.add_argument('-t', '--type', type=str, help='Type of the controller.', choices=['PID', 'lMPC', 'nMPC'], default='PID')
+parser.add_argument('-t', '--type', type=str,
+		help='Type of the controller. Allowed values are '+', '.join(controller_choices),
+		metavar='', choices=controller_choices, default='PID')
+parser.add_argument('-l', '--libVis', type=str,
+		help='Library for visualisation. Allowed values are '+', '.join(visual_choices),
+		metavar='', choices=visual_choices, default='plotly')
 
 # constants
 COLOURS = "bgcmykw"
 
-def controlModel():
+def checkModel():
 	assert len(model.plotting_vars) != 0, "There has to be at least one observable variable!"
 	assert model.SCALE != 0, "Scale cannot be zero!"
 	assert model.kP + model.kI + model.kD != 0, "Sum of PID parameters cannot be zero!"
@@ -99,13 +108,17 @@ def visualisePlotly():
 		)
 	data.append(trace_sp)
 
-	layout = dict(title = args.type + ' control of model ' + modelName,
+	layout = dict(title = args.type + ' control of model ' + modelName + '<br>' + 
+							", ".join(["kP = " + str(model.kP), 
+									   "kI = " + str(model.kI),
+									   "kD = " + str(model.kD)]),
 			  xaxis = dict(title = 'Time'),
 			  yaxis = dict(title = 'Concentration x {0:.2e}'.format(model.SCALE)),
-			  )
+				 )
 
+	date = '{date:%Y-%m-%d %H:%M:%S}'.format(date=datetime.datetime.now())
 	fig = dict(data=data, layout=layout)
-	py.plot(fig, filename = modelName + "_" + args.type + "_plot")
+	py.plot(fig, filename = date + " " + modelName + "_" + args.type + "_plot")
 
 if __name__ == '__main__':
 	args = parser.parse_args()
@@ -115,7 +128,9 @@ if __name__ == '__main__':
 	if args.type == "PID":
 		import PID
 
-	controlModel()
+	checkModel()
 	controlLoop()
-	#visualiseMatplotlib()
-	visualisePlotly()
+	if args.libVis == 'plotly':
+		visualisePlotly()
+	else:
+		visualiseMatplotlib()

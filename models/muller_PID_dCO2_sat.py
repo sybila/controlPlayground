@@ -49,8 +49,8 @@ plotting_vars = ['CO3_2m', 'dCO2']
 SCALE = 1e6
 
 # PID parameters
-kP = 4.61730615181
-kI = 40.4386149656
+kP = 4
+kI = 5.0
 kD = 0.0
 
 # Initial Conditions
@@ -77,5 +77,5 @@ u = np.ones(len(t)) * u_ss
 # set point
 sp = np.zeros(len(t))
 sp[0:] = u_ss
-sp[100:200] = 0.000175
-sp[200:] = 0.0002
+sp[200:400] = 0.000175
+sp[400:] = 0.0002
