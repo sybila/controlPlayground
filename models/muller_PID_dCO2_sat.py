@@ -79,3 +79,10 @@ sp = np.zeros(len(t))
 sp[0:] = u_ss
 sp[200:400] = 0.000175
 sp[400:] = 0.0002
+
+# reference variable
+REFERENCE = 6
+
+# visualisation options
+SHOW_SET_POINT = True
+SHOW_CONTROL_SIGNAL = True

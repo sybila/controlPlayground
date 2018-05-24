@@ -39,12 +39,12 @@ def controlLoop():
 	for i in range(len(model.t) - 1):
 		progress_bar.printProgress(i)
 		if i >= 1:  # calculate starting on second cycle
-			model.u[i + 1] = controller.update(model.x0[6], model.sp[i], model.t[i+1])
+			model.u[i + 1] = controller.update(model.x0[model.REFERENCE], model.sp[i], model.t[i+1])
 		ts = [model.t[i], model.t[i+1]]
 
 		y = odeint(model.model, model.x0, ts, args=(model.u[i + 1],))
 
-		for j in range(7):
+		for j in range(len(model.VARS)):
 			model.observables[j][i+1] = y[-1][j]
 			model.x0[j] = y[-1][j]
 
@@ -62,8 +62,10 @@ def visualiseMatplotlib():
 		i = model.VARS.index(variable_name)
 		plt.plot(model.t, model.observables[i] * model.SCALE, 'g-', color=COLOURS[j], label=variable_name)
 
-	plt.plot(model.t, model.u * model.SCALE, 'k:', color='r', label='Control signal')
-	plt.plot(model.t, model.sp * model.SCALE, 'r--', color='r', label='Set Point')
+	if model.SHOW_CONTROL_SIGNAL:
+		plt.plot(model.t, model.u * model.SCALE, 'k:', color='r', label='Control signal')
+	if model.SHOW_SET_POINT:
+		plt.plot(model.t, model.sp * model.SCALE, 'r--', color='r', label='Set Point')
 	plt.ylabel('Concentration x {0:.2e}'.format(model.SCALE))
 	plt.xlabel('Time')
 	plt.legend(loc='best')
@@ -87,26 +89,27 @@ def visualisePlotly():
 		)
 
 		data.append(trace)
+	if model.SHOW_CONTROL_SIGNAL:
+		trace_signal = go.Scatter(
+				x = model.t,
+				y = model.u * model.SCALE,
+				line = dict(
+					color = ('rgb(155, 0, 0)'),
+					dash = 'dot'),
+				name = 'Control signal'
+			)
+		data.append(trace_signal)
 
-	trace_signal = go.Scatter(
-			x = model.t,
-			y = model.u * model.SCALE,
-			line = dict(
-				color = ('rgb(155, 0, 0)'),
-				dash = 'dot'),
-			name = 'Control signal'
-		)
-	data.append(trace_signal)
-
-	trace_sp = go.Scatter(
-			x = model.t,
-			y = model.sp * model.SCALE,
-			line = dict(
-				color = ('rgb(255, 0, 0)'),
-				dash = 'dash'),
-			name = 'Set Point'
-		)
-	data.append(trace_sp)
+	if model.SHOW_SET_POINT:
+		trace_sp = go.Scatter(
+				x = model.t,
+				y = model.sp * model.SCALE,
+				line = dict(
+					color = ('rgb(255, 0, 0)'),
+					dash = 'dash'),
+				name = 'Set Point'
+			)
+		data.append(trace_sp)
 
 	layout = dict(title = args.type + ' control of model ' + modelName + '<br>' + 
 							", ".join(["kP = " + str(model.kP), 
