@@ -19,7 +19,7 @@ class Animator():
 		#print "result", self.xar[-1] , result[0][0]
 		if self.xar[-1] < result[0][0]:
 			self.xar += result[0]
-			self.yar += [x * SCALE[0] for x in result[1]]
+			self.yar += result[1]
 			self.ax.clear()
 			self.ax.plot(self.xar, self.yar)
 
@@ -31,8 +31,8 @@ SCALE = [1]
 scales = zip(range(100, 1000, 100), range(10,100,10))
 #data = list(enumerate([randint(0, 10) for p in range(0, 1000)]))
 data = list(enumerate(map(lambda x: math.sin(x), range(0, 1000))))
-output = [data[:10]]
-firstRes = data[:10]
+output = [data[:100]]
+firstRes = data[:100]
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
@@ -44,13 +44,11 @@ ud = Animator(ax, xar, yar)
 controller = ControllThread.ControllThread(scales, output, SCALE)
 controller.start()
 
-sender = SenderWorker.SenderThread(data, output)
+sender = SenderWorker.SenderThread(data, output, SCALE)
 sender.start()
 
 ani = animation.FuncAnimation(fig, ud, frames=np.arange(500), interval=100, init_func=ud.init)
 plt.show()
-
-print("end")
 
 sender.join()
 controller.join()
