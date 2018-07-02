@@ -1,7 +1,7 @@
 import threading
 import os, time
 
-STEP = 10
+STEP = 100
 
 class SenderThread(threading.Thread):
 	def __init__(self, data, output):
@@ -12,10 +12,10 @@ class SenderThread(threading.Thread):
 		self.stoprequest = threading.Event()
 
 	def run(self):
-		while not self.stoprequest.isSet():
-			self.output += self.data[self.step:self.step + STEP]
+		while not self.stoprequest.isSet() and self.step < len(self.data):
+			self.output[0] = self.data[self.step:self.step + STEP]
 			self.step += STEP
-			time.sleep(0.1)
+			time.sleep(1)
 
 	def join(self, timeout=None):
 		self.stoprequest.set()

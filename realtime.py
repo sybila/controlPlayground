@@ -2,25 +2,44 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import time, sys, os, math
 from random import randint
+import numpy as np
+
+class Animator():
+	def __init__(self, ax, xar, yar):
+		self.ax = ax
+		self.xar = xar
+		self.yar = yar
+
+	def init(self):
+		self.ax.plot(self.xar, self.yar)
+
+	def __call__(self, i):
+		result = list(zip(*output[0]))
+		#print result, SCALE
+		#print "result", self.xar[-1] , result[0][0]
+		if self.xar[-1] < result[0][0]:
+			self.xar += result[0]
+			self.yar += [x * SCALE[0] for x in result[1]]
+			self.ax.clear()
+			self.ax.plot(self.xar, self.yar)
 
 sys.path.append(os.path.abspath('worker/'))
 import SenderWorker
 import ControllThread
 
-fig = plt.figure()
-ax1 = fig.add_subplot(1,1,1)
-
-def animate(i):
-	result = list(zip(*output))
-	xar, yar = result[0], [x * SCALE[0] for x in result[1]]
-	ax1.clear()
-	ax1.plot(xar,yar)
-
 SCALE = [1]
 scales = zip(range(100, 1000, 100), range(10,100,10))
-#data = list(enumerate([randint(0, 9) for p in range(0, 1000)]))
+#data = list(enumerate([randint(0, 10) for p in range(0, 1000)]))
 data = list(enumerate(map(lambda x: math.sin(x), range(0, 1000))))
-output = data[:10]
+output = [data[:10]]
+firstRes = data[:10]
+
+fig = plt.figure()
+ax = fig.add_subplot(1,1,1)
+
+firstResult = list(zip(*firstRes))
+xar, yar = list(firstResult[0]), list(firstResult[1])
+ud = Animator(ax, xar, yar)
 
 controller = ControllThread.ControllThread(scales, output, SCALE)
 controller.start()
@@ -28,8 +47,10 @@ controller.start()
 sender = SenderWorker.SenderThread(data, output)
 sender.start()
 
-ani = animation.FuncAnimation(fig, animate, interval=100)
+ani = animation.FuncAnimation(fig, ud, frames=np.arange(500), interval=100, init_func=ud.init)
 plt.show()
+
+print("end")
 
 sender.join()
 controller.join()

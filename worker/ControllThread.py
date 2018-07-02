@@ -11,7 +11,7 @@ class ControllThread(threading.Thread):
 
 	def run(self):
 		while not self.stoprequest.isSet():
-			self.SCALE[0] = self.findScale(self.output[-1][0])
+			self.SCALE[0] = self.findScale(self.output[0][-1][0])
 
 	def findScale(self, value):
 		for v, s in self.scales:
