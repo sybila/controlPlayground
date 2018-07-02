@@ -5,23 +5,24 @@ from random import randint
 import numpy as np
 
 class Animator():
-	def __init__(self, ax, xar, yar):
+	def __init__(self, ax, xar, yarA, yarB):
 		self.ax = ax
 		self.xar = xar
-		self.yar = yar
+		self.yarA = yarA
+		self.yarB = yarB
 
 	def init(self):
-		self.ax.plot(self.xar, self.yar)
+		self.ax.plot(self.xar, self.yarA)
+		self.ax.plot(self.xar, self.yarB)
 
 	def __call__(self, i):
-		result = list(zip(*output[0]))
-		#print result, SCALE
-		#print "result", self.xar[-1] , result[0][0]
-		if self.xar[-1] < result[0][0]:
-			self.xar += result[0]
-			self.yar += result[1]
+		if self.xar[-1] < output[0][0]:
+			self.xar += [output[0][0]]
+			self.yarA += [output[0][1][0]]
+			self.yarB += [output[0][1][1]]
 			self.ax.clear()
-			self.ax.plot(self.xar, self.yar)
+			self.ax.plot(self.xar, self.yarA)
+			self.ax.plot(self.xar, self.yarB)
 
 sys.path.append(os.path.abspath('worker/'))
 import SenderWorker
@@ -30,16 +31,16 @@ import ControllThread
 SCALE = [1]
 scales = zip(range(100, 1000, 100), range(10,100,10))
 #data = list(enumerate([randint(0, 10) for p in range(0, 1000)]))
-data = list(enumerate(map(lambda x: math.sin(x), range(0, 1000))))
-output = [data[:100]]
-firstRes = data[:100]
+data = [[10, 1]]
+output = [(0, 0)]
+firstRes = [(0, 0, 0)]
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
 firstResult = list(zip(*firstRes))
-xar, yar = list(firstResult[0]), list(firstResult[1])
-ud = Animator(ax, xar, yar)
+xar, yarA, yarB = list(firstResult[0]), list(firstResult[1]), list(firstResult[2])
+ud = Animator(ax, xar, yarA, yarB)
 
 controller = ControllThread.ControllThread(scales, output, SCALE)
 controller.start()

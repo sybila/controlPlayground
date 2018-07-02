@@ -1,13 +1,12 @@
 import numpy as np
 
 # Define model
-def model(x,t,dCO2_sat):
+def model(x,t,control_signal):
     # Constants
     kH_cp = 0.03
     P_in_atm = 1
     kB_b = 500000000
     kLa_CO2_eff = 29
-    gCO2_in_ppm = 5000
     kB_f = 15.81
     kW_b = 2
     KW = 0.00000000000001
@@ -39,7 +38,7 @@ def model(x,t,dCO2_sat):
     xdot[3] = + (k1_p_f*x[6]-k1_p_b*x[3] * x[5]) + (k2_p_f*x[5]-k2_p_b*x[3] * x[4]) + (kB_f*x[1]-kB_b*x[3] * x[0]) + (kW_f-kW_b*x[2] * x[3])
     xdot[4] = + (k2_m_f*x[2] * x[5]-k2_m_b*x[4]) + (k2_p_f*x[5]-k2_p_b*x[3] * x[4])
     xdot[5] = + (k1_m_f*x[2] * x[6]-k1_m_b*x[5]) + (k1_p_f*x[6]-k1_p_b*x[3] * x[5]) - (k2_m_f*x[2] * x[5]-k2_m_b*x[4]) - (k2_p_f*x[5]-k2_p_b*x[3] * x[4])
-    xdot[6] = - (k1_m_f*x[2] * x[6]-k1_m_b*x[5]) - (k1_p_f*x[6]-k1_p_b*x[3] * x[5]) + (dCO2_sat * kLa_CO2_eff-kLa_CO2_eff*x[6])
+    xdot[6] = - (k1_m_f*x[2] * x[6]-k1_m_b*x[5]) - (k1_p_f*x[6]-k1_p_b*x[3] * x[5]) + ((kH_cp*control_signal*P_in_atm)/1e+6 * kLa_CO2_eff-kLa_CO2_eff*x[6])
 
     return xdot
 
@@ -65,7 +64,7 @@ x0[5] = 0                       # HCO3_m
 x0[6] = 3.164556962025317e-07   # dCO2
 
 # Initial Control Signal
-u_ss = 0.00015
+u_ss = 1000
 
 # Time Interval (min)
 t = np.linspace(0,5,1000)
@@ -76,7 +75,7 @@ u = np.ones(len(t)) * u_ss
 
 # set point
 sp = np.zeros(len(t))
-sp[0:] = u_ss
+sp[0:] = u_ss*3e-8
 sp[200:400] = 0.000175
 sp[400:] = 0.0002
 
