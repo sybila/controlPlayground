@@ -2,22 +2,23 @@ import threading
 import os, time
 
 class ControllThread(threading.Thread):
-	def __init__(self, scales, output, SCALE):
+	def __init__(self, signals, output, control_signal):
 		super(ControllThread, self).__init__()
-		self.scales = scales
+		self.signals = signals
 		self.output = output
-		self.SCALE = SCALE
+		self.control_signal = control_signal
 		self.stoprequest = threading.Event()
 
 	def run(self):
 		while not self.stoprequest.isSet():
-			self.SCALE[0] = self.findScale(self.output[0][0])
+			signal = self.findScale(self.output[0][0])
+			if signal:
+				self.control_signal[0] = signal
 
-	def findScale(self, value):
-		for v, s in self.scales:
-			if value < v:
+	def findScale(self, time):
+		for t, s in reversed(self.signals):
+			if time > t:
 				return s
-		return self.scales[-1][1]
 
 	def join(self, timeout=None):
 		self.stoprequest.set()
