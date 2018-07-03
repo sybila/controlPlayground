@@ -1,24 +1,46 @@
 from scipy.integrate import odeint
 
+from scipy.integrate import ode
+
 class Model():
-	def __init__(self, x0, VARS, plotting_vars, SCALE, control_signal, observables, REFERENCE, ODEs):
+	def __init__(self, x0, VARS, plotting_vars, SCALE, control_signal, REFERENCE, ODEs):
 		self.x0 = x0
 		self.VARS = VARS
 		self.plotting_vars = plotting_vars
 		self.SCALE = SCALE
 		self.control_signal = control_signal
-		self.observables = observables
 		self.REFERENCE = REFERENCE
 		self.ODEs = ODEs
 
-	def evaluateODEs(self, x, t, control_signal):
-		return map(eval, self.ODEs)
-
 	def calculateNextStep(self, ts, control_signal):
-		y = odeint(self.evaluateODEs, self.x0, ts, args=(control_signal,))
+		return self.useLSODA(ts, control_signal)
+		#return self.useLSODE(ts, control_signal)
+
+	# Lsoda method
+	def useLSODA(self, ts, control_signal):
+		y = odeint(self.LSODAevaluateODEs, self.x0, ts, args=(control_signal,))
 
 		for j in range(len(self.VARS)):
 			self.x0[j] = y[-1][j]
 
 		return y[-1]
 
+	def LSODAevaluateODEs(self, x, t, control_signal):
+		return map(eval, self.ODEs)
+
+	# Lsode method
+	def useLSODE(self, ts, control_signal):
+		solver = ode(self.LSODEevaluateODEs).set_integrator('vode', method='BDF',
+	                      order=4, rtol=0, atol=1e-6, with_jacobian=False)
+		solver.set_initial_value(self.x0, ts[0]).set_f_params(control_signal)
+
+		y = solver.integrate(ts[1])
+		print(y)
+
+		for j in range(len(self.VARS)):
+			self.x0[j] = y[j]
+
+		return y
+
+	def LSODEevaluateODEs(self, t, x, control_signal):
+		return map(eval, self.ODEs)

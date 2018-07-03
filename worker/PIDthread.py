@@ -12,13 +12,14 @@ class ControllThread(threading.Thread):
 
 	def run(self):
 		while not self.stoprequest.isSet():
-			self.control_signal[0] = self.computeSignal()
+			signal = self.computeSignal()
+			if signal:
+				self.control_signal[0] = signal
 
 	def computeSignal(self):
-		for v, s in self.signals:
-			if self.current_time < v:
+		for t, s in reversed(self.signals):
+			if self.current_time[0] > t:
 				return s
-		return self.signals[-1][1]
 
 	def join(self, timeout=None):
 		self.stoprequest.set()
