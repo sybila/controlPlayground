@@ -1,9 +1,12 @@
 from scipy.integrate import odeint
-
 from scipy.integrate import ode
 
+def exec_all(seq):
+	for item in seq:
+		exec(item, globals())
+
 class Model():
-	def __init__(self, x0, VARS, plotting_vars, SCALE, control_signal, REFERENCE, ODEs):
+	def __init__(self, x0, VARS, plotting_vars, SCALE, control_signal, REFERENCE, ODEs, parameters):
 		self.x0 = x0
 		self.VARS = VARS
 		self.plotting_vars = plotting_vars
@@ -11,6 +14,7 @@ class Model():
 		self.control_signal = control_signal
 		self.REFERENCE = REFERENCE
 		self.ODEs = ODEs
+		self.parameters = parameters
 
 	def calculateNextStep(self, ts, control_signal):
 		return self.useLSODA(ts, control_signal)
@@ -26,6 +30,7 @@ class Model():
 		return y[-1]
 
 	def LSODAevaluateODEs(self, x, t, control_signal):
+		exec_all(self.parameters)
 		return map(eval, self.ODEs)
 
 	# Lsode method
@@ -43,4 +48,5 @@ class Model():
 		return y
 
 	def LSODEevaluateODEs(self, t, x, control_signal):
+		exec_all(self.parameters)
 		return map(eval, self.ODEs)

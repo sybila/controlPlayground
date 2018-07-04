@@ -34,7 +34,7 @@ import Model
 control_signal = [signals[0][1]]
 current_time = [0]
 output = [(0, [0]*7)]
-model = Model.Model(x0, VARS, plotting_vars, SCALE, control_signal, REFERENCE, ODEs)
+model = Model.Model(x0, VARS, plotting_vars, SCALE, control_signal, REFERENCE, ODEs, parameters)
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
