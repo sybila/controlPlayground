@@ -4,6 +4,9 @@ import time, sys, os, math
 from random import randint
 import numpy as np
 
+sys.path.append(os.path.abspath('controllers/'))
+import PID
+
 def convergence(signal):
 	return (0.03*signal)/1e+6
 
@@ -31,7 +34,7 @@ sys.path.append(os.path.abspath('models/'))
 from muller import *
 import Model
 
-control_signal = [signals[0][1]]
+control_signal = [5000]
 current_time = [0]
 output = [(0, [0]*7)]
 model = Model.Model(x0, VARS, plotting_vars, SCALE, control_signal, REFERENCE, ODEs, parameters)
@@ -42,7 +45,8 @@ ax = fig.add_subplot(1,1,1)
 xar, yar = [0], [0]
 ud = Animator(ax, xar, yar, model)
 
-controller = PIDthread.ControllThread(control_signal, signals, current_time, output)
+pid = PID.PID(kP, kI, kD)
+controller = PIDthread.ControllThread(set_points, output, control_signal, current_time, REFERENCE, pid)
 controller.start()
 
 sender = ModelThread.SenderThread(control_signal, current_time, model, output)

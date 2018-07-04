@@ -17,14 +17,16 @@ x0[5] = 0                       # HCO3_m
 x0[6] = 3.164556962025317e-07   # dCO2
 
 # Storage of results
-signals = [(0, 5000), (2, 4000), (3, 3999), (4, 3000), (5, 2500)]
+#signals = [(0, 5000), (2, 4000), (3, 3999), (4, 3000), (5, 2500)]
 # solver fails with more then 2 changes, WHY?
 
+# PID parameters
+kP = 4
+kI = 5.0
+kD = 0.0
+
 # set point
-# sp = np.zeros(len(t))
-# sp[0:] = 1000*3e-8
-# sp[200:400] = 0.000175
-# sp[400:] = 0.0002
+set_points = [(0, 0.00015), (2, 0.00012)]
 
 # reference variable
 REFERENCE = 6
