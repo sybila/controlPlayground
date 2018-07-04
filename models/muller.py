@@ -17,7 +17,8 @@ x0[5] = 0                       # HCO3_m
 x0[6] = 3.164556962025317e-07   # dCO2
 
 # Storage of results
-signals = [(0, 5000), (2, 2500)]
+signals = [(0, 5000), (2, 4000), (3, 3999), (4, 3000), (5, 2500)]
+# solver fails with more then 2 changes, WHY?
 
 # set point
 # sp = np.zeros(len(t))
