@@ -1,7 +1,7 @@
 import threading
 
 class ControllThread(threading.Thread):
-	def __init__(self, set_points, output, control_signal, current_time, REFERENCE, PID):
+	def __init__(self, set_points, output, control_signal, current_time, REFERENCE, PID, set_point):
 		super(ControllThread, self).__init__()
 		self.set_points = set_points
 		self.output = output
@@ -9,23 +9,27 @@ class ControllThread(threading.Thread):
 		self.current_time = current_time
 		self.REFERENCE = REFERENCE
 		self.PID = PID
+		self.old_time = 0
+		self.set_point = set_point
 		self.stoprequest = threading.Event()
 
 	def run(self):
 		while not self.stoprequest.isSet():
 			#print(self.output[0][1])
 			observed_value = self.output[0][1][self.REFERENCE]
-			set_point = self.calculateSetPoint()
+			self.set_point[0] = self.calculateSetPoint()
 			time = self.current_time[0]
-			#print(observed_value, set_point, time)
-			if time > 0.5:
-				signal = self.PID.update(observed_value, set_point, time)
-				#print(signal)
-				self.control_signal[0] = signal
+			if self.old_time != time:
+				#print(observed_value, self.set_point[0], time)
+				if time > 0.01:
+					signal = self.PID.update(observed_value, self.set_point[0], time)
+					#print(signal/3e-8)
+					self.control_signal[0] = signal/3e-8
+			self.old_time = time
 
 	def calculateSetPoint(self):
 		for t, s in reversed(self.set_points):
-			if self.current_time > t:
+			if self.current_time[0] > t:
 				return s
 
 	def join(self, timeout=None):

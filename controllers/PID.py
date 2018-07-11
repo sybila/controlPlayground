@@ -10,8 +10,10 @@ class PID:
         self.prev_time = 0
 
     def update(self, observed_value, set_point, time):
+        #print(observed_value, set_point, time)
         delta_t = time - self.prev_time
         error = set_point - observed_value                          # error
+        #print(error)
 
         dpv = (observed_value - self.prev_observed_value)/delta_t   # derivative of the pv
         ie = self.prev_ie + error * delta_t                         # integral of the error

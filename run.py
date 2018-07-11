@@ -16,6 +16,7 @@ class Animator():
         self.xar = xar
         self.yar = yar
         self.signal = [convergence(control_signal[0])]
+        self.goal = [set_point[0]]
         self.model = model
 
     def __call__(self, i):
@@ -23,9 +24,14 @@ class Animator():
             self.xar += [output[0][0]]
             self.yar += [output[0][1][REFERENCE]]
             self.signal += [convergence(control_signal[0])]
+            self.goal += set_point
             self.ax.clear()
-            self.ax.plot(self.xar, self.yar)
-            self.ax.plot(self.xar, self.signal)
+            self.ax.plot(self.xar, self.yar, label='Variable')
+            self.ax.plot(self.xar, self.signal, label='Signal')
+            self.ax.plot(self.xar, self.goal, label='Set Point')
+
+            self.ax.legend()
+
 
 sys.path.append(os.path.abspath('worker/'))
 import ModelThread
@@ -35,6 +41,7 @@ from muller import *
 import Model
 
 control_signal = [5000]
+set_point = [0.00015]
 current_time = [0]
 output = [(0, [0]*7)]
 model = Model.Model(x0, VARS, plotting_vars, SCALE, control_signal, REFERENCE, ODEs, parameters)
@@ -46,7 +53,7 @@ xar, yar = [0], [0]
 ud = Animator(ax, xar, yar, model)
 
 pid = PID.PID(kP, kI, kD)
-controller = PIDthread.ControllThread(set_points, output, control_signal, current_time, REFERENCE, pid)
+controller = PIDthread.ControllThread(set_points, output, control_signal, current_time, REFERENCE, pid, set_point)
 controller.start()
 
 sender = ModelThread.SenderThread(control_signal, current_time, model, output)

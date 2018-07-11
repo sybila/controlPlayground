@@ -21,9 +21,9 @@ x0[6] = 3.164556962025317e-07   # dCO2
 # solver fails with more then 2 changes, WHY?
 
 # PID parameters
-kP = 4
-kI = 5.0
-kD = 0.0
+kP = 1.0 #4
+kI = 0.1 #5.0
+kD = 0.0 #0.1
 
 # set point
 set_points = [(0, 0.00015), (2, 0.00012)]
