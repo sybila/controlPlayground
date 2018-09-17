@@ -15,15 +15,15 @@ class ControllThread(threading.Thread):
 
 	def run(self):
 		while not self.stoprequest.isSet():
-			#print(self.output[0][1])
 			observed_value = self.output[0][1][self.REFERENCE]
 			self.set_point[0] = self.calculateSetPoint()
 			time = self.current_time[0]
 			if self.old_time != time:
-				#print(observed_value, self.set_point[0], time)
 				if time > 0.01:
+					print("observed_value: ", observed_value, " | set_point: ", 
+						self.set_point[0], " | time: ", time)
 					signal = self.PID.update(observed_value, self.set_point[0], time)
-					#print(signal/3e-8)
+					print("signal: ", signal/3e-8)
 					self.control_signal[0] = signal/3e-8
 			self.old_time = time
 
