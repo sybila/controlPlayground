@@ -22,7 +22,7 @@ class Model():
 
 	# Lsoda method
 	def useLSODA(self, ts, control_signal):
-		y = odeint(self.LSODAevaluateODEs, self.x0, ts, args=(control_signal,), rtol=1e-8, atol=1e-8)
+		y = odeint(self.LSODAevaluateODEs, self.x0, ts, args=(control_signal,), rtol=1e-9, atol=1e-8)
 
 		for j in range(len(self.VARS)):
 			self.x0[j] = y[-1][j]
