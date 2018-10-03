@@ -14,11 +14,10 @@ def get_output():
     Reads output from bioreactor by calling a Scheme script
     '''
     ssh = SSHClient() 
-    sftp = ssh.open_sftp()
     ssh.load_system_host_keys()
-    
     ssh.connect(SERVER, username=USER)
 
+    sftp = ssh.open_sftp()
     sftp.put(file, FOLDER + os.path.basename(GET[1]))
 
     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(file)))
