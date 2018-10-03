@@ -18,9 +18,9 @@ def get_output():
     ssh.connect(SERVER, username=USER)
 
     sftp = ssh.open_sftp()
-    sftp.put(file, FOLDER + os.path.basename(GET[1]))
+    sftp.put(GET[1], FOLDER + os.path.basename(GET[1]))
 
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(file)))
+    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(GET[1])))
 
     print(ssh_stdin, ssh_stdout, ssh_stderr)
     
