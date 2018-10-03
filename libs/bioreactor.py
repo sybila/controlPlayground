@@ -14,7 +14,9 @@ def get_output():
     Reads output from bioreactor by calling a Scheme script
     '''
     ssh = SSHClient() 
+    sftp = ssh.open_sftp()
     ssh.load_system_host_keys()
+    
     ssh.connect(SERVER, username=USER)
 
     sftp.put(file, FOLDER + os.path.basename(GET[1]))
