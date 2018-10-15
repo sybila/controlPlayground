@@ -1,10 +1,11 @@
 import subprocess
 import time
+import os, re
 from paramiko import SSHClient
 from scp import SCPClient
 
-GET = ['gosh', 'scm_scripts/get_values.scm']
-SET = ['gosh', 'scm_scripts/set_values.scm']
+GET = 'scm_scripts/get_values.scm'
+SET = 'scm_scripts/set_values.scm'
 USER = 'root'
 FOLDER = '/root/control/'
 SERVER = '192.168.17.13'
@@ -18,11 +19,11 @@ def get_output():
     ssh.connect(SERVER, username=USER)
 
     sftp = ssh.open_sftp()
-    sftp.put(GET[1], FOLDER + os.path.basename(GET[1]))
+    sftp.put(GET, FOLDER + os.path.basename(GET))
 
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(GET[1])))
+    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(GET)))
 
-    print(ssh_stdin, ssh_stdout, ssh_stderr)
+    print(ssh_stderr.readlines())
     
     sftp.close()
     ssh.close()
@@ -35,8 +36,23 @@ def set_input(value, input):
     Sets particular <input> for bioreactor to <value> 
     Requires definition of possible inputs.
     '''
-    subprocess.call(SET + [str(value), input])
+    ssh = SSHClient() 
+    ssh.load_system_host_keys()
+    ssh.connect(SERVER, username=USER)
 
+    sftp = ssh.open_sftp()
+    sftp.put(SET, FOLDER + os.path.basename(SET))
+
+    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(SET)) \
+                                        + " " + str(value) + " " + input)
+
+    print("gosh " + FOLDER + re.escape(os.path.basename(SET)) \
+                                        + " " + str(value) + " " + input)
+
+    print(ssh_stdout.readlines())
+
+    sftp.close()
+    ssh.close()
 
 # while True:
 #     print(get_output())
