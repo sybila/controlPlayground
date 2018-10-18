@@ -13,7 +13,7 @@
 (define PBR07
   (make-rpc
    (make-binary-unix-client
-    "/tmp/devbus" "72700007")))
+    "/tmp/devbus" "72700008")))
 
 (spawn-rendezvous-selector-loop)
 
@@ -24,6 +24,7 @@ print
 (list
  (rpc2 PBR07 `(get-ph 5 0))
  (rpc2 PBR07 `(get-current-temperature))
+ (rpc2 PBR07 `(get-thermoregulator-settings))
 ;  (rpc2 GAS01 `(get-co2-air))
 ; AKCNI ZASAH prihlad:
 ;  (rpc2 GMS01 `(set-valve-tflow 0 5) ; prvni parametr 0 je CO2

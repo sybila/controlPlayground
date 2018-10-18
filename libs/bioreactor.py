@@ -23,7 +23,7 @@ def get_output():
 
     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(GET)))
 
-    print(ssh_stderr.readlines())
+    print(ssh_stdout.readlines())
     
     sftp.close()
     ssh.close()
@@ -44,10 +44,7 @@ def set_input(value, input):
     sftp.put(SET, FOLDER + os.path.basename(SET))
 
     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(SET)) \
-                                        + " " + str(value) + " " + input)
-
-    print("gosh " + FOLDER + re.escape(os.path.basename(SET)) \
-                                        + " " + str(value) + " " + input)
+                                        + " " + input + " " + str(value))
 
     print(ssh_stdout.readlines())
 
@@ -58,5 +55,6 @@ def set_input(value, input):
 #     print(get_output())
 #     time.sleep(2)
 
-print(get_output())
-set_input(10, "set-valve-tflow")
+#print(get_output())
+#set_input(10, "set-valve-tflow")
+set_input(25.0, "set-thermoregulator-temp")
