@@ -15,11 +15,13 @@
    (make-binary-unix-client
     "/tmp/devbus" "72700008")))
 
+;(display *argv*[1])
+
 (spawn-rendezvous-selector-loop)
 
 ; (define (main arguments)
 ;   (print (cdr arguments)) 
-(print (rpc2 PBR07 `(set-thermoregulator-temp, 25)))
+(print (rpc2 PBR07 `(set-thermoregulator-temp, (string->number (list-ref *argv* 0)))))
 ;  0)
 
 ;  (rpc2 GMS01 `(set-valve-tflow 0 5) ; prvni parametr 0 je CO2
