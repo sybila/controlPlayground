@@ -17,17 +17,4 @@
 
 (spawn-rendezvous-selector-loop)
 
-(apply
-print
-(intersperse
-","
-(list
- (rpc2 PBR07 `(get-ph 5 0))
- (rpc2 PBR07 `(get-current-temperature))
- (rpc2 PBR07 `(get-thermoregulator-settings))
-;  (rpc2 GAS01 `(get-co2-air))
-; AKCNI ZASAH prihlad:
-;  (rpc2 GMS01 `(set-valve-tflow 0 5) ; prvni parametr 0 je CO2
-;  (rpc2 GMS01 `(set-valve-tflow 1 495) ; druhý parametr 1 je vzduch = 1% CO2 ve vzduchu pro takto nastavene
-; vysledna koncentrace v % je definovana jako (flowCO2 / (flowCO2 + flowAir) + 400 / 1e6) * 100 || v ppm flowCO2 / (flowCO2 + flowAir) * 1e6 + 400
- )))
+(print (rpc2 PBR07 `(get-thermoregulator-settings )))
