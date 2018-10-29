@@ -99,3 +99,6 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+libs/scm_scripts/get_values.scm
+libs/scm_scripts/set_values.scm

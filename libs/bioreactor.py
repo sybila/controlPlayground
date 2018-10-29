@@ -99,17 +99,26 @@ def set_input(value, args=[]):
 # API
 
 def get_temp():
-    return float(get_output("get-current-temperature")[0])
+    try:
+        return float(get_output("get-current-temperature")[0])
+    except Exception:
+        return None
 
 def get_ph():
-    return float(get_output("get-ph", [5, 0])[0])
+    try:
+        return float(get_output("get-ph", [5, 0])[0])
+    except Exception:
+        return None
 
 def get_temp_settings():
     return get_output("get-thermoregulator-settings")
 
 def set_temp(temp):
-    return set_input("set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
+    try:
+        return set_input("set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
+    except Exception:
+        return False
 
-print(get_temp_settings())
-print(set_temp(20))
-print(get_temp_settings())
+#print(get_temp_settings())
+#print(set_temp(20))
+#print(get_temp_settings())
