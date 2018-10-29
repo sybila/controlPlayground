@@ -54,6 +54,7 @@ def execute(device, value, args=[]):
     ssh_stdin, ssh_stdout, ssh_stderr = \
             ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(device.filename)))
 
+    print(ssh_stderr.readlines())
     output = ssh_stdout.readlines()
 
     sftp.close()
