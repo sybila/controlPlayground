@@ -1,8 +1,12 @@
 import subprocess
 import time
-import os, re
+import os, re, sys
 from paramiko import SSHClient
 from scp import SCPClient
+
+sys.path.append(os.path.abspath('devices/'))
+import GMS as GasMixer
+import PBR as Bioreactor
 
 HEADER = \
 '''#!/usr/bin/env gosh
@@ -17,72 +21,38 @@ HEADER = \
 (use gauche.threads)
 (use sad.regression)
 
-(define PBR07
-  (make-rpc
-   (make-binary-unix-client
-    "/tmp/devbus" "72700008")))
-
-(spawn-rendezvous-selector-loop)
-
 '''
 
-COMMAND = ["(print (rpc2 PBR07 `(", ")))"]
-
-GET = 'scm_scripts/get_values.scm'
-SET = 'scm_scripts/set_values.scm'
 USER = 'root'
 FOLDER = '/root/control/'
 SERVER = '192.168.17.13'
 
-def write_scm_file(file, value, args=[]):
+def write_scm_file(device, value, args=[]):
     '''
     Creates a Scheme script by composing HEADER and COMMAND constants with given arguments
     '''
-    with open(file, 'w') as file:
+    with open(device.filename, 'w') as file:
         file.write(HEADER)
-        file.write(COMMAND[0] + value + " " + " ".join(map(str, args)) + COMMAND[1])
+        file.write(device.definition)
+        file.write(device.command[0] + value + " " + " ".join(map(str, args)) + device.command[1])
 
 
-def get_output(value, args=[]):
+def execute(device, value, args=[]):
     '''
     Reads output from bioreactor by calling a Scheme script
     '''
 
-    write_scm_file(GET, value, args)
+    write_scm_file(device, value, args)
 
     ssh = SSHClient() 
     ssh.load_system_host_keys()
     ssh.connect(SERVER, username=USER)
 
     sftp = ssh.open_sftp()
-    sftp.put(GET, FOLDER + os.path.basename(GET))
+    sftp.put(device.filename, FOLDER + os.path.basename(device.filename))
 
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(GET)))
-
-    output = ssh_stdout.readlines()
-
-    sftp.close()
-    ssh.close()
-
-    return output
-
-
-def set_input(value, args=[]):
-    '''
-    Sets particular <input> for bioreactor to <value> 
-    Requires definition of possible inputs.
-    '''
-
-    write_scm_file(SET, value, args)
-
-    ssh = SSHClient() 
-    ssh.load_system_host_keys()
-    ssh.connect(SERVER, username=USER)
-
-    sftp = ssh.open_sftp()
-    sftp.put(SET, FOLDER + os.path.basename(SET))
-
-    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(SET)))
+    ssh_stdin, ssh_stdout, ssh_stderr = \
+            ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(device.filename)))
 
     output = ssh_stdout.readlines()
 
@@ -98,26 +68,41 @@ def set_input(value, args=[]):
 # --------------------------------------------------------------
 # API
 
-def get_temp():
-    try:
-        return float(get_output("get-current-temperature")[0])
-    except Exception:
-        return None
+PBR = Bioreactor.PBR()
+GMS = GasMixer.GMS()
 
-def get_ph():
-    try:
-        return float(get_output("get-ph", [5, 0])[0])
-    except Exception:
-        return None
+# Temperature
 
 def get_temp_settings():
-    return get_output("get-thermoregulator-settings")
+    return execute(PBR, "get-thermoregulator-settings")
+
+def get_temp():
+    try:
+        return float(execute(PBR, "get-current-temperature")[0])
+    except Exception:
+        return None
 
 def set_temp(temp):
     try:
-        return set_input("set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
+        return execute(PBR, "set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
     except Exception:
         return False
+
+# pH 
+
+def get_ph():
+    try:
+        return float(execute(PBR, "get-ph", [5, 0])[0])
+    except Exception:
+        return None
+
+# valve
+
+def get_valve_flow(valve):
+    return execute(GMS, "get-valve-flow", [valve])
+
+def get_mode():
+    return execute(GMS, "get-mode")
 
 #print(get_temp_settings())
 #print(set_temp(20))
