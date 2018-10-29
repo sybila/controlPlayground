@@ -102,7 +102,7 @@ def get_temp():
     return float(get_output("get-current-temperature")[0])
 
 def get_ph():
-    return get_output("get-ph", [5, 0])
+    return float(get_output("get-ph", [5, 0])[0])
 
 def get_temp_settings():
     return get_output("get-thermoregulator-settings")
