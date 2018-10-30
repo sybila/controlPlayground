@@ -92,7 +92,13 @@ def get_ph():
 # valve
 
 def get_valve_flow(valve):
-    return execute(transfer, GMS, "get-valve-flow", [valve])
+    try:
+        return float(execute(transfer, GMS, "get-valve-flow", [valve])[0].split()[2])
+    except Exception:
+        return None
 
-def get_mode():
-    return execute(transfer, GMS, "get-mode")
+def set_valve_flow(valve, value):
+    try:
+        return execute(transfer, GMS, "set-valve-tflow", [valve, value])[0].rstrip() == 'ok'
+    except Exception:
+        return None
