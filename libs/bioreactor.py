@@ -1,12 +1,13 @@
 import subprocess
 import time
 import os, re, sys
-from paramiko import SSHClient
-from scp import SCPClient
 
 sys.path.append(os.path.abspath('devices/'))
 import GMS as GasMixer
 import PBR as Bioreactor
+
+sys.path.append(os.path.abspath('connection/'))
+import connection as SSH
 
 HEADER = \
 '''#!/usr/bin/env gosh
@@ -36,29 +37,19 @@ def write_scm_file(device, value, args=[]):
         file.write(device.definition)
         file.write(device.command[0] + value + " " + " ".join(map(str, args)) + device.command[1])
 
-
-def execute(device, value, args=[]):
+def execute(transfer, device, value, args=[]):
     '''
     Reads output from bioreactor by calling a Scheme script
     '''
-
     write_scm_file(device, value, args)
 
-    ssh = SSHClient() 
-    ssh.load_system_host_keys()
-    ssh.connect(SERVER, username=USER)
-
-    sftp = ssh.open_sftp()
-    sftp.put(device.filename, FOLDER + os.path.basename(device.filename))
-
+    transfer.put(device.filename, FOLDER + os.path.basename(device.filename))
     ssh_stdin, ssh_stdout, ssh_stderr = \
-            ssh.exec_command("gosh " + FOLDER + re.escape(os.path.basename(device.filename)))
+            transfer.execute_cmd("gosh " + FOLDER + re.escape(os.path.basename(device.filename)))
 
-    print(ssh_stderr.readlines())
+    if ssh_stderr.readlines():
+        print(ssh_stderr.readlines())
     output = ssh_stdout.readlines()
-
-    sftp.close()
-    ssh.close()
 
     return output
 
@@ -71,21 +62,22 @@ def execute(device, value, args=[]):
 
 PBR = Bioreactor.PBR()
 GMS = GasMixer.GMS()
+transfer = SSH.SSHconnection(SERVER, USER)
 
 # Temperature
 
 def get_temp_settings():
-    return execute(PBR, "get-thermoregulator-settings")
+    return execute(transfer, PBR, "get-thermoregulator-settings")
 
 def get_temp():
     try:
-        return float(execute(PBR, "get-current-temperature")[0])
+        return float(execute(transfer, PBR, "get-current-temperature")[0])
     except Exception:
         return None
 
 def set_temp(temp):
     try:
-        return execute(PBR, "set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
+        return execute(transfer, PBR, "set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
     except Exception:
         return False
 
@@ -93,18 +85,14 @@ def set_temp(temp):
 
 def get_ph():
     try:
-        return float(execute(PBR, "get-ph", [5, 0])[0])
+        return float(execute(transfer, PBR, "get-ph", [5, 0])[0])
     except Exception:
         return None
 
 # valve
 
 def get_valve_flow(valve):
-    return execute(GMS, "get-valve-flow", [valve])
+    return execute(transfer, GMS, "get-valve-flow", [valve])
 
 def get_mode():
-    return execute(GMS, "get-mode")
-
-#print(get_temp_settings())
-#print(set_temp(20))
-#print(get_temp_settings())
+    return execute(transfer, GMS, "get-mode")

@@ -3,7 +3,7 @@ DEFINITION = \
 (define PBR07
   (make-rpc
    (make-binary-unix-client
-    "/tmp/devbus" "72700008")))
+    "/tmp/devbus" "72700007")))
 
 (spawn-rendezvous-selector-loop)
 
