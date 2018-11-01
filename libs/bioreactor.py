@@ -114,11 +114,12 @@ def get_valve_flow(valve):
     '''
     Get current flow in the given valve. 
     '''
+    results = ["current", "set"]
     try:
-        return float(execute(GMS, "get-valve-flow", [valve])[0].split()[2])
+        values = execute(GMS, "get-valve-flow", [valve])[0].rstrip()[1:-1].split()
     except Exception:
         return None
-
+    return dict(zip(results, list(map(float, values[1:-1]))))
     '''
     Set flow to value for the given valve. 
     '''
