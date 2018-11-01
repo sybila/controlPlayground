@@ -72,7 +72,7 @@ def get_temp_settings():
     Get information about currently set temperature, maximal and
     minimal allowed temperature.
     '''
-    results = ["set", "max", "min"]
+    results = ["set", "min", "max"]
     try:
         values = execute(PBR, "get-thermoregulator-settings")[0].rstrip()[1:-1].split()
     except Exception:
