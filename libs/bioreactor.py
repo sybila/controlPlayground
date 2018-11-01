@@ -27,6 +27,8 @@ HEADER = \
 USER = 'root'
 FOLDER = '/root/control/'
 SERVER = '192.168.17.13'
+CONNECTION = SSH.SSHconnection(SERVER, USER)
+GAS_TYPES = ["CO2", "Air", "N2"]
 
 def write_scm_file(device, value, args=[]):
     '''
@@ -37,15 +39,15 @@ def write_scm_file(device, value, args=[]):
         file.write(device.definition)
         file.write(device.command[0] + value + " " + " ".join(map(str, args)) + device.command[1])
 
-def execute(transfer, device, value, args=[]):
+def execute(device, value, args=[]):
     '''
     Reads output from bioreactor by calling a Scheme script
     '''
     write_scm_file(device, value, args)
 
-    transfer.put(device.filename, FOLDER + os.path.basename(device.filename))
+    CONNECTION.put(device.filename, FOLDER + os.path.basename(device.filename))
     ssh_stdin, ssh_stdout, ssh_stderr = \
-            transfer.execute_cmd("gosh " + FOLDER + re.escape(os.path.basename(device.filename)))
+            CONNECTION.execute_cmd("gosh " + FOLDER + re.escape(os.path.basename(device.filename)))
 
     if ssh_stderr.readlines():
         print(ssh_stderr.readlines())
@@ -62,43 +64,79 @@ def execute(transfer, device, value, args=[]):
 
 PBR = Bioreactor.PBR()
 GMS = GasMixer.GMS()
-transfer = SSH.SSHconnection(SERVER, USER)
 
 # Temperature
 
 def get_temp_settings():
-    return execute(transfer, PBR, "get-thermoregulator-settings")
+    '''
+    Get information about currently set temperature, maximal and
+    minimal allowed temperature.
+    '''
+    results = ["set", "max", "min"]
+    try:
+        values = execute(PBR, "get-thermoregulator-settings")[0].rstrip()[1:-1].split()
+    except Exception:
+        return None
+    return dict(zip(results, list(map(float, values[1:-1]))))
 
 def get_temp():
+    '''
+    Get current temperature.
+    '''
     try:
-        return float(execute(transfer, PBR, "get-current-temperature")[0])
+        return float(execute(PBR, "get-current-temperature")[0])
     except Exception:
         return None
 
 def set_temp(temp):
+    '''
+    Set desired temperature.
+    '''
     try:
-        return execute(transfer, PBR, "set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
+        return execute(PBR, "set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
     except Exception:
         return False
 
 # pH 
 
 def get_ph():
+    '''
+    Get current pH.
+    '''
     try:
-        return float(execute(transfer, PBR, "get-ph", [5, 0])[0])
+        return float(execute(PBR, "get-ph", [5, 0])[0])
     except Exception:
         return None
 
 # valve
 
 def get_valve_flow(valve):
+    '''
+    Get current flow in the given valve. 
+    '''
     try:
-        return float(execute(transfer, GMS, "get-valve-flow", [valve])[0].split()[2])
+        return float(execute(GMS, "get-valve-flow", [valve])[0].split()[2])
     except Exception:
         return None
 
+    '''
+    Set flow to value for the given valve. 
+    '''
 def set_valve_flow(valve, value):
     try:
-        return execute(transfer, GMS, "set-valve-tflow", [valve, value])[0].rstrip() == 'ok'
+        return execute(GMS, "set-valve-tflow", [valve, value])[0].rstrip() == 'ok'
     except Exception:
         return None
+
+def get_valve_info(valve):
+    '''
+    Gives information about the valve
+    Returns a dictionary with gas type and maximal allowed flow.
+    '''
+    results = ["max_flow", "gas_type"]
+    values = [None, None]
+    try:
+        values = execute(GMS, "get-valve-info", [valve])[0].rstrip()[1:-1].split()
+    except Exception:
+        return None
+    return dict(zip(results, [float(values[1]), GAS_TYPES[int(values[3])]]))
