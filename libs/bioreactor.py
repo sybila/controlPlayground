@@ -2,11 +2,13 @@ import subprocess
 import time
 import os, re, sys
 
-sys.path.append(os.path.abspath('devices/'))
+workspace = os.path.dirname(__file__)
+
+sys.path.append(os.path.join(workspace, 'devices/'))
 import GMS as GasMixer
 import PBR as Bioreactor
 
-sys.path.append(os.path.abspath('connection/'))
+sys.path.append(os.path.join(workspace, 'connection/'))
 import connection as SSH
 
 HEADER = \
@@ -71,6 +73,9 @@ def get_temp_settings():
     '''
     Get information about currently set temperature, maximal and
     minimal allowed temperature.
+
+    Returns:
+        dict: The current settings structured in a dictionary.
     '''
     results = ["set", "min", "max"]
     try:
@@ -81,7 +86,10 @@ def get_temp_settings():
 
 def get_temp():
     '''
-    Get current temperature.
+    Get current temperature in Celsius degree.
+
+    Returns:
+        float: The current temperature.
     '''
     try:
         return float(execute(PBR, "get-current-temperature")[0])
@@ -90,7 +98,12 @@ def get_temp():
 
 def set_temp(temp):
     '''
-    Set desired temperature.
+    Set desired temperature in Celsius degree.
+
+    Args:
+        temp (float): The temperature.
+    Returns:
+        bool: True if was succesful, False otherwise.
     '''
     try:
         return execute(PBR, "set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
@@ -102,6 +115,9 @@ def set_temp(temp):
 def get_ph():
     '''
     Get current pH.
+
+    Returns:
+        float: The current pH.
     '''
     try:
         return float(execute(PBR, "get-ph", [5, 0])[0])
@@ -112,7 +128,12 @@ def get_ph():
 
 def get_valve_flow(valve):
     '''
-    Get current flow in the given valve. 
+    Get value (L/min) of current flow in the given valve.
+
+    Args:
+        valve (int): ID of the valve (0 for CO2, 1 for Air)
+    Returns:
+        dict: The current settings of the valve flow and actual value, both in (L/min).
     '''
     results = ["current", "set"]
     try:
@@ -121,9 +142,18 @@ def get_valve_flow(valve):
         return None
     return dict(zip(results, list(map(float, values[1:-1]))))
     '''
-    Set flow to value for the given valve. 
+    Set flow to value for the given valve.
     '''
 def set_valve_flow(valve, value):
+    '''
+    Set value (L/min) of current flow in the given valve.
+
+    Args:
+        valve (int): ID of the valve (0 for CO2, 1 for Air)
+        value (float): desired value for valve flow in (L/min).
+    Returns:
+        dict: The current settings of the valve flow and actual value.
+    '''
     try:
         return execute(GMS, "set-valve-tflow", [valve, value])[0].rstrip() == 'ok'
     except Exception:
@@ -132,7 +162,11 @@ def set_valve_flow(valve, value):
 def get_valve_info(valve):
     '''
     Gives information about the valve
-    Returns a dictionary with gas type and maximal allowed flow.
+
+    Args:
+        valve (int): ID of the valve (0 for CO2, 1 for Air)
+    Returns:
+        dict: A dictionary with gas type and maximal allowed flow.
     '''
     results = ["max_flow", "gas_type"]
     values = [None, None]

@@ -1,3 +1,5 @@
+import os
+
 DEFINITION = \
 '''
 (define PBR07
@@ -10,7 +12,13 @@ DEFINITION = \
 '''
 
 class PBR():
-	def __init__(self):
-		self.definition = DEFINITION
-		self.command = ["(print (rpc2 PBR07 `(", ")))"]
-		self.filename = 'scm_scripts/script.scm'
+    def __init__(self):
+        self.definition = DEFINITION
+        self.command = ["(print (rpc2 PBR07 `(", ")))"]
+        self.filename = os.getcwd() + '/script.scm'
+
+    def __del__(self):
+        try:
+            os.remove(self.filename)
+        except FileNotFoundError:
+            pass
