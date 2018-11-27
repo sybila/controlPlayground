@@ -7,6 +7,7 @@ workspace = os.path.dirname(__file__)
 sys.path.append(os.path.join(workspace, 'devices/'))
 import GMS as GasMixer
 import PBR as Bioreactor
+import GAS as GasAnalyser
 
 sys.path.append(os.path.join(workspace, 'connection/'))
 import connection as SSH
@@ -66,8 +67,9 @@ def execute(device, value, args=[]):
 
 PBR = Bioreactor.PBR()
 GMS = GasMixer.GMS()
+GAS = GasAnalyser.GAS()
 
-# Temperature
+# Temperature (Bioreactor)
 
 def get_temp_settings():
     '''
@@ -110,7 +112,7 @@ def set_temp(temp):
     except Exception:
         return False
 
-# pH 
+# pH (Bioreactor)
 
 def get_ph():
     '''
@@ -124,7 +126,7 @@ def get_ph():
     except Exception:
         return None
 
-# valve
+# valve (Gas Mixer)
 
 def get_valve_flow(valve):
     '''
@@ -175,3 +177,25 @@ def get_valve_info(valve):
     except Exception:
         return None
     return dict(zip(results, [float(values[1]), GAS_TYPES[int(values[3])]]))
+
+
+# ----------------------------
+# new added, docstrings needed
+
+# (Gas Analyser)
+
+def get_co2_air():
+    try:
+        return float(execute(GAS, "get-co2-air")[0].rstrip())
+    except Exception:
+        return None
+
+def get_small_valves():
+    try:
+        value = int(execute(GAS, "get-small-valves")[0].rstrip())
+    except Exception:
+        return None
+    return bin(value)[2:]
+
+def binary_to_int(binary):
+    return int(binary, 2)
