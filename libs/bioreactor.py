@@ -197,5 +197,34 @@ def get_small_valves():
         return None
     return bin(value)[2:]
 
-def binary_to_int(binary):
-    return int(binary, 2)
+def set_small_valves(mode):
+    '''
+    Can be set by one byte, where first 6 bites represent
+    vents indexed from a picture scheme.
+    '''
+    modes = {0 : "11111011", 1 : "11110011"}
+    try:
+        return execute(GAS, "set-small-valves", [int(modes[mode], 2)])[0].rstrip() == 'ok'
+    except Exception:
+        return None
+
+
+# get-flow - dava realny prietok
+# get-flow-target - cielovy flow
+
+'''
+;; veci okolo prutoku vzduchu systemem
+(define-type 1000 (get-flow
+            (:uint16 repeats)))
+;; float
+
+(define-type 1001 (get-flow-target))
+;; float
+
+(define-type 1002 (set-flow-target
+            (:float target)))
+;; ok
+
+(define-type 1003 (get-flow-max))
+;; float
+'''
