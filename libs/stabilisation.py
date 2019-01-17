@@ -20,7 +20,23 @@ def simulate_set_flow(switch):
 
 ##################################
 
-# stores last 10 measures
+# plot results
+class MyPlot():
+	def __init__(self):
+		plt.ion()
+
+	def update(self, data, linear, const):
+		original = np.array(data)
+		x_data = np.array(range(len(original)))
+		fitted = linear*x_data + const
+
+		plt.plot(x_data, original, 'o', label='Original data', markersize=5)
+		plt.plot(x_data, fitted, 'r', label='Fitted line')
+		plt.draw()
+		plt.pause(0.0001)
+		plt.clf()
+
+# stores last n measures
 class LimitedQueue():
 	def __init__(self):
 		self.queue = []
@@ -31,8 +47,8 @@ class LimitedQueue():
 
 # computes regression
 def calculate_regression(data):
-	x = np.array(data)
-	y = np.array(list(range(len(data))))
+	x = np.array(range(len(data)))
+	y = np.array(data)
 	A = np.vstack([x, np.ones(len(x))]).T
 	linear_coeff, const_coeff = np.linalg.lstsq(A, y, rcond=None)[0]
 	return linear_coeff, const_coeff
@@ -45,13 +61,6 @@ def measure_values(last_values, pH_range, duration):
 		last_values.add(simulate_pH(pH_range))
 	return last_values
 
-def visualise_regression(data, linear, const):
-	x = np.array(data)
-	plt.plot(x, np.array(range(len(data))), 'o', label='Original data', markersize=10)
-	plt.plot(x, linear*x + const, 'r', label='Fitted line')
-	plt.legend()
-	plt.show()
-
 def reset(timeout, linear_coeff_max):
 	# set_flow_target(bioreactor.MAX_FLOW) # need to define a constant for max flow
 										   # can be used also for checking
@@ -59,6 +68,7 @@ def reset(timeout, linear_coeff_max):
 
 	optimised = False
 	last_values = LimitedQueue()
+	my_plot = MyPlot()
 
 	while not optimised:
 		last_values = measure_values(last_values, pH_range, FREQUENCY_OF_CHECK)
@@ -66,7 +76,7 @@ def reset(timeout, linear_coeff_max):
 		print("Check with flow ON: ", last_values.queue)
 		linear_coeff, const_coeff = calculate_regression(last_values.queue)
 		print("Linear coefficient: ", linear_coeff, "\n")
-		visualise_regression(last_values.queue, linear_coeff, const_coeff)
+		my_plot.update(last_values.queue, linear_coeff, const_coeff)
 
 		if linear_coeff_max > abs(linear_coeff):
 			print("Flow turned off", "\n")
@@ -75,11 +85,12 @@ def reset(timeout, linear_coeff_max):
 			print("Check with flow OFF: ", last_values.queue)
 			linear_coeff, const_coeff = calculate_regression(last_values.queue)
 			print("Linear coefficient: ", linear_coeff, "\n")
-			visualise_regression(last_values.queue, linear_coeff, const_coeff)
+			my_plot.update(last_values.queue, linear_coeff, const_coeff)
 
 			if linear_coeff_max > abs(linear_coeff):
 				optimised = True
 				print("Optimised!")
+				time.sleep(5)
 			else:
 				pH_range = simulate_set_flow(True)
 				print("Continue!", "\n")
