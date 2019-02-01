@@ -16,7 +16,7 @@ DEFINITION_3 = '''")))
 
 class Device():
 	def __init__(self, particle, ID, adress):
-		self.particle = particle
+		self.parent = particle
 		self.ID = ID
 		self.adress = adress
 		self.definition = DEFINITION_1 + ID + DEFINITION_2 + str(adress) + DEFINITION_3

@@ -1,8 +1,7 @@
-import os, sys
+import os, sys, re
 
 workspace = os.path.dirname(__file__)
 
-sys.path.append(os.path.join(workspace, 'devices/'))
 import GMS as GasMixer
 import PBR as Bioreactor
 import GAS as GasAnalyser
@@ -30,7 +29,7 @@ types = {"PBR" : Bioreactor.PBR, "GMS" : GasMixer.GMS, "GAS" : GasAnalyser.GAS}
 class Particle():
 	def __init__(self, user, folder, server):
 		self.folder = folder
-		#self.connection = SSH.SSHconnection(server, user)
+		self.connection = SSH.SSHconnection(server, user)
 		self.devices = []
 
 	def add_device(self, name, ID, adress):
@@ -50,11 +49,11 @@ class Particle():
 		'''
 		Reads output from bioreactor by calling a Scheme script
 		'''
-		write_scm_file(device, value, args)
+		self.write_scm_file(device, value, args)
 
-		CONNECTION.put(device.filename, FOLDER + os.path.basename(device.filename))
+		self.connection.put(device.filename, self.folder + os.path.basename(device.filename))
 		ssh_stdin, ssh_stdout, ssh_stderr = \
-				CONNECTION.execute_cmd("gosh " + FOLDER + re.escape(os.path.basename(device.filename)))
+				self.connection.execute_cmd("gosh " + self.folder + re.escape(os.path.basename(device.filename)))
 
 		if ssh_stderr.readlines():
 			print(ssh_stderr.readlines())
