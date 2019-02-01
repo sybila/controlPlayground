@@ -1,73 +1,23 @@
-import subprocess
-import time
-import os, re, sys
+import os, sys
 
 workspace = os.path.dirname(__file__)
 
 sys.path.append(os.path.join(workspace, 'devices/'))
-import GMS as GasMixer
-import PBR as Bioreactor
-import GAS as GasAnalyser
+import particle
 
-sys.path.append(os.path.join(workspace, 'connection/'))
-import connection as SSH
-
-HEADER = \
-'''#!/usr/bin/env gosh
-
-(use util.match)
-(use sad.channel3-rv)
-(use sad.gauche)
-(use srfi-19)
-(use sad.rendezvous)
-(use sad.binary-channels)
-(use util.list)
-(use gauche.threads)
-(use sad.regression)
-
-'''
-
-USER = 'root'
-FOLDER = '/root/control/'
-SERVER = '192.168.17.13'
-CONNECTION = SSH.SSHconnection(SERVER, USER)
 GAS_TYPES = ["CO2", "Air", "N2"]
-
-def write_scm_file(device, value, args=[]):
-    '''
-    Creates a Scheme script by composing HEADER and COMMAND constants with given arguments
-    '''
-    with open(device.filename, 'w') as file:
-        file.write(HEADER)
-        file.write(device.definition)
-        file.write(device.command[0] + value + " " + " ".join(map(str, args)) + device.command[1])
-
-def execute(device, value, args=[]):
-    '''
-    Reads output from bioreactor by calling a Scheme script
-    '''
-    write_scm_file(device, value, args)
-
-    CONNECTION.put(device.filename, FOLDER + os.path.basename(device.filename))
-    ssh_stdin, ssh_stdout, ssh_stderr = \
-            CONNECTION.execute_cmd("gosh " + FOLDER + re.escape(os.path.basename(device.filename)))
-
-    if ssh_stderr.readlines():
-        print(ssh_stderr.readlines())
-    output = ssh_stdout.readlines()
-
-    return output
-
-# while True:
-#     print(get_output())
-#     time.sleep(2)
 
 # --------------------------------------------------------------
 # API
 
-PBR = Bioreactor.PBR()
-GMS = GasMixer.GMS()
-GAS = GasAnalyser.GAS()
+node = particle.Particle('root', '/root/control/', '192.168.17.13')
+node.add_device("PBR", "PBR07", 72700007)
+node.add_device("GMS", "GMS", 46700003)
+node.add_device("GAS", "GAS", 42700007)
+
+# PBR = Bioreactor.PBR()
+# GMS = GasMixer.GMS()
+# GAS = GasAnalyser.GAS()
 
 # Temperature (Bioreactor)
 
