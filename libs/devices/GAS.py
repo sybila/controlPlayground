@@ -87,7 +87,7 @@ class GAS(Device):
             bool: True if was succesful, False otherwise.
         '''
         try:
-            return self.parent.execute(self, "get-flow-target", [flow])[0].rstrip() == 'ok'
+            return self.parent.execute(self, "set-flow-target", [flow])[0].rstrip() == 'ok'
         except Exception:
             return None
 
