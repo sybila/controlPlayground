@@ -13,6 +13,6 @@ node.add_device("PBR", "PBR07", 72700007)
 node.add_device("GMS", "GMS", 46700003)
 node.add_device("GAS", "GAS", 42700007)
 
-print(node.devices)
+#print(node.devices)
 
-print(node.PBR.get_temp())
+#print(node.PBR.get_temp())
