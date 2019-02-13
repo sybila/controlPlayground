@@ -47,7 +47,7 @@ class GAS(Device):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-        modes = {0 : "11111011", 1 : "11110011"}
+        modes = {0 : "11111111", 1 : "11101111"}
         try:
             return self.parent.execute(self, "set-small-valves", [int(modes[mode], 2)])[0].rstrip() == 'ok'
         except Exception:
