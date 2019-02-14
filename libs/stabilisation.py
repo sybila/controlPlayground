@@ -24,13 +24,24 @@ def simulate_set_flow(switch):
 class MyPlot():
 	def __init__(self):
 		plt.ion()
+		self.x = np.array([])
+		self.y = np.array([])
+
+	def get_last_x(self):
+		if len(self.x) == 0:
+			return 0
+		return int(self.x[-1])
 
 	def update(self, data, linear, const):
 		original = np.array(data)
+		self.y = np.append(self.y, original)
 		x_data = np.array(range(len(original)))
+		#x_data = np.array(list(range(self.get_last_x()+1, self.get_last_x() + WAIT_TIME*(len(original)+1), WAIT_TIME)))
+		self.x = np.append(self.x - 10, x_data)
+
 		fitted = linear*x_data + const
 
-		plt.plot(x_data, original, 'o', label='Original data', markersize=5)
+		plt.plot(self.x, self.y, 'o', label='Original data', markersize=5)
 		plt.plot(x_data, fitted, 'r', label='Fitted line')
 		plt.draw()
 		plt.pause(0.0001)
