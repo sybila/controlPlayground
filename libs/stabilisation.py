@@ -1,22 +1,15 @@
-#import bioreactor
+import bioreactor
 import numpy as np
 import random
 import time
 import matplotlib.pyplot as plt
 
-WAIT_TIME = 1
-QUEUE_MAX_LENGTH = 10
-FREQUENCY_OF_CHECK = 5
+timeout_in_sec = 300
 
-##### to simulate bioreactor #####
-
-def simulate_pH(pH_range):
-	return random.randint(pH_range[0], pH_range[1])
-
-def simulate_set_flow(switch):
-	if switch:
-		return (0, 14)
-	return (5, 9)
+WAIT_TIME = 30  #... chceme merat kazdych 30 sekund
+QUEUE_MAX_LENGTH = 20  # poslednych 20 merani
+FREQUENCY_OF_CHECK = 10
+TIMEOUT = int(timeout_in_sec/WAIT_TIME)
 
 ##################################
 
@@ -36,7 +29,6 @@ class MyPlot():
 		original = np.array(data)
 		self.y = np.append(self.y, original)
 		x_data = np.array(range(len(original)))
-		#x_data = np.array(list(range(self.get_last_x()+1, self.get_last_x() + WAIT_TIME*(len(original)+1), WAIT_TIME)))
 		self.x = np.append(self.x - 10, x_data)
 
 		fitted = linear*x_data + const
@@ -65,24 +57,21 @@ def calculate_regression(data):
 	return linear_coeff, const_coeff
 
 # perform measures for given time
-def measure_values(last_values, pH_range, duration):
+def measure_values(last_values, duration):
 	for _ in range(duration):
 		time.sleep(WAIT_TIME)
-		#last_values.add(bioreactor.get_ph())
-		last_values.add(simulate_pH(pH_range))
+		last_values.add(bioreactor.node.PBR.get_ph())
 	return last_values
 
-def reset(timeout, linear_coeff_max):
-	# set_flow_target(bioreactor.MAX_FLOW) # need to define a constant for max flow
-										   # can be used also for checking
-	pH_range = simulate_set_flow(True)
+def reset(linear_coeff_max):
+	bioreactor.node.GAS.set_flow_target(0.250) 
 
 	optimised = False
 	last_values = LimitedQueue()
 	my_plot = MyPlot()
 
 	while not optimised:
-		last_values = measure_values(last_values, pH_range, FREQUENCY_OF_CHECK)
+		last_values = measure_values(last_values, FREQUENCY_OF_CHECK)
 
 		print("Check with flow ON: ", last_values.queue)
 		linear_coeff, const_coeff = calculate_regression(last_values.queue)
@@ -91,8 +80,8 @@ def reset(timeout, linear_coeff_max):
 
 		if linear_coeff_max > abs(linear_coeff):
 			print("Flow turned off", "\n")
-			pH_range = simulate_set_flow(False)
-			last_values = measure_values(last_values, pH_range, timeout)
+			bioreactor.node.GAS.set_flow_target(0)
+			last_values = measure_values(last_values, TIMEOUT)
 			print("Check with flow OFF: ", last_values.queue)
 			linear_coeff, const_coeff = calculate_regression(last_values.queue)
 			print("Linear coefficient: ", linear_coeff, "\n")
@@ -103,9 +92,9 @@ def reset(timeout, linear_coeff_max):
 				print("Optimised!")
 				time.sleep(5)
 			else:
-				pH_range = simulate_set_flow(True)
+				bioreactor.node.GAS.set_flow_target(0.250)
 				print("Continue!", "\n")
 
-#set_small_valves(1) # turn on N2 mode
-reset(10, 0.1)
-#set_small_valves(0) # turn on normal mode
+bioreactor.node.GAS.set_small_valves(1) # turn on N2 mode
+reset(0.1)
+bioreactor.node.GAS.set_small_valves(0) # turn on normal mode
