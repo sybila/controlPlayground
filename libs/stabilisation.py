@@ -1,102 +1,120 @@
 import bioreactor
+import logger
 import numpy as np
 import random
 import time
 import matplotlib.pyplot as plt
 
-WAIT_TIME = 5  #... chceme merat kazdych 30 sekund
-QUEUE_MAX_LENGTH = 10  # poslednych 20 merani
-TIMEOUT = 30 # in seconds
-LINEAR_COEFF = 0.1
+# all in seconds
+WAIT_TIME = 20  # how often we want to check the pH
+QUEUE_MAX_LENGTH = 20  # how many measures consider in linear regression
+TIMEOUT = 300 # after stabilisation, how long to wait to be sure it is really stable
+
+LINEAR_COEFF = 0.01 # max allows linear coefficient of linear regression
+silent_mode = False # True to disable graphical output
 
 ##################################
 
 # plot results
-class MyPlot():
-	def __init__(self, queue_length):
+class Progress():
+	def __init__(self, queue_length, silent_mode, wait_time):
 		plt.ion()
-		self.x = np.array([])
-		self.y = np.array([])
+		plt.xlabel('time [s]')
+		plt.ylabel('pH')
+		self.time = np.array([])
+		self.data = np.array([])
 		self.queue_length = queue_length
+		self.silent_mode = silent_mode
+		self.wait_time = wait_time
 
-	def get_last_x(self):
-		if len(self.x) == 0:
+	def get_last_time(self):
+		if len(self.time) == 0:
 			return 0
-		return int(self.x[-1])
+		return self.time[-1]
 
-	def get_last_n(self):
-		return self.y[-self.queue_length:]
+	def get_last_n_data(self):
+		return self.data[-self.queue_length:]
+
+	def get_last_n_time(self):
+		return self.time[-self.queue_length:]
 
 	def update_data(self, new_y):
-		self.y = np.append(self.y, new_y)
-		if len(self.x) > self.queue_length:
-			self.x = np.append(self.x - 1, self.queue_length)
-		else:
-			self.x = np.append(self.x, self.get_last_x() + 1)
+		print("(", time.strftime("%H:%M:%S"), ") New value: ", new_y, "\n")
+		self.data = np.append(self.data, new_y)
+		self.time = np.append(self.time, self.get_last_time() + 1)
 
-		plt.plot(self.x, self.y, 'o', label='Original data', markersize=5)
-		plt.draw()
-		plt.pause(0.0001)
-		plt.clf()
+		if not self.silent_mode:
+			plt.plot(self.time*self.wait_time, self.data, 'o', label='Original data', markersize=5)
+			plt.draw()
+			plt.pause(0.0001)
+			plt.clf()
 
 	def update_fit(self, linear, const):
-		x_data = self.x[-self.queue_length:]
-		fitted = linear*x_data + const
-		plt.plot(self.x, self.y, 'o', label='Original data', markersize=5)
-		plt.plot(x_data, fitted, 'r', label='Fitted line')
+		fitted = linear*self.get_last_n_time() + const
+		plt.plot(self.time*self.wait_time, self.data, 'o', label='Original data', markersize=5)
+		plt.plot(self.get_last_n_time()*self.wait_time, fitted, 'r', label='Fitted line')
 		plt.draw()
 		plt.pause(0.0001)
 		plt.clf()
 
+	def save(self):
+		name = time.strftime("%Y%m%d-%H%M%S")
+		plt.savefig('.log/' + name + '.png')
+
 # computes regression
-def calculate_regression(data):
-	x = np.array(range(len(data)))
-	y = np.array(data)
+def calculate_regression(plot):
+	x = plot.get_last_n_time()
+	y = plot.get_last_n_data()
 	A = np.vstack([x, np.ones(len(x))]).T
 	linear_coeff, const_coeff = np.linalg.lstsq(A, y, rcond=None)[0]
 	return linear_coeff, const_coeff
 
-def measure_value(plot):
-	plot.update_data(bioreactor.node.PBR.get_ph())
+def measure_value(progress):
+	progress.update_data(bioreactor.node.PBR.get_ph())
 
-def reset(linear_coeff_max, queue_length, wait_time, timeout):
+def reset(linear_coeff_max, queue_length, wait_time, timeout, silent_mode):
 	bioreactor.node.GAS.set_flow_target(0.250)
 
-	my_plot = MyPlot(queue_length)
+	progress = Progress(queue_length, silent_mode, wait_time)
 
 	for _ in range(queue_length):
 		time.sleep(wait_time)
-		measure_value(my_plot)
+		measure_value(progress)
 
 	optimised = False
 
 	while not optimised:
-		linear_coeff, const_coeff = calculate_regression(my_plot.get_last_n())
-		my_plot.update_fit(linear_coeff, const_coeff)
+		linear_coeff, const_coeff = calculate_regression(progress)
+		if not silent_mode:
+			progress.update_fit(linear_coeff, const_coeff)
 
-		print("Check with flow ON: ", my_plot.get_last_n())
-		print("Linear coefficient: ", linear_coeff, "\n")
+		print("Check with flow ON: \nData: ", progress.get_last_n_data())
+		print("Linear coefficient: ", linear_coeff, "(goal is: <", linear_coeff_max, ")\n")
 
 		if linear_coeff_max > abs(linear_coeff):
 			print("Flow turned off", "\n")
 			bioreactor.node.GAS.set_flow_target(0)
 			for _ in range(timeout//wait_time):
 				time.sleep(wait_time)
-				measure_value(my_plot)
-			print("Check with flow OFF: ", my_plot.get_last_n())
-			linear_coeff, const_coeff = calculate_regression(my_plot.get_last_n())
-			print("Linear coefficient: ", linear_coeff, "\n")
-			my_plot.update_fit(linear_coeff, const_coeff)
+				measure_value(progress)
+			print("Check with flow OFF: \nData: ", progress.get_last_n_data())
+			linear_coeff, const_coeff = calculate_regression(progress)
+			print("Linear coefficient: ", linear_coeff, "(goal is: <", linear_coeff_max, ")\n")
+			if not silent_mode:
+				progress.update_fit(linear_coeff, const_coeff)
 
 			if linear_coeff_max > abs(linear_coeff):
 				optimised = True
-				print("Optimised!")
+				print("Value stabilised!")
+				progress.save()
 				time.sleep(5)
 			else:
 				bioreactor.node.GAS.set_flow_target(0.250)
-				print("Continue!", "\n")
+				print("Not stabilised, continue!", "\n")
 		time.sleep(wait_time)
+		measure_value(progress)
 
 bioreactor.node.GAS.set_small_valves(1) # turn on N2 mode
-reset(LINEAR_COEFF, QUEUE_MAX_LENGTH, WAIT_TIME, TIMEOUT)
-bioreactor.node.GAS.set_small_valves(0) # turn on normal mode
+reset(LINEAR_COEFF, QUEUE_MAX_LENGTH, WAIT_TIME, TIMEOUT, silent_mode)
+bioreactor.node.GAS.set_small_valves(0) # turn on Co2 mode
+bioreactor.node.GAS.set_flow_target(0.005)
