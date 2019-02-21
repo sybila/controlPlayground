@@ -4,49 +4,49 @@ import random
 import time
 import matplotlib.pyplot as plt
 
-timeout_in_sec = 300
-
-WAIT_TIME = 30  #... chceme merat kazdych 30 sekund
-QUEUE_MAX_LENGTH = 20  # poslednych 20 merani
-FREQUENCY_OF_CHECK = 10
-TIMEOUT = int(timeout_in_sec/WAIT_TIME)
+WAIT_TIME = 5  #... chceme merat kazdych 30 sekund
+QUEUE_MAX_LENGTH = 10  # poslednych 20 merani
+TIMEOUT = 30 # in seconds
+LINEAR_COEFF = 0.1
 
 ##################################
 
 # plot results
 class MyPlot():
-	def __init__(self):
+	def __init__(self, queue_length):
 		plt.ion()
 		self.x = np.array([])
 		self.y = np.array([])
+		self.queue_length = queue_length
 
 	def get_last_x(self):
 		if len(self.x) == 0:
 			return 0
 		return int(self.x[-1])
 
-	def update(self, data, linear, const):
-		original = np.array(data)
-		self.y = np.append(self.y, original)
-		x_data = np.array(range(len(original)))
-		self.x = np.append(self.x - 10, x_data)
+	def get_last_n(self):
+		return self.y[-self.queue_length:]
 
+	def update_data(self, new_y):
+		self.y = np.append(self.y, new_y)
+		if len(self.x) > self.queue_length:
+			self.x = np.append(self.x - 1, self.queue_length)
+		else:
+			self.x = np.append(self.x, self.get_last_x() + 1)
+
+		plt.plot(self.x, self.y, 'o', label='Original data', markersize=5)
+		plt.draw()
+		plt.pause(0.0001)
+		plt.clf()
+
+	def update_fit(self, linear, const):
+		x_data = self.x[-self.queue_length:]
 		fitted = linear*x_data + const
-
 		plt.plot(self.x, self.y, 'o', label='Original data', markersize=5)
 		plt.plot(x_data, fitted, 'r', label='Fitted line')
 		plt.draw()
 		plt.pause(0.0001)
 		plt.clf()
-
-# stores last n measures
-class LimitedQueue():
-	def __init__(self):
-		self.queue = []
-
-	def add(self, value):
-		self.queue.append(value)
-		self.queue = self.queue[-QUEUE_MAX_LENGTH:]
 
 # computes regression
 def calculate_regression(data):
@@ -56,36 +56,37 @@ def calculate_regression(data):
 	linear_coeff, const_coeff = np.linalg.lstsq(A, y, rcond=None)[0]
 	return linear_coeff, const_coeff
 
-# perform measures for given time
-def measure_values(last_values, duration):
-	for _ in range(duration):
-		time.sleep(WAIT_TIME)
-		last_values.add(bioreactor.node.PBR.get_ph())
-	return last_values
+def measure_value(plot):
+	plot.update_data(bioreactor.node.PBR.get_ph())
 
-def reset(linear_coeff_max):
-	bioreactor.node.GAS.set_flow_target(0.250) 
+def reset(linear_coeff_max, queue_length, wait_time, timeout):
+	bioreactor.node.GAS.set_flow_target(0.250)
+
+	my_plot = MyPlot(queue_length)
+
+	for _ in range(queue_length):
+		time.sleep(wait_time)
+		measure_value(my_plot)
 
 	optimised = False
-	last_values = LimitedQueue()
-	my_plot = MyPlot()
 
 	while not optimised:
-		last_values = measure_values(last_values, FREQUENCY_OF_CHECK)
+		linear_coeff, const_coeff = calculate_regression(my_plot.get_last_n())
+		my_plot.update_fit(linear_coeff, const_coeff)
 
-		print("Check with flow ON: ", last_values.queue)
-		linear_coeff, const_coeff = calculate_regression(last_values.queue)
+		print("Check with flow ON: ", my_plot.get_last_n())
 		print("Linear coefficient: ", linear_coeff, "\n")
-		my_plot.update(last_values.queue, linear_coeff, const_coeff)
 
 		if linear_coeff_max > abs(linear_coeff):
 			print("Flow turned off", "\n")
 			bioreactor.node.GAS.set_flow_target(0)
-			last_values = measure_values(last_values, TIMEOUT)
-			print("Check with flow OFF: ", last_values.queue)
-			linear_coeff, const_coeff = calculate_regression(last_values.queue)
+			for _ in range(timeout//wait_time):
+				time.sleep(wait_time)
+				measure_value(my_plot)
+			print("Check with flow OFF: ", my_plot.get_last_n())
+			linear_coeff, const_coeff = calculate_regression(my_plot.get_last_n())
 			print("Linear coefficient: ", linear_coeff, "\n")
-			my_plot.update(last_values.queue, linear_coeff, const_coeff)
+			my_plot.update_fit(linear_coeff, const_coeff)
 
 			if linear_coeff_max > abs(linear_coeff):
 				optimised = True
@@ -94,7 +95,8 @@ def reset(linear_coeff_max):
 			else:
 				bioreactor.node.GAS.set_flow_target(0.250)
 				print("Continue!", "\n")
+		time.sleep(wait_time)
 
 bioreactor.node.GAS.set_small_valves(1) # turn on N2 mode
-reset(0.1)
+reset(LINEAR_COEFF, QUEUE_MAX_LENGTH, WAIT_TIME, TIMEOUT)
 bioreactor.node.GAS.set_small_valves(0) # turn on normal mode
