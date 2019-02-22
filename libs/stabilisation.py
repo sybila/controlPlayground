@@ -59,7 +59,10 @@ class Progress():
 
 	def save(self):
 		name = time.strftime("%Y%m%d-%H%M%S")
-		plt.savefig('.log/' + name + '.png')
+		fig, ax = plt.subplots( nrows=1, ncols=1 )  # create figure & 1 axis
+		ax.plot(self.time*self.wait_time, self.data, 'o', label='Original data', markersize=5)
+		fig.savefig('.log/' + name + '.png')
+		plt.close(fig)
 
 # computes regression
 def calculate_regression(plot):
