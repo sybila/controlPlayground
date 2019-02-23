@@ -5,8 +5,6 @@ class PBR(Device):
     def __init__(self, particle, ID, adress):
         super(PBR, self).__init__(particle, ID, adress)
 
-    # Temperature
-
     def get_temp_settings(self):
         '''
         Get information about currently set temperature, maximal and
@@ -48,16 +46,26 @@ class PBR(Device):
         except Exception:
             return False
 
-    # pH (Bioreactor)
-
     def get_ph(self):
         '''
-        Get current pH.
+        Get current pH (dimensionless.)
 
         Returns:
             float: The current pH.
         '''
         try:
             return float(self.parent.execute(self, "get-ph", [5, 0])[0])
+        except Exception:
+            return None
+
+    def measure_od(self):
+        '''
+        Measure current Optical Density (OD, dimensionless).
+
+        Returns:
+            integer: Measured OD
+        '''
+        try:
+            return int(self.parent.execute(self, "measure-od", [0, 5])[0].rstrip().split()[1])
         except Exception:
             return None
