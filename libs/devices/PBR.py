@@ -1,4 +1,5 @@
 from device import Device
+from math import log10
 
 # Bioreactor
 class PBR(Device):
@@ -66,6 +67,7 @@ class PBR(Device):
             integer: Measured OD
         '''
         try:
-            return int(self.parent.execute(self, "measure-od", [0, 5])[0].rstrip().split()[1])
+            result = self.parent.execute(self, "measure-od", [0, 5])[0].rstrip().split()
+            return -log10((int(result[1]) - int(result[2][:-1]))/100000)
         except Exception:
             return None
