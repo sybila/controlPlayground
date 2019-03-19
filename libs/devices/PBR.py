@@ -74,68 +74,81 @@ class PBR(Device):
 
     def set_pump_params(self, pump, direction, flow):
         '''
-        tba.
+        Set up the ratation direction and flow for given pump.
 
         Args:
-            pump (?): 
+            pump (int): Given pump
             rotation_direction (?): Rotation direction
-            flow (float): flow rate
+            flow (float): Desired flow rate
         Returns:
             bool: True if was succesful, False otherwise.
         '''
 
-        # set-pump-params
-        pass
+        try:
+            return self.parent.execute(self, "set-pump-params", [pump, direction, flow])[0].rstrip() == 'ok'
+        except Exception:
+            return False
 
     def set_pump_state(self, pump, on):
         '''
-        tba.
+        Turns on/off given pump.
 
         Args:
-            pump (?): 
-            on (?):
+            pump (int): ID of a pump
+            on (bool): True to turn on, False to turn off
         Returns:
             bool: True if was succesful, False otherwise.
         '''
 
-        # set-pump-state
-        pass
+        try:
+            return self.parent.execute(self, "set-pump-state", [pump, int(on)])[0].rstrip() == 'ok'
+        except Exception:
+            return False
 
     def get_light_intensity(self, channel):
         '''
         Checks for current (max?) light intensity.
 
         Args:
-            channel (int): .
+            channel (int): Given channel ID
         Returns:
-            float: 
+            float: current light intensity in μE
         '''
-        # get-actinic-continual-settings
-        pass
+
+        try:
+            return float(self.parent.execute(self, "get-actinic-continual-settings", [channel])[0])
+        except Exception:
+            return None
 
     def set_light_intensity(self, channel, intensity):
         '''
         Control LED panel on photobioreactor.
+        Channel: 0 je red/white and 1 blue/red according to PBR configuration.
 
         Args:
-            channel (int): .
-            intensity (float): 
+            channel (int): Given channel
+            intensity (float): Desired intensity
         Returns:
             bool: True if was succesful, False otherwise.
         '''
 
-        # set-actinic-continual-intensity
-        pass
+        try:
+            return self.parent.execute(self, "set-actinic-continual-intensity", [channel, intensity])[0].rstrip() == 'ok'
+        except Exception:
+            return False
 
-    def turn_on_light(self, on):
+    def turn_on_light(self, channel, on):
         '''
         Turn on/off LED panel on photobioreactor.
 
         Args:
+            channel (int): Given channel
             on (bool): True turns on, False turns off
         Returns:
             bool: True if was succesful, False otherwise.
         '''
 
-        # set-actinic-continual-mode
-        pass
+        try:
+            return self.parent.execute(self, "set-actinic-continual-mode", [int(on)])[0].rstrip() == 'ok'
+        except Exception:
+            return False
