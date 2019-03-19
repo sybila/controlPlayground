@@ -39,15 +39,17 @@ class GAS(Device):
         bits represent vents indexed as in a picture scheme
         available here: https://i.imgur.com/jSeFFaO.jpg
 
-        Mode 0 - normal mode, output from GMS goes to PBR
-        Mode 1 - reset mode, N2 (nitrogen) goes to PBR
+        Mode 0 - normal mode, output from GMS goes to PBR (255)
+        Mode 1 - reset mode, N2 (nitrogen) goes to PBR (239)
+        Mode 2 - no gas input to PBR (249)
+        Mode 3 - output of PBR goes to input of PBR (246)
 
         Args:
-            mode (int): chosen mode (0 or 1)
+            mode (int): chosen mode (0 to 3)
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-        modes = {0 : "11111111", 1 : "11101111"}
+        modes = {0 : "11111111", 1 : "11101111", 2: "11111001", 3: "11110110"}
         try:
             return self.parent.execute(self, "set-small-valves", [int(modes[mode], 2)])[0].rstrip() == 'ok'
         except Exception:
