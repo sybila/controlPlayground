@@ -36,8 +36,15 @@ def exponentional_regression(t, y, n_0):
 	return popt[0]
 
 # this should do a particle
-def main():
-	pass
+def main(node, conditions):
+	# set initial conditions
+	set_up_conditions(node, conditions)
+	rate = None
+	#should return True if not stabilised
+	while growth_checker(rate):
+		rate = reach_max_population(OD_MAX)
+		pump_out_population(OD_MIN)
+	return rate #which should be stabile
 
 if __name__ == '__main__':
 	main()
