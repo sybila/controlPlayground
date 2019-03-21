@@ -28,14 +28,24 @@ def reach_max_population(device, OD_MIN, OD_MAX, TIMEOUT):
 		if OD > OD_MIN:
 			values.append(OD)
 		OD = measure_value(device)
-	time = np.linspace(1, len(values), 1) # could be actually measured as real time
+	times = np.linspace(1, len(values), len(values)) # could be actually measured as real time
 	return exponentional_regression(times, values, initial)
 
 # once max population is computed, we obtain current growth rate and this function
 # will use it and K last values to compute linear regression and decide whether
 # growth is already stable (i.e. population is adapted to given conditions)
-def growth_checker():
-	pass
+class GrowthChecker():
+	def __init__(self, tolerance):
+		self.values = []
+		self.tolerance = tolerance
+
+	def is_stable(self, n):
+		l = len(self.values[-n:])
+		times = np.linspace(1, l, l)
+		coeff = linear_regression(times, self.values[-n:])
+		if coeff:
+			return coeff > abs(self.tolerance)
+		return True
 
 # measure current OD
 def measure_value(device):
@@ -49,25 +59,23 @@ def set_up_conditions(node, conditions):
 # compute regression for given array of times,
 # output values and initial population/density
 def exponentional_regression(t, y, n_0):
-	popt, pcov = curve_fit(lambda t, r: n_0 * np.exp(t * r),  t,  y)
+	popt, pcov = curve_fit(lambda t, r: n_0 * np.exp(t * r), t, y)
+	return popt[0]
+
+def linear_regression(t, y):
+	popt, pcov = curve_fit(lambda t, a, b: a * t + b, times, values)
 	return popt[0]
 
 # this should do a particle
 def main(node, conditions):
 	# set initial conditions
 	set_up_conditions(node, conditions)
-	rate = None
+	checker = GrowthChecker()
 	#should return True if not stabilised
-	while growth_checker(rate):
-		rate = reach_max_population(node.PBR, OD_MIN, OD_MAX, TIMEOUT)
+	while checker.is_stable(6):
+		checker.values.append(reach_max_population(node.PBR, OD_MIN, OD_MAX, TIMEOUT))
 		pump_out_population(node.PBR, OD_MIN, pump, TIMEOUT)
-	return rate #which should be stabile
+	return checker.values[-1] #which should be stabile
 
 if __name__ == '__main__':
 	main()
-
-t = np.array([1, 2, 3, 4, 5])
-y = np.array([2.7, 36.9, 272.9, 2017.1, 110132.3])
-
-# growth rate about 2, n_0 is 5
-print(calculate_regression(t, y, 5))
