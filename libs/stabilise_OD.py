@@ -53,8 +53,12 @@ def measure_value(device):
 
 # it is called when we start with new conditions
 # and they are all set for given node
+# assume conditions has form [temp, co2-flow, [channel, intensity]]
 def set_up_conditions(node, conditions):
-	pass
+	T = node.PBR.set_temp[conditions[0]]
+	F = node.GAS.set_flow_target(conditions[1])
+	L = node.PBR.set_light_intensity(*conditions[2])
+	return (T and F and L)
 
 # compute regression for given array of times,
 # output values and initial population/density
@@ -67,7 +71,7 @@ def linear_regression(t, y):
 	return popt[0]
 
 # this should do a particle
-def main(node, conditions):
+def get_growth_rate(node, conditions):
 	# set initial conditions
 	set_up_conditions(node, conditions)
 	checker = GrowthChecker()
@@ -78,4 +82,4 @@ def main(node, conditions):
 	return checker.values[-1] #which should be stabile
 
 if __name__ == '__main__':
-	main()
+	get_growth_rate()
