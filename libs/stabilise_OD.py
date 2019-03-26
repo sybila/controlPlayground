@@ -1,6 +1,6 @@
 from scipy.optimize import curve_fit
 import numpy as np
-time
+import time
 
 OD_MAX = 0.525
 OD_MIN = 0.475
@@ -10,18 +10,24 @@ TIMEOUT = 10
 # also is responsible for measurements and for calculation of median
 # from last several measurements (due to possible errors in measurement)
 class DataHolder():
-	def __init__(self, device):
+	def __init__(self, device, init_time):
 		self.device = device
+		self.init_time = init_time
 		self.data = []
+		self.times = []
 
 	def measure_value(self):
-		self.data.append(self.device.measure_od())
+		return self.device.measure_od(), self.init_time - time.time()
 
-	def get_median(self, t):
-		for _ in range(n):
-			self.measure_value()
-			time.wait(1)
-		return np.median(self.data[-t:])
+	def next_value(self):
+		t, v = self.measure_value()
+		avg = sum(self.data[-2:])/2
+		if v < (104*avg)/100 and v > (96*avg)/100: # 4% tolerance
+			self.data.append(v)
+			self.times.append(t)
+			return v
+		else:
+			return (OD_MAX + OD_MIN)/2 # which is always True in the conditions
 
 # once max population is computed, we obtain current growth rate and this function
 # will use it and K last values to compute linear regression and decide whether
@@ -29,12 +35,11 @@ class DataHolder():
 class GrowthChecker():
 	def __init__(self, tolerance):
 		self.values = []
+		self.times = []
 		self.tolerance = tolerance
 
 	def is_stable(self, n):
-		l = len(self.values[-n:])
-		times = np.linspace(1, l, l)
-		coeff = linear_regression(times, self.values[-n:])
+		coeff = linear_regression(self.times, self.values[-n:])
 		if coeff:
 			return coeff > abs(self.tolerance)
 		return True
@@ -42,7 +47,7 @@ class GrowthChecker():
 # turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
 def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
 	holder.device.set_pump_state(pump, True)
-	while holder.get_median(5) > OD_MIN: # or make a better condition with some tolerance
+	while holder.next_value() > OD_MIN: # or make a better condition with some tolerance
 		time.wait(TIMEOUT)
 	holder.device.set_pump_state(pump, False)
 	return True
@@ -52,10 +57,9 @@ def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
 # has to remember initial OD!
 def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
 	initial = len(holder.data)
-	while holder.get_median(5) < OD_MAX: # or make a better condition with some tolerance
+	while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
 		time.wait(TIMEOUT)
-	times = np.linspace(1, len(holder.data), len(holder.data)) # could be actually measured as real time
-	return exponentional_regression(times, holder.data, holder.data[initial])
+	return exponentional_regression(holder.times, holder.data, holder.data[initial])
 
 # it is called when we start with new conditions
 # and they are all set for given node
@@ -80,13 +84,14 @@ def linear_regression(t, y):
 def get_growth_rate(node, conditions):
 	# set initial conditions
 	set_up_conditions(node, conditions)
-	checker = GrowthChecker()
-	holder = DataHolder(node.PBR)
+	checker = GrowthChecker(0.01)
+	holder = DataHolder(node.PBR, time.time())
 	#should return True if not stabilised
 	while checker.is_stable(6):
 		checker.values.append(reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT))
+		checker.times.append(holder.init_time - time.time())
 		pump_out_population(holder, OD_MIN, pump, TIMEOUT)
-	return checker.values[-1] #which should be stabile
+	return checker.values[-1] #which should be stable
 
 if __name__ == '__main__':
 	get_growth_rate()
