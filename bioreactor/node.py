@@ -58,8 +58,3 @@ class Node():
 
 	def stabilise(self, conditions):
 		return get_growth_rate(self, conditions)
-
-node = particle.Particle('root', '/root/control/', '192.168.17.13')
-node.add_device("PBR", "PBR07", 72700007)
-node.add_device("GMS", "GMS", 46700003)
-node.add_device("GAS", "GAS", 42700007)
