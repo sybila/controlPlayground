@@ -1,4 +1,4 @@
-import Regression
+from .Regression import *
 
 # once max population is computed, we obtain current growth rate and this function
 # will use it and K last values to compute linear regression and decide whether
@@ -10,7 +10,7 @@ class GrowthChecker():
 		self.tolerance = tolerance
 
 	def is_stable(self, n):
-		coeff = Regression.linear_regression(self.times, self.values[-n:])
+		coeff = linear_regression(self.times, self.values[-n:])
 		if coeff:
 			return coeff > abs(self.tolerance)
 		return True

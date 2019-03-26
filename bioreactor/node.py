@@ -1,17 +1,8 @@
 import os, sys, re, time
 
-workspace = os.path.dirname(__file__)
-
-import devices.GMS as GasMixer
-import devices.PBR as Bioreactor
-import devices.GAS as GasAnalyser
-
-sys.path.append(os.path.join(workspace, 'connection/'))
-import connection as SSH
-sys.path.append(os.path.join(workspace, 'stabilisation/'))
-import DataHolder as DH
-import GrowthChecker as GC
-import Regression
+from .devices import GMS, GAS, PBR
+from .connection import SSHconnection
+from .stabilisation import get_growth_rate
 
 HEADER = \
 '''#!/usr/bin/env gosh
@@ -28,12 +19,12 @@ HEADER = \
 
 '''
 
-types = {"PBR" : Bioreactor.PBR, "GMS" : GasMixer.GMS, "GAS" : GasAnalyser.GAS}
+types = {"PBR" : PBR, "GMS" : GMS, "GAS" : GAS}
 
 class Node():
-	def __init__(self, user, folder, server):
+	def __init__(self, user='root', folder='/root/control/', server='192.168.17.13'):
 		self.folder = folder
-		self.connection = SSH.SSHconnection(server, user)
+		self.connection = SSHconnection(server, user)
 		self.devices = []
 
 	def add_device(self, name, ID, adress):
@@ -65,44 +56,10 @@ class Node():
 
 		return output
 
-	# this is a method called by a particle, provides growth rate for given conditions
-	def get_growth_rate(self, conditions):
-		OD_MAX = 0.525
-		OD_MIN = 0.475
-		TIMEOUT = 10
-		# set initial conditions
-		set_up_conditions(conditions)
-		checker = GC.GrowthChecker(0.01)
-		holder = DH.DataHolder(self.PBR, time.time())
-		#should return True if not stabilised
-		while checker.is_stable(6):
-			checker.values.append(reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT))
-			checker.times.append(holder.init_time - time.time())
-			pump_out_population(holder, OD_MIN, pump, TIMEOUT)
-		return checker.values[-1] #which should be stable
+	def stabilise(self, conditions):
+		return get_growth_rate(self, conditions)
 
-	# turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
-	def pump_out_population(self, holder, OD_MIN, pump, TIMEOUT):
-		self.PBR.set_pump_state(pump, True)
-		while holder.next_value() > OD_MIN: # or make a better condition with some tolerance
-			time.wait(TIMEOUT)
-		self.PBR.set_pump_state(pump, False)
-		return True
-
-	# given a PBR, it checks in cycle the OD every n seconds, once OD_MAX is reached it
-	# calculates current growth rate using measured OD data and exponentional regression
-	# has to remember initial OD!
-	def reach_max_population(self, holder, OD_MIN, OD_MAX, TIMEOUT):
-		initial = len(holder.data)
-		while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
-			time.wait(TIMEOUT)
-		return Regression.exponentional_regression(holder.times, holder.data, holder.data[initial])
-
-	# it is called when we start with new conditions
-	# and they are all set for given node
-	# assume conditions has form [temp, co2-flow, [channel, intensity]]
-	def set_up_conditions(self, conditions):
-		T = self.PBR.set_temp[conditions[0]]
-		F = self.GAS.set_flow_target(conditions[1])
-		L = self.PBR.set_light_intensity(*conditions[2])
-		return (T and F and L)
+node = particle.Particle('root', '/root/control/', '192.168.17.13')
+node.add_device("PBR", "PBR07", 72700007)
+node.add_device("GMS", "GMS", 46700003)
+node.add_device("GAS", "GAS", 42700007)

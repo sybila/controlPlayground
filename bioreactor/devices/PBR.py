@@ -1,4 +1,4 @@
-from device import Device
+from .device import Device
 from math import log10
 
 # Bioreactor

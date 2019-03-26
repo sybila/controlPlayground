@@ -1,4 +1,4 @@
-from device import Device
+from .device import Device
 
 # Gas Analyser
 class GAS(Device):
