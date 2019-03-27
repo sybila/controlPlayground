@@ -101,7 +101,7 @@ class PBR(Device):
         '''
 
         try:
-            return self.parent.execute(self, "set-pump-state", [pump, int(on)])[0].rstrip() == 'ok'
+            return self.parent.execute(self, "set-pump-state", [pump, to_scheme_bool(on)])[0].rstrip() == 'ok'
         except Exception:
             return False
 
@@ -149,6 +149,10 @@ class PBR(Device):
         '''
 
         try:
-            return self.parent.execute(self, "set-actinic-continual-mode", [int(on)])[0].rstrip() == 'ok'
+            return self.parent.execute(self, "set-actinic-continual-mode", [to_scheme_bool(on)])[0].rstrip() == 'ok'
         except Exception:
             return False
+
+
+def to_scheme_bool(value):
+    return "#t" if values else "#f" 
