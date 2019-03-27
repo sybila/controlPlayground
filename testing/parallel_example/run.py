@@ -22,7 +22,8 @@ while checker.is_alive():
 print("************* Time to end ***********")
 
 for thread in threads:
-	thread.join()
+	# thread.join()
+	thread.stoprequest.set()
 
 print("\n++++++++++++ OVERALL RESULTS ++++++++++++\n")
 

@@ -36,7 +36,7 @@ class Worker(threading.Thread):
 		return [random.randint(0, 100) for _ in range(3)]
 
 	def join(self, timeout=None):
-		self.stoprequest.set()
+		# self.stoprequest.set()
 		super(Worker, self).join(timeout)
 
 # an Observer over all threads globally
