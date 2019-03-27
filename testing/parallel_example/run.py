@@ -28,7 +28,7 @@ print("\n++++++++++++ OVERALL RESULTS ++++++++++++\n")
 
 for thread in threads:
 	print("------- Results for thread", thread.name)
-	print(list(zip(thread.history_cond, thread.local_results)))
+	print(thread.history)
 	print()
 
-print(checker.best_cond, checker.best_result)
+print(checker.global_best)
