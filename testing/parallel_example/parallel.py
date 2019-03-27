@@ -4,13 +4,14 @@ import time
 
 # this is basically the Particle
 class Worker(threading.Thread):
-	def __init__(self, conditions, results):
+	def __init__(self, conditions, results, observer):
 		super(Worker, self).__init__()
 		self.conditions = conditions
 		self.global_results = results
 		self.stoprequest = threading.Event()
 		self.local_results = []
 		self.history_cond = []
+		self.observer = observer
 
 	def run(self):
 		while not self.stoprequest.isSet():
@@ -22,13 +23,15 @@ class Worker(threading.Thread):
 
 	# let a bioreactor do its stuff
 	def do_some_computation(self):
-		print(self.name, "I'm computing:", self.conditions)
+		result = self.conditions[0]**3 + self.conditions[1]**2 - self.conditions[2]
+		print(self.name, "I'm computing:", self.conditions, result)
 		time.sleep(random.random()) # to simulate the fact the computation will take some time
 		# some random function we are investigating
-		return self.conditions[0]**3 + self.conditions[1]**2 - self.conditions[2]
+		return result
 
 	# decide new conditions for the bioreactor
 	def compute_new_conditions(self):
+		print("Current best: global - ", self.observer.best_result, "local - ", max(self.local_results))
 		return [random.randint(0, 100) for _ in range(3)]
 
 	def join(self, timeout=None):
