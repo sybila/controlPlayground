@@ -112,18 +112,20 @@ class PBR(Device):
         Args:
             channel (int): Given channel ID
         Returns:
-            float: current light intensity in μE
+            current light intensity (float), maximal intensity (float), on/off (bool)
+            (intensity in μE)
         '''
 
         try:
-            return float(self.parent.execute(self, "get-actinic-continual-settings", [channel])[0])
+            result = self.parent.execute(self, "get-actinic-continual-settings", [channel])[0].rstrip().split()
+            return float(result[1]), float(result[2]), from_scheme_bool(result[3])
         except Exception:
             return None
 
     def set_light_intensity(self, channel, intensity):
         '''
         Control LED panel on photobioreactor.
-        Channel: 0 je red/white and 1 blue/red according to PBR configuration.
+        Channel: 0 je red and 1 blue according to PBR configuration.
 
         Args:
             channel (int): Given channel
@@ -149,10 +151,14 @@ class PBR(Device):
         '''
 
         try:
-            return self.parent.execute(self, "set-actinic-continual-mode", [to_scheme_bool(on)])[0].rstrip() == 'ok'
+            return self.parent.execute(self, "set-actinic-continual-mode", [channel, to_scheme_bool(on)])[0].rstrip() == 'ok'
         except Exception:
             return False
 
 
 def to_scheme_bool(value):
-    return "#t" if values else "#f" 
+    return "#t" if value else "#f" 
+
+def from_scheme_bool(value):
+    print(value)
+    return True if value[:-1] == "#t" else False
