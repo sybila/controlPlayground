@@ -1,0 +1,51 @@
+from .Particle import *
+from .Swarm import *
+import numpy as np
+import biorector
+import random
+
+node = bioreactor.Node()
+node.add_device("PBR", "PBR07", 72700007)
+node.add_device("GMS", "GMS", 46700003)
+node.add_device("GAS", "GAS", 42700007)
+
+nodes = [node]
+
+multiparametric_space = ((20,40),(100,800))  # temperature and light
+
+particles = []
+swarm_results = []  # important variable shared by all particles (including swarm)
+
+swarm = Swarm(swarm_results, multiparametric_space)
+
+n_of_nodes = 1
+
+for i in range(n_of_nodes):
+	random_position = []
+	step = random.uniform(0, 1)
+	for j in multiparametric_space:
+    	random_position.append(random.uniform(min(j), max(j)))
+	particles.append(Particle(random_position, step, swarm_results, swarm, nodes[i]))
+
+swarm.start()
+
+for particle in particles:
+	particle.start()
+
+while swarm.is_alive():
+	pass # we just have to wait until the swarm particle is finished
+
+print("************* Time to end ***********")
+
+for particle in particles:
+	# particle.join()
+	particle.stoprequest.set()
+
+print("\n++++++++++++ OVERALL RESULTS ++++++++++++\n")
+
+for particle in particles:
+	print("------- Results for particle", particle.name)
+	print(particle.particle_trace)
+	print()
+
+print(swarm.global_best)
