@@ -1,7 +1,7 @@
-from .Particle import *
-from .Swarm import *
+from Particle import *
+from Swarm import *
 import numpy as np
-import biorector
+import bioreactor
 import random
 
 node = bioreactor.Node()
@@ -24,8 +24,8 @@ for i in range(n_of_nodes):
 	random_position = []
 	step = random.uniform(0, 1)
 	for j in multiparametric_space:
-    	random_position.append(random.uniform(min(j), max(j)))
-	particles.append(Particle(random_position, step, swarm_results, swarm, nodes[i]))
+		random_position.append(random.uniform(min(j), max(j)))
+	particles.append(Particle(np.array(random_position), step, swarm_results, swarm, nodes[i]))
 
 swarm.start()
 
@@ -48,4 +48,4 @@ for particle in particles:
 	print(particle.particle_trace)
 	print()
 
-print(swarm.global_best)
+print(swarm.swarm_best)

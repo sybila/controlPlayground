@@ -1,3 +1,5 @@
+import threading
+
 # an Observer over all threads globally
 # workers append their results to shared list
 # observer takes them one by one and evaluates them
@@ -22,7 +24,7 @@ class Swarm(threading.Thread):
 	def condition_holds(self):
 		print("Swarm:", self.No_of_results, self.swarm_best)
 		self.No_of_results += 1
-		if self.No_of_results > 10:
+		if self.No_of_results > 100:
 			self.stoprequest.set()
 
 	def join(self, timeout=None):
