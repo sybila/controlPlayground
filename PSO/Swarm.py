@@ -1,4 +1,5 @@
 import threading
+import numpy as np
 
 # an Observer over all threads globally
 # workers append their results to shared list
@@ -7,9 +8,9 @@ class Swarm(threading.Thread):
 	def __init__(self, results, multiparametric_space):
 		super(Swarm, self).__init__()
 		self.swarm_results = results
-		self.swarm_best = ([], 0)
+		self.swarm_best = (find_center(multiparametric_space), 0)
 
-		self.multiparametric_space = multiparametric_space
+		self.multiparametric_space = create_boundaries(multiparametric_space)
 		self.No_of_results = 0
 		self.stoprequest = threading.Event()
 
@@ -29,3 +30,13 @@ class Swarm(threading.Thread):
 
 	def join(self, timeout=None):
 		super(Swarm, self).join(timeout)
+
+
+def find_center(space):
+	return np.array(list(map(lambda v: sum(v)/2, space)))
+
+def create_boundaries(space):
+	return [column(0, space), column(1, space)]
+
+def column(i, space):
+	return np.array([row[i] for row in space])

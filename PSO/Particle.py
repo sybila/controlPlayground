@@ -6,12 +6,11 @@ from scipy import interpolate
 
 # this is basically the Particle
 class Particle(threading.Thread):
-	def __init__(self, position, step, results, observer, node, cognitive_parameter=0.3, social_parameter=0.5, inertia_weight=0.4):
+	def __init__(self, position, step, observer, node, cognitive_parameter=0.3, social_parameter=0.5, inertia_weight=0.4):
 		super(Particle, self).__init__()
 		self.position = position
 		self.step = step
 
-		self.swarm_results = results
 		self.observer = observer
 
 		self.node = node
@@ -27,11 +26,11 @@ class Particle(threading.Thread):
 
 	def run(self):
 		while not self.stoprequest.isSet():
-			print(self.name, "I'm computing:", self.position)
+			print(self.node.PBR.ID, "({0})".format(self.name), "I'm computing:", self.position)
 			result = self.compute_cost_function()
-			print(self.name, "I have computed:", result)
+			print(self.node.PBR.ID, "({0})".format(self.name), "I have computed:", result)
 			self.particle_trace.append((self.position, result))
-			self.swarm_results.append((self.position, result))
+			self.observer.swarm_results.append((self.position, result))
 			if result > self.particle_result[1]:
 				self.particle_result = (self.position, result)
 			self.position = self.next_position()
@@ -46,8 +45,17 @@ class Particle(threading.Thread):
 		new_position = self.position + self.inertia_weight * self.step + \
 					   self.cognitive_parameter * random.random() * (self.particle_result[0] - self.position) + \
 					   self.social_parameter * random.random() * (self.observer.swarm_best[0] - self.position)
+		return self.check_boundaries(new_position)
 
-		# new_position in boundaries?
+	def check_boundaries(self, new_position):
+		smaller_than_min = new_position < self.observer.multiparametric_space[0]
+		greater_than_max = new_position > self.observer.multiparametric_space[1]
+		for i in range(len(smaller_than_min)):
+			if not smaller_than_min[i]:
+				new_position[i] = self.observer.multiparametric_space[0][i]
+		for i in range(len(greater_than_max)):
+			if not greater_than_max[i]:
+				new_position[i] = self.observer.multiparametric_space[1][i]
 		return new_position
 
 	def join(self, timeout=None):
