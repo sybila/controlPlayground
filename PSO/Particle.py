@@ -30,6 +30,7 @@ class Particle(threading.Thread):
 			result = self.compute_cost_function()
 			print(self.node.PBR.ID, "({0})".format(self.name), "I have computed:", result)
 			self.particle_trace.append((self.position, result))
+			time.sleep(random.random()*5)
 			self.observer.swarm_results.append((self.position, result))
 			if result > self.particle_result[1]:
 				self.particle_result = (self.position, result)

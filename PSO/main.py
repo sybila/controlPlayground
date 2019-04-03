@@ -45,9 +45,12 @@ for particle in particles:
 
 print("\n++++++++++++ OVERALL RESULTS ++++++++++++\n")
 
+values = []
 for particle in particles:
 	print("------- Results for particle", particle.node.PBR.ID, particle.name)
 	print(particle.particle_trace)
-	print()
+	values.append(max(column(1, particle.particle_trace)))
+	print("BEST:", values[-1])
 
-print(swarm.swarm_best)
+print("ACtual best:", max(values))
+print('Swarm best:', swarm.swarm_best)
