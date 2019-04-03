@@ -12,7 +12,6 @@ class Particle(threading.Thread):
 		self.step = step
 
 		self.observer = observer
-
 		self.node = node
 
 		self.particle_result = ([], 0)
@@ -60,7 +59,6 @@ class Particle(threading.Thread):
 		return new_position
 
 	def join(self, timeout=None):
-		# self.stoprequest.set()
 		super(Particle, self).join(timeout)
 
 temperature = (20,25,30,35,40)

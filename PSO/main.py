@@ -40,7 +40,6 @@ while swarm.is_alive():
 print("************* Time to end ***********")
 
 for particle in particles:
-	# particle.join()
 	particle.stoprequest.set()
 
 print("\n++++++++++++ OVERALL RESULTS ++++++++++++\n")

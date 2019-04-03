@@ -8,7 +8,7 @@ class Swarm(threading.Thread):
 	def __init__(self, results, multiparametric_space):
 		super(Swarm, self).__init__()
 
-		self.all_results = []
+		self.type = 1 # optimum type, -1 for min
 		self.swarm_results = results 
 		self.boundaries = self.create_boundaries(multiparametric_space)
 		self.No_of_results = 0
@@ -18,8 +18,7 @@ class Swarm(threading.Thread):
 		while not self.stoprequest.isSet():
 			if self.swarm_results:
 				new_value = self.swarm_results.pop(0)
-				self.all_results.append(new_value)
-				if new_value[1] > self.swarm_best[1]:
+				if new_value[1]*self.type > self.swarm_best[1]*self.type:
 					self.swarm_best = new_value
 				self.condition_holds()
 
