@@ -11,6 +11,9 @@ class DataHolder():
 		self.times = []
 
 	def measure_value(self):
+		od = self.device.measure_od()
+		if od is None:
+			raise ValueError('Cannot measure optical density on device', self.device.ID)
 		return self.device.measure_od(), self.init_time - time.time()
 
 	def next_value(self):
