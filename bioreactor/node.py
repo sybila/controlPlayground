@@ -56,5 +56,5 @@ class Node():
 
 		return output
 
-	def stabilise(self, conditions):
-		return get_growth_rate(self, conditions)
+	def stabilise(self, conditions, parameter_keys):
+		return get_growth_rate(self, conditions, parameter_keys)

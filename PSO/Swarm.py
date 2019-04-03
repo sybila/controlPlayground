@@ -7,10 +7,9 @@ import numpy as np
 class Swarm(threading.Thread):
 	def __init__(self, results, multiparametric_space):
 		super(Swarm, self).__init__()
-		self.swarm_results = results
-		self.swarm_best = (find_center(multiparametric_space), 0)
 
-		self.multiparametric_space = create_boundaries(multiparametric_space)
+		self.swarm_results = results
+		self.boundaries = self.create_boundaries(multiparametric_space)
 		self.No_of_results = 0
 		self.stoprequest = threading.Event()
 
@@ -31,12 +30,16 @@ class Swarm(threading.Thread):
 	def join(self, timeout=None):
 		super(Swarm, self).join(timeout)
 
-
-def find_center(space):
-	return np.array(list(map(lambda v: sum(v)/2, space)))
-
-def create_boundaries(space):
-	return [column(0, space), column(1, space)]
+	def create_boundaries(self, space):
+		self.parameter_keys = space.keys()
+		self.swarm_best = []
+		boundaries = [[], []]
+		for key in self.parameter_keys:
+			boundaries[0].append(space[key][0])
+			boundaries[1].append(space[key][1])
+			self.swarm_best.append(sum(boundaries[-1])/2)
+		self.swarm_best = (np.array(self.swarm_best), 0)
+		return boundaries
 
 def column(i, space):
 	return np.array([row[i] for row in space])

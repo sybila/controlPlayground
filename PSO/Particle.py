@@ -37,7 +37,7 @@ class Particle(threading.Thread):
 
 	# let a bioreactor do its stuff
 	def compute_cost_function(self):
-		#return self.node.stabilise(self.position)
+		#return self.node.stabilise(self.position, self.observer.parameter_keys)
 		return f(*self.position)
 
 	# decide new position for the bioreactor
@@ -48,14 +48,14 @@ class Particle(threading.Thread):
 		return self.check_boundaries(new_position)
 
 	def check_boundaries(self, new_position):
-		smaller_than_min = new_position < self.observer.multiparametric_space[0]
-		greater_than_max = new_position > self.observer.multiparametric_space[1]
+		smaller_than_min = new_position < self.observer.boundaries[0]
+		greater_than_max = new_position > self.observer.boundaries[1]
 		for i in range(len(smaller_than_min)):
 			if not smaller_than_min[i]:
-				new_position[i] = self.observer.multiparametric_space[0][i]
+				new_position[i] = self.observer.boundaries[0][i]
 		for i in range(len(greater_than_max)):
 			if not greater_than_max[i]:
-				new_position[i] = self.observer.multiparametric_space[1][i]
+				new_position[i] = self.observer.boundaries[1][i]
 		return new_position
 
 	def join(self, timeout=None):

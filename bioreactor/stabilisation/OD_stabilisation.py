@@ -26,15 +26,21 @@ def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
 # it is called when we start with new conditions
 # and they are all set for given node
 # assume conditions has form [temp, co2-flow, [channel, intensity]]
-def set_up_conditions(node, conditions):
-	T = node.PBR.set_temp[conditions[0]]
-	F = node.GAS.set_flow_target(conditions[1])
-	L = node.PBR.set_light_intensity(*conditions[2])
-	return (T and F and L)
+def set_up_conditions(node, conditions, parameter_keys):
+	functions =  {"temp": node.PBR.set_temp, 
+				  "light": node.PBR.set_light_intensity,
+				  "flow": node.GAS.set_flow_target}
+	success = []
+	for i in range(len(parameter_keys)):
+		if type(conditions[i]) == list:
+			success.append(functions(parameter_keys[i])(*conditions[i]))
+		else:
+			success.append(functions(parameter_keys[i])(conditions[i]))
+	return all(success)
 
-def get_growth_rate(node, conditions):
+def get_growth_rate(node, conditions, parameter_keys):
 	# set initial conditions
-	set_up_conditions(node, conditions)
+	set_up_conditions(node, conditions, parameter_keys)
 	checker = GrowthChecker(0.01)
 	holder = DataHolder(node.PBR, time.time())
 	#should return True if not stabilised
