@@ -72,13 +72,30 @@ class PBR(Device):
         except Exception:
             return None
 
-    def set_pump_params(self, pump, direction, flow):
+    def get_pump_params(self, pump):
         '''
-        Set up the ratation direction and flow for given pump.
+        Get parameters for given pump.
 
         Args:
             pump (int): Given pump
-            rotation_direction (?): Rotation direction
+        Returns:
+            dict: The current settings structured in a dictionary.
+        '''
+
+        try:
+            result = self.parent.execute(self, "get-pump-info", [pump])[0].rstrip()[1:-1].split()
+            return {"direction": int(result[1]), "on": from_scheme_bool(result[2]), "valves": int(result[3]),
+                    "flow": float(result[4]), "min": float(result[5]), "max": float(result[6])}
+        except Exception:
+            return False
+
+    def set_pump_params(self, pump, direction, flow):
+        '''
+        Set up the rotation direction and flow for given pump.
+
+        Args:
+            pump (int): Given pump
+            rotation_direction (int): Rotation direction (1 right, -1 left)
             flow (float): Desired flow rate
         Returns:
             bool: True if was succesful, False otherwise.
@@ -112,13 +129,16 @@ class PBR(Device):
         Args:
             channel (int): Given channel ID
         Returns:
-            current light intensity (float), maximal intensity (float), on/off (bool)
-            (intensity in μE)
+            dict: The current settings structured in a dictionary.
+            
+        Items: "intensity": current light intensity (float) in μE, 
+            "max": maximal intensity (float) in μE, 
+            "on": True if light is turned on (bool)
         '''
 
         try:
             result = self.parent.execute(self, "get-actinic-continual-settings", [channel])[0].rstrip().split()
-            return float(result[1]), float(result[2]), from_scheme_bool(result[3])
+            return {"intensity": float(result[1]), "max": float(result[2]), "on": from_scheme_bool(result[3])}
         except Exception:
             return None
 
@@ -160,5 +180,4 @@ def to_scheme_bool(value):
     return "#t" if value else "#f" 
 
 def from_scheme_bool(value):
-    print(value)
     return True if value[:-1] == "#t" else False

@@ -11,5 +11,6 @@ node.add_device("GAS", "GAS", 42700007)
 
 print(node.devices)
 print(node.PBR.get_temp())
-print(node.PBR.get_light_intensity(0))
-print(node.PBR.turn_on_light(0, True))
+print(node.PBR.get_pump_params(5))
+#print(node.PBR.get_light_intensity(0))
+#print(node.PBR.turn_on_light(0, True))
