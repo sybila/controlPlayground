@@ -137,7 +137,7 @@ class PBR(Device):
         '''
 
         try:
-            result = self.parent.execute(self, "get-actinic-continual-settings", [channel])[0].rstrip().split()
+            result = self.parent.execute(self, "get-actinic-continual-settings", [channel])[0].rstrip()[1:-1].split()
             return {"intensity": float(result[1]), "max": float(result[2]), "on": from_scheme_bool(result[3])}
         except Exception:
             return None
@@ -175,9 +175,44 @@ class PBR(Device):
         except Exception:
             return False
 
+    def get_pwm_settings(self):
+        '''
+        Checks for current stirring settings.
+
+        Returns:
+            dict: The current settings structured in a dictionary.
+            
+        Items: "pulse": current stirring in %, 
+            "min": minimal stirring in %, 
+            "max": maximal stirring in %,
+            "on": True if stirring is turned on (bool)
+        '''
+        try:
+            result = self.parent.execute(self, "get-pwm-settings")[0].rstrip()[1:-1].split()
+            return {"pulse": result[1], "min": result[2], 
+                    "max": result[3], "on": from_scheme_bool(result[4])}
+        except Exception:
+            return False
+
+    def set_pwm(self, value, on):
+        '''
+        Set stirring settings.
+        Channel: 0 je red and 1 blue according to PBR configuration.
+
+        Args:
+            value (int): desired stirring pulse
+            on (bool): True turns on, False turns off
+        Returns:
+            bool: True if was succesful, False otherwise.
+        '''
+
+        try:
+            return self.parent.execute(self, "set-pwm", [value, to_scheme_bool(on)])[0].rstrip() == 'ok'
+        except Exception:
+            return False
 
 def to_scheme_bool(value):
     return "#t" if value else "#f" 
 
 def from_scheme_bool(value):
-    return True if value[:-1] == "#t" else False
+    return True if value == "#t" else False
