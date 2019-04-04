@@ -20,14 +20,14 @@ swarm_results = []  # important variable shared by all particles (including swar
 
 swarm = Swarm(swarm_results, multiparametric_space)
 
-n_of_nodes = 10
+n_of_nodes = 1
 
 for i in range(n_of_nodes):
 	random_position = []
 	step = random.uniform(0, 1)
 	for key in swarm.parameter_keys:
 		random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
-	particles.append(Particle(np.array(random_position), step, swarm, nodes[0]))
+	particles.append(Particle(np.array(random_position), step, swarm, nodes[i]))
 
 swarm.start()
 

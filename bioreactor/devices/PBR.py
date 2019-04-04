@@ -59,7 +59,7 @@ class PBR(Device):
         except Exception:
             return None
 
-    def measure_od(self):
+    def measure_od(self, channel=0):
         '''
         Measure current Optical Density (OD, dimensionless).
 
@@ -67,7 +67,7 @@ class PBR(Device):
             integer: Measured OD
         '''
         try:
-            result = self.parent.execute(self, "measure-od", [0, 5])[0].rstrip().split()
+            result = self.parent.execute(self, "measure-od", [channel, 5])[0].rstrip().split()
             return -log10((int(result[1]) - int(result[2][:-1]))/100000)
         except Exception:
             return None

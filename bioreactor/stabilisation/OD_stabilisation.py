@@ -4,7 +4,7 @@ from .Regression import *
 
 OD_MAX = 0.525
 OD_MIN = 0.475
-TIMEOUT = 10
+TIMEOUT = 60
 
 # turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
 def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
