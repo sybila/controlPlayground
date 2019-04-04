@@ -3,8 +3,11 @@ from Swarm import *
 import numpy as np
 import bioreactor
 import random
+import logger
 
 params = ["temp", "light-red", "light-blue", "flow"]
+
+print("Initial setup...")
 
 node = bioreactor.Node()
 node.add_device("PBR", "PBR07", 72700007)
@@ -15,9 +18,13 @@ node.add_device("GAS", "GAS", 42700007)
 node.PBR.set_temp(25)
 node.GMS.set_valve_flow(0, 0.01)
 node.GMS.set_valve_flow(1, 0.33)
-node.GAS.get_flow_target(0.2)
+#node.GAS.set_flow_target(0.2)
 node.PBR.set_pwm(50, True)
+node.PBR.turn_on_light(0, True)
+node.PBR.turn_on_light(1, True)
 ########################################
+
+print("Setup done.")
 
 nodes = [node]
 
@@ -38,6 +45,8 @@ for i in range(n_of_nodes):
 		random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
 	particles.append(Particle(np.array(random_position), step, swarm, nodes[i]))
 
+print("Swarm created, starting...")
+
 swarm.start()
 
 for particle in particles:
@@ -46,7 +55,7 @@ for particle in particles:
 while swarm.is_alive():
 	pass # we just have to wait until the swarm particle is finished
 
-print("************* Time to end ***********")
+print("************* Experiment is finishing ***********")
 
 for particle in particles:
 	particle.stoprequest.set()
@@ -60,5 +69,5 @@ for particle in particles:
 	values.append(max(column(1, particle.particle_trace)))
 	print("BEST:", values[-1])
 
-print("ACtual best:", max(values))
+print("Actual best:", max(values))
 print('Swarm best:', swarm.swarm_best)

@@ -32,7 +32,7 @@ class Swarm(threading.Thread):
 		super(Swarm, self).join(timeout)
 
 	def create_boundaries(self, space):
-		self.parameter_keys = space.keys()
+		self.parameter_keys = list(space.keys())
 		self.swarm_best = []
 		boundaries = [[], []]
 		for key in self.parameter_keys:
