@@ -10,7 +10,6 @@ class GrowthChecker():
 		self.tolerance = tolerance
 
 	def is_stable(self, n):
-		coeff = linear_regression(self.times, self.values[-n:])
-		if coeff:
-			return coeff > abs(self.tolerance)
-		return True
+		coeff = abs(linear_regression(self.times, self.values[-n:]))
+		avg = sum(self.values[-n:])/n
+		return (coeff/avg) < self.tolerance

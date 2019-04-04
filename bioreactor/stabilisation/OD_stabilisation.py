@@ -1,6 +1,7 @@
 from .DataHolder import *
 from .GrowthChecker import *
 from .Regression import *
+from numpy import log
 
 OD_MAX = 0.525
 OD_MIN = 0.475
@@ -41,11 +42,11 @@ def set_up_conditions(node, conditions, parameter_keys):
 def get_growth_rate(node, conditions, parameter_keys):
 	# set initial conditions
 	set_up_conditions(node, conditions, parameter_keys)
-	checker = GrowthChecker(0.01)
+	checker = GrowthChecker(0.03)
 	holder = DataHolder(node.PBR, time.time())
 	#should return True if not stabilised
-	while checker.is_stable(6):
-		checker.values.append(reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT))
+	while not checker.is_stable(6):
+		checker.values.append(log(2)/reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT))
 		checker.times.append(holder.init_time - time.time())
 		pump_out_population(holder, OD_MIN, pump, TIMEOUT)
 	return checker.values[-1] #which should be stable
