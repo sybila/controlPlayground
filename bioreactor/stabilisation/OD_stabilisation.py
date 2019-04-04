@@ -59,5 +59,5 @@ def get_growth_rate(node, conditions, parameter_keys):
 		print("Iteration", len(checker.values))
 		checker.values.append(log(2)/reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT))
 		checker.times.append(holder.init_time - time.time())
-		pump_out_population(holder, OD_MIN, pump, TIMEOUT)
+		pump_out_population(holder, OD_MIN, 5, TIMEOUT)
 	return checker.values[-1] #which should be stable
