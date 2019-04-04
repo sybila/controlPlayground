@@ -37,8 +37,8 @@ class Particle(threading.Thread):
 
 	# let a bioreactor do its stuff
 	def compute_cost_function(self):
-		#return self.node.stabilise(self.position, self.observer.parameter_keys)
-		return f(*self.position)
+		return self.node.stabilise(self.position, self.observer.parameter_keys)
+		#return f(*self.position)
 
 	# decide new position for the bioreactor
 	def next_position(self):
@@ -61,7 +61,7 @@ class Particle(threading.Thread):
 	def join(self, timeout=None):
 		super(Particle, self).join(timeout)
 
-temperature = (20,25,30,35,40)
-lights = (100,200,400,800)
-growth_rates = ((1.5,2,2.1,2,1),(1.7,0.8,2.3,2.1,1.2),(1.8,1.4,2.9,2.2,1.3),(1.6,2.1,2.2,2,1.1))
-f = interpolate.interp2d(temperature, lights, growth_rates, kind='linear')
+# temperature = (20,25,30,35,40)
+# lights = (100,200,400,800)
+# growth_rates = ((1.5,2,2.1,2,1),(1.7,0.8,2.3,2.1,1.2),(1.8,1.4,2.9,2.2,1.3),(1.6,2.1,2.2,2,1.1))
+# f = interpolate.interp2d(temperature, lights, growth_rates, kind='linear')

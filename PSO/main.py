@@ -11,9 +11,18 @@ node.add_device("PBR", "PBR07", 72700007)
 node.add_device("GMS", "GMS", 46700003)
 node.add_device("GAS", "GAS", 42700007)
 
+############ initial setup #############
+node.PBR.set_temp(25)
+node.GMS.set_valve_flow(0, 0.01)
+node.GMS.set_valve_flow(1, 0.33)
+node.GAS.get_flow_target(0.2)
+node.PBR.set_pwm(50, True)
+########################################
+
 nodes = [node]
 
-multiparametric_space = {params[0]: (20,40), params[1]: (100,800)}  # temperature and light
+multiparametric_space = {params[1]: (50, 400), # red light
+						 params[2]: (50, 400)} # blue light
 
 particles = []
 swarm_results = []  # important variable shared by all particles (including swarm)
