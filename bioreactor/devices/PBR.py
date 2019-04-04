@@ -210,6 +210,23 @@ class PBR(Device):
         except Exception:
             return False
 
+    def get_o2(self, raw=True, repeats=5, wait=0):
+        '''
+        Checks fr concentration of dissociated O2.
+
+        Returns:
+            dict: The current settings structured in a dictionary.
+            
+        Items: "pulse": current stirring in %, 
+            "min": minimal stirring in %, 
+            "max": maximal stirring in %,
+            "on": True if stirring is turned on (bool)
+        '''
+        try:
+            return float(self.parent.execute(self, "get-o2/h2", [repeats, wait, to_scheme_bool(raw)])[0].rstrip())
+        except Exception:
+            return False
+
 def to_scheme_bool(value):
     return "#t" if value else "#f" 
 
