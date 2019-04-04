@@ -4,7 +4,7 @@ import numpy as np
 import bioreactor
 import random
 
-params = ["temp", "light", "flow"]
+params = ["temp", "light-red", "light-blue", "flow"]
 
 node = bioreactor.Node()
 node.add_device("PBR", "PBR07", 72700007)

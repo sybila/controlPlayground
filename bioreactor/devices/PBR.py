@@ -145,10 +145,9 @@ class PBR(Device):
     def set_light_intensity(self, channel, intensity):
         '''
         Control LED panel on photobioreactor.
-        Channel: 0 je red and 1 blue according to PBR configuration.
 
         Args:
-            channel (int): Given channel
+            channel (int): Given channel (0 for red light, 1 for blue light)
             intensity (float): Desired intensity
         Returns:
             bool: True if was succesful, False otherwise.
