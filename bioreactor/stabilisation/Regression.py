@@ -4,7 +4,7 @@ import numpy as np
 # compute regression for given array of times,
 # output values and initial population/density
 def exponentional_regression(times, values, n_0):
-	popt, pcov = curve_fit(lambda t, r: n_0 * np.exp(t * r), times, values)
+	popt, pcov = curve_fit(lambda t, r: n_0 * np.exp(t * r), times, values, maxfev=2000)
 	return popt[0]
 
 def linear_regression(times, values):

@@ -9,10 +9,12 @@ TIMEOUT = 60
 
 # turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
 def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
+	print("-- pump out the population")
 	holder.device.set_pump_state(pump, True)
 	while holder.next_value() > OD_MIN: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
 	holder.device.set_pump_state(pump, False)
+	print("Minimum pupulation reached.")
 	return True
 
 # given a PBR, it checks in cycle the OD every n seconds, once OD_MAX is reached it
@@ -58,6 +60,7 @@ def get_growth_rate(node, conditions, parameter_keys):
 	while not checker.is_stable(history_len):
 		print("Iteration", len(checker.values))
 		checker.values.append(log(2)/reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT))
+		print("New growth rate", checker.values[-1])
 		checker.times.append(holder.init_time - time.time())
 		pump_out_population(holder, OD_MIN, 5, TIMEOUT)
 	return checker.values[-1] #which should be stable
