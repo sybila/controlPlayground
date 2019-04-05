@@ -22,12 +22,11 @@ def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
 # has to remember initial OD!
 def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
 	print("++ reach_max_population")
-	initial = len(holder.data)
 	while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
 	print("Maximum is reached with data:")
-	print(holder.times, holder.data, holder.data[initial])
-	return exponentional_regression(holder.times, holder.data, holder.data[initial])
+	print(holder.times, holder.data, holder.data[0])
+	return exponentional_regression(holder.times, holder.data, holder.data[0])
 
 # it is called when we start with new conditions
 # and they are all set for given node
@@ -54,13 +53,16 @@ def get_growth_rate(node, conditions, parameter_keys):
 	print("Prepared given conditions...")
 	checker = GrowthChecker(0.03)
 	holder = DataHolder(node.PBR, time.time(), [OD_MIN, OD_MAX])
-	holder.measure_initial(history_len, TIMEOUT)
+	#holder.measure_initial(history_len, TIMEOUT)
 	print("Starting...")
 	#should return True if not stabilised
 	while not checker.is_stable(history_len):
 		print("Iteration", len(checker.values))
-		checker.values.append(log(2)/reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT))
-		print("New growth rate", checker.values[-1])
-		checker.times.append(holder.init_time - time.time())
+		value = reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT)
+		print("New growth rate:", value, " - Doubling time:", log(2)/value)
+		checker.values.append(log(2)/value)
+		checker.times.append(time.time() - holder.init_time)
+		holder.reset()
 		pump_out_population(holder, OD_MIN, 5, TIMEOUT)
+		holder.reset()
 	return checker.values[-1] #which should be stable

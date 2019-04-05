@@ -20,18 +20,21 @@ class DataHolder():
 
 	def next_value(self):
 		t, v = self.measure_value()
-		avg = sum(self.data[-2:])/2
-		if v < (104*avg)/100 and v > (96*avg)/100: # 4% tolerance
+		if len(self.data) < 2:
 			print("New OD data:", v)
 			self.data.append(v)
 			self.times.append(t)
 			return v
 		else:
-			return (self.OD_bounds[0] + self.OD_bounds[1])/2 # which is always True in the conditions
+			avg = sum(self.data[-2:])/2
+			if v < (104*avg)/100 and v > (96*avg)/100: # 4% tolerance
+				print("New OD data:", v)
+				self.data.append(v)
+				self.times.append(t)
+				return v
+			else:
+				return (self.OD_bounds[0] + self.OD_bounds[1])/2 # which is always True in the conditions
 
-	def measure_initial(self, n, timeout):
-		for i in range(n):
-			print("Initial measure", i)
-			self.data.append(self.device.measure_od())
-			self.times.append(time.time() - self.init_time)
-			time.sleep(timeout/2)
+	def reset(self):
+		self.data = []
+		self.times = []
