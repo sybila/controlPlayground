@@ -4,10 +4,11 @@ import numpy as np
 import bioreactor
 import random
 import logger
+import datetime
 
 params = ["temp", "light-red", "light-blue", "flow"]
 
-print("Initial setup...")
+print(datetime.datetime.now(), "Initial setup...")
 
 node = bioreactor.Node()
 node.add_device("PBR", "PBR07", 72700007)
@@ -24,7 +25,7 @@ node.PBR.turn_on_light(0, True)
 node.PBR.turn_on_light(1, True)
 ########################################
 
-print("Setup done.")
+print(datetime.datetime.now(), "Setup done.")
 
 nodes = [node]
 
@@ -41,11 +42,14 @@ n_of_nodes = 1
 for i in range(n_of_nodes):
 	random_position = []
 	step = random.uniform(0, 1)
+	##### JUST TOO KEEP SAME CONDITIONS #######
+	# random_position = [258.48927782 315.96116308]
 	for key in swarm.parameter_keys:
 		random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
+	################################
 	particles.append(Particle(np.array(random_position), step, swarm, nodes[i]))
 
-print("Swarm created, starting...")
+print(datetime.datetime.now(), "Swarm created, starting...")
 
 swarm.start()
 

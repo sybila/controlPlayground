@@ -2,6 +2,7 @@ from .DataHolder import *
 from .GrowthChecker import *
 from .Regression import *
 from numpy import log
+import datetime
 
 OD_MAX = 0.82
 OD_MIN = 0.78
@@ -9,7 +10,7 @@ TIMEOUT = 60
 
 # turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
 def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
-	print("-- pump out the population")
+	print(datetime.datetime.now(), "-- pump out the population")
 	holder.device.set_pump_state(pump, True)
 	while holder.next_value() > OD_MIN: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
@@ -21,7 +22,7 @@ def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
 # calculates current growth rate using measured OD data and exponentional regression
 # has to remember initial OD!
 def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
-	print("++ reach_max_population")
+	print(datetime.datetime.now(), "++ reach_max_population")
 	while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
 	print("Maximum is reached with data:")
@@ -47,19 +48,19 @@ def set_up_conditions(node, conditions, parameter_keys):
 def get_growth_rate(node, conditions, parameter_keys):
 	history_len = 6
 	print("------------------------")
-	print("Measuring growth rate....")
+	print(datetime.datetime.now(), "| Measuring growth rate....")
 	# set initial conditions
 	set_up_conditions(node, conditions, parameter_keys)
-	print("Prepared given conditions...")
+	print(datetime.datetime.now(), "| Prepared given conditions...")
 	checker = GrowthChecker(0.03)
 	holder = DataHolder(node.PBR, time.time(), [OD_MIN, OD_MAX])
 	#holder.measure_initial(history_len, TIMEOUT)
 	print("Starting...")
 	#should return True if not stabilised
 	while not checker.is_stable(history_len):
-		print("Iteration", len(checker.values))
+		print(datetime.datetime.now(), "| Iteration", len(checker.values))
 		value = reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT)
-		print("New growth rate:", value, " - Doubling time:", log(2)/value)
+		print(datetime.datetime.now(), "| New growth rate:", value, " - Doubling time:", log(2)/value)
 		checker.values.append(log(2)/value)
 		checker.times.append(time.time() - holder.init_time)
 		holder.reset()
