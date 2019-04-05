@@ -43,7 +43,7 @@ for i in range(n_of_nodes):
 	random_position = []
 	step = random.uniform(0, 1)
 	##### JUST TOO KEEP SAME CONDITIONS #######
-	# random_position = [258.48927782 315.96116308]
+	# random_position = [258.48927782, 315.96116308]
 	for key in swarm.parameter_keys:
 		random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
 	################################

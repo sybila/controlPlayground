@@ -10,7 +10,7 @@ TIMEOUT = 60
 
 # turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
 def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
-	print(datetime.datetime.now(), "-- pump out the population")
+	print(datetime.datetime.now(), "| Pump out the population.")
 	holder.device.set_pump_state(pump, True)
 	while holder.next_value() > OD_MIN: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
@@ -22,7 +22,7 @@ def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
 # calculates current growth rate using measured OD data and exponentional regression
 # has to remember initial OD!
 def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
-	print(datetime.datetime.now(), "++ reach_max_population")
+	print(datetime.datetime.now(), "| Reaching max population.")
 	while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
 	print("Maximum is reached with data:")
