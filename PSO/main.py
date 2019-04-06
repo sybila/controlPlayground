@@ -23,6 +23,7 @@ node.GMS.set_valve_flow(1, 0.33)
 node.PBR.set_pwm(50, True)
 node.PBR.turn_on_light(0, True)
 node.PBR.turn_on_light(1, True)
+node.PBR.set_pump_state(5, False)
 ########################################
 
 print(datetime.datetime.now()+datetime.timedelta(hours=2), "Setup done.")

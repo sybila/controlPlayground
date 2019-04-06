@@ -26,8 +26,8 @@ def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
 	while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
 	print("Max population reached:")
-	print("times = ", holder.times, "data = ", holder.data)
-	return exponentional_regression(holder.times, holder.data, holder.data[0])
+	print("times = ", holder.times, "\n data = ", holder.data)
+	return exponentional_regression(holder.times - holder.times[0], holder.data, holder.data[0])
 
 # it is called when we start with new conditions
 # and they are all set for given node
