@@ -8,7 +8,7 @@ import datetime
 
 params = ["temp", "light-red", "light-blue", "flow"]
 
-print(datetime.datetime.now(), "Initial setup...")
+print(datetime.datetime.now()+datetime.timedelta(hours=2), "Initial setup...")
 
 node = bioreactor.Node()
 node.add_device("PBR", "PBR07", 72700007)
@@ -25,7 +25,7 @@ node.PBR.turn_on_light(0, True)
 node.PBR.turn_on_light(1, True)
 ########################################
 
-print(datetime.datetime.now(), "Setup done.")
+print(datetime.datetime.now()+datetime.timedelta(hours=2), "Setup done.")
 
 nodes = [node]
 
@@ -49,7 +49,7 @@ for i in range(n_of_nodes):
 	################################
 	particles.append(Particle(np.array(random_position), step, swarm, nodes[i]))
 
-print(datetime.datetime.now(), "Swarm created, starting...")
+print(datetime.datetime.now()+datetime.timedelta(hours=2), "Swarm created, starting...")
 
 swarm.start()
 

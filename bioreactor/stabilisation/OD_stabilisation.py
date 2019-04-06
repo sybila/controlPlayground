@@ -10,7 +10,7 @@ TIMEOUT = 60
 
 # turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
 def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
-	print(datetime.datetime.now(), "| Pump out the population.")
+	print(datetime.datetime.now()+datetime.timedelta(hours=2), "| Pump out the population.")
 	holder.device.set_pump_state(pump, True)
 	while holder.next_value() > OD_MIN: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
@@ -22,7 +22,7 @@ def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
 # calculates current growth rate using measured OD data and exponentional regression
 # has to remember initial OD!
 def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
-	print(datetime.datetime.now(), "| Reaching max population.")
+	print(datetime.datetime.now()+datetime.timedelta(hours=2), "| Reaching max population.")
 	while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
 	print("Max population reached:")
@@ -48,19 +48,16 @@ def set_up_conditions(node, conditions, parameter_keys):
 def get_growth_rate(node, conditions, parameter_keys):
 	history_len = 6
 	print("------------------------")
-	print(datetime.datetime.now(), "| Measuring growth rate....")
-	# set initial conditions
+	print(datetime.datetime.now()+datetime.timedelta(hours=2), "| Measuring growth rate....")
 	set_up_conditions(node, conditions, parameter_keys)
-	print(datetime.datetime.now(), "| Prepared given conditions...")
+	print(datetime.datetime.now()+datetime.timedelta(hours=2), "| Prepared given conditions...")
 	checker = GrowthChecker(0.03)
 	holder = DataHolder(node.PBR, time.time(), [OD_MIN, OD_MAX])
-	#holder.measure_initial(history_len, TIMEOUT)
 	print("Starting...")
-	#should return True if not stabilised
 	while not checker.is_stable(history_len):
-		print(datetime.datetime.now(), "| Iteration", len(checker.values))
+		print(datetime.datetime.now()+datetime.timedelta(hours=2), "| Iteration", len(checker.values))
 		value = reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT)
-		print(datetime.datetime.now(), "| New growth rate:", value, " - Doubling time:", log(2)/value)
+		print(datetime.datetime.now()+datetime.timedelta(hours=2), "| New growth rate:", value, " - Doubling time:", log(2)/value)
 		checker.values.append(log(2)/value)
 		checker.times.append(time.time() - holder.init_time)
 		holder.reset()
@@ -69,4 +66,4 @@ def get_growth_rate(node, conditions, parameter_keys):
 	print("All data measured for this conditions:")
 	print("Times:", holder.time_history)
 	print("Data:", holder.data_history)
-	return checker.values[-1] #which should be stable
+	return checker.values[-1] # which should be stable
