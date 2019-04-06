@@ -25,7 +25,7 @@ class Swarm(threading.Thread):
 	def condition_holds(self):
 		print("Swarm:", self.No_of_results, self.swarm_best)
 		self.No_of_results += 1
-		if self.No_of_results > 100:
+		if self.No_of_results > 10:
 			self.stoprequest.set()
 
 	def join(self, timeout=None):
@@ -33,8 +33,8 @@ class Swarm(threading.Thread):
 
 	def create_boundaries(self, space):
 		##### JUST TOO KEEP SAME #######
-		self.parameter_keys = list(space.keys())
-		# self.parameter_keys = ["light-red", "light-blue"]
+		# self.parameter_keys = list(space.keys())
+		self.parameter_keys = ["light-red", "light-blue"]
 		################################
 		self.swarm_best = []
 		boundaries = [[], []]

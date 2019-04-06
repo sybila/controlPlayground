@@ -5,6 +5,7 @@ import numpy as np
 # output values and initial population/density
 def exponentional_regression(times, values, n_0):
 	popt, pcov = curve_fit(lambda t, r: n_0 * np.exp(t * r), times, values, maxfev=2000)
+	print("Exponentional regression:", popt, pcov)
 	return popt[0]
 
 def linear_regression(times, values):

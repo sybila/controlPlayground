@@ -8,8 +8,11 @@ class DataHolder():
 		self.device = device
 		self.init_time = init_time
 		self.OD_bounds = OD_bounds
+		self.data_history = []
+		self.time_history = []
 		self.data = []
 		self.times = []
+		self.outliers = []
 
 	def measure_value(self):
 		print("Measuring OD...")
@@ -33,8 +36,12 @@ class DataHolder():
 				self.times.append(t)
 				return v
 			else:
+				print("We got an outlier!", t, v)
+				self.outliers.append((t,v))
 				return (self.OD_bounds[0] + self.OD_bounds[1])/2 # which is always True in the conditions
 
 	def reset(self):
+		self.data_history += self.data
+		self.time_history += self.times
 		self.data = []
 		self.times = []

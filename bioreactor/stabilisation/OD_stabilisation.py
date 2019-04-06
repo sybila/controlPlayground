@@ -25,8 +25,8 @@ def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
 	print(datetime.datetime.now(), "| Reaching max population.")
 	while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
-	print("Maximum is reached with data:")
-	print(holder.times, holder.data, holder.data[0])
+	print("Max population reached:")
+	print("times = ", holder.times, "data = ", holder.data)
 	return exponentional_regression(holder.times, holder.data, holder.data[0])
 
 # it is called when we start with new conditions
@@ -66,4 +66,7 @@ def get_growth_rate(node, conditions, parameter_keys):
 		holder.reset()
 		pump_out_population(holder, OD_MIN, 5, TIMEOUT)
 		holder.reset()
+	print("All data measured for this conditions:")
+	print("Times:", holder.time_history)
+	print("Data:", holder.data_history)
 	return checker.values[-1] #which should be stable
