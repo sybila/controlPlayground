@@ -25,7 +25,8 @@ class Particle(threading.Thread):
 
 	def run(self):
 		while not self.stoprequest.isSet():
-			print(self.node.PBR.ID, "({0})".format(self.name), "I'm computing:", list(zip(self.observer.parameter_keys, self.position)))
+			print(self.node.PBR.ID, "({0})".format(self.name), "I'm computing:\n", 
+				  list(zip(self.observer.parameter_keys, self.position)), "\n")
 			result = self.compute_cost_function()
 			print(self.node.PBR.ID, "({0})".format(self.name), "I have computed:", result)
 			self.particle_trace.append((self.position, result))
