@@ -11,10 +11,11 @@ class GrowthChecker():
 
 	def is_stable(self, n):
 		print("Checking for stability with:")
-		print(self.times, self.values[-n:])
+		print(self.times[-n:], self.values[-n:])
 		if len(self.values) < n:
+			print("Not enough values to check")
 			return False
-		coeff = abs(linear_regression(self.times, self.values[-n:]))
+		coeff = abs(linear_regression(self.times[-n:], self.values[-n:]))
 		avg = sum(self.values[-n:])/n
-		print("Stable: ", (coeff/avg) < self.tolerance)
+		print("Stable check:", (coeff/avg), "<", self.tolerance, "? :", (coeff/avg) < self.tolerance)
 		return (coeff/avg) < self.tolerance

@@ -15,7 +15,6 @@ class DataHolder():
 		self.outliers = []
 
 	def measure_value(self):
-		print("Measuring OD...")
 		od = self.device.measure_od()
 		if od is None:
 			raise ValueError('Cannot measure optical density on device', self.device.ID)
@@ -24,19 +23,19 @@ class DataHolder():
 	def next_value(self):
 		t, v = self.measure_value()
 		if len(self.data) < 2:
-			print("New OD data:", v)
+			print("New OD value:", v)
 			self.data.append(v)
 			self.times.append(t)
 			return v
 		else:
 			avg = sum(self.data[-2:])/2
 			if v < (104*avg)/100 and v > (96*avg)/100: # 4% tolerance
-				print("New OD data:", v)
+				print("New OD value:", v)
 				self.data.append(v)
 				self.times.append(t)
 				return v
 			else:
-				print("We got an outlier!", t, v)
+				print("An OD outlier :", t, v)
 				self.outliers.append((t,v))
 				return (self.OD_bounds[0] + self.OD_bounds[1])/2 # which is always True in the conditions
 
