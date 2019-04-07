@@ -15,7 +15,7 @@ def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
 	while holder.next_value() > OD_MIN: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
 	holder.device.set_pump_state(pump, False)
-	print("Minimum pupulation reached.")
+	print(datetime.datetime.now()+datetime.timedelta(hours=2), "Minimum pupulation reached.")
 	return True
 
 # given a PBR, it checks in cycle the OD every n seconds, once OD_MAX is reached it
