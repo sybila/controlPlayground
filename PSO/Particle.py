@@ -51,10 +51,10 @@ class Particle(threading.Thread):
 		smaller_than_min = new_position < self.observer.boundaries[0]
 		greater_than_max = new_position > self.observer.boundaries[1]
 		for i in range(len(smaller_than_min)):
-			if not smaller_than_min[i]:
+			if smaller_than_min[i]:
 				new_position[i] = self.observer.boundaries[0][i]
 		for i in range(len(greater_than_max)):
-			if not greater_than_max[i]:
+			if greater_than_max[i]:
 				new_position[i] = self.observer.boundaries[1][i]
 		return new_position
 
