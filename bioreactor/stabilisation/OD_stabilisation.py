@@ -2,7 +2,8 @@ from .DataHolder import *
 from .GrowthChecker import *
 from .Regression import *
 import numpy as np
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+import csv
 
 OD_MAX = 0.82
 OD_MIN = 0.78
@@ -26,8 +27,8 @@ def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
 	while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
 	print(holder.device.id(), "Max population reached:\n",
-	      "times = ", holder.times, 
-	      "\n data = ", holder.data)
+		  "times = ", holder.times, 
+		  "\n data = ", holder.data)
 	return exponentional_regression(holder.times, holder.data, holder.data[0])
 
 # it is called when we start with new conditions
@@ -68,7 +69,7 @@ def get_growth_rate(node, conditions, parameter_keys, dir_name):
 		  "times:", holder.time_history, 
 		  "\n data:", holder.data_history)
 	save_picture(holder, checker, history_len, dir_name, node.PBR.id())
-	save_csv() # TBA
+	save_csv(holder, dir_name, node.PBR.id()) # TBA
 	return checker.values[-1] # which should be stable
 
 # saves data in svg and creates a picture
@@ -102,7 +103,11 @@ def save_picture(holder, checker, history_len, dir_name, ID):
 	ax2.plot(t, v, '-r')
 
 	fig.tight_layout()
-	plt.savefig(dir_name + "/figure.svg", dpi=150)
+	plt.savefig(dir_name + "/" + ID + "_figure.svg", dpi=150)
 
-def save_csv():
-	pass
+def save_csv(holder, dir_name, ID):
+	with open(dir_name + "/" + ID + '_OD_measurement.csv', mode='w') as file:
+		row_writer = csv.writer(file, delimiter=',')
+		row_writer.writerow(['time', 'OD'])
+		for i in range(len(holder.time_history)):
+			row_writer.writerow([holder.time_history[i], holder.data_history[i]])
