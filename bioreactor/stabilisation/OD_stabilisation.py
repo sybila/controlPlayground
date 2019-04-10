@@ -68,17 +68,18 @@ def get_growth_rate(node, conditions, parameter_keys, dir_name):
 	print(node.PBR.id(), "All data measured for this conditions:\n", 
 		  "times:", holder.time_history, 
 		  "\n data:", holder.data_history)
-	save_picture(holder, checker, history_len, dir_name, node.PBR.id())
-	save_csv(holder, dir_name, node.PBR.id()) # TBA
+	save(holder, checker, history_len, dir_name, node.PBR.id(), conditions)
 	return checker.values[-1] # which should be stable
 
 # saves data in svg and creates a picture
-def save_picture(holder, checker, history_len, dir_name, ID):
+def save(holder, checker, history_len, dir_name, ID, conditions):
+	rows = []
 	fig, ax1 = plt.subplots()
 
 	plt.title(ID + " Stable doubling time " + "%.2f" % checker.values[-1] + " h" +\
 			   "\n for conditions " + str(conditions))
 
+	rows += list(map(lambda t, v: (t, v, None, None, None), holder.time_history, holder.data_history))
 	# raw OD data
 	ax1.plot(holder.time_history, holder.data_history, 'o', markersize=2)
 	ax1.set_xlabel('time (s)')
@@ -86,9 +87,10 @@ def save_picture(holder, checker, history_len, dir_name, ID):
 
 	# exponencial regression of OD regions
 	for data in holder.reg_history:
-		t = np.linspace(data["start"], data["end"], 1000)
-		v = data["n_0"] * np.exp(t*data["rate"])
-		ax1.plot(t, v, '-b')
+		times = np.linspace(data["start"], data["end"], 1000)
+		values = data["n_0"] * np.exp(times*data["rate"])
+		ax1.plot(times, values, '-b')
+		rows += list(map(lambda t, v: (t, None, None, v, None), times, values))
 
 	# checker's data
 	ax2 = ax1.twinx()
@@ -96,18 +98,25 @@ def save_picture(holder, checker, history_len, dir_name, ID):
 	ax2.plot(checker.times, checker.values, 'or')
 	ax2.yaxis.label.set_color('red')
 
+	rows += list(map(lambda t, v: (t, None, v, None, None), checker.times, checker.values))
+
 	# measured growth rates
 	coeffs = linear_regression(checker.times[-history_len:], checker.values[-history_len:])
-	t = np.linspace(checker.times[-history_len], checker.times[-1], 500)
-	v = coeffs[1] + coeffs[0]*t
-	ax2.plot(t, v, '-r')
+	times = np.linspace(checker.times[-history_len], checker.times[-1], 500)
+	values = coeffs[1] + coeffs[0]*times
+	ax2.plot(times, values, '-r')
+
+	rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
 
 	fig.tight_layout()
 	plt.savefig(dir_name + "/" + ID + "_figure.svg", dpi=150)
 
-def save_csv(holder, dir_name, ID):
+	save_csv(rows, dir_name, ID)
+
+def save_csv(rows, dir_name, ID):
+	rows.sort(key=lambda x: x[0])
 	with open(dir_name + "/" + ID + '_OD_measurement.csv', mode='w') as file:
 		row_writer = csv.writer(file, delimiter=',')
-		row_writer.writerow(['time', 'OD'])
-		for i in range(len(holder.time_history)):
-			row_writer.writerow([holder.time_history[i], holder.data_history[i]])
+		row_writer.writerow(["time", "OD", "doubling time", "expo regression", "lin regression"])
+		for row in rows:
+			row_writer.writerow(row)
