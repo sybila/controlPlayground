@@ -6,13 +6,14 @@ from scipy import interpolate
 
 # this is basically the Particle
 class Particle(threading.Thread):
-	def __init__(self, position, step, observer, node, cognitive_parameter=0.3, social_parameter=0.5, inertia_weight=0.4):
+	def __init__(self, position, step, observer, node, dir_name, cognitive_parameter=0.3, social_parameter=0.5, inertia_weight=0.4):
 		super(Particle, self).__init__()
 		self.position = position
 		self.step = step
 
 		self.observer = observer
 		self.node = node
+		self.dir_name = dir_name
 
 		self.particle_result = ([], 0)
 		self.particle_trace = []
@@ -37,7 +38,7 @@ class Particle(threading.Thread):
 
 	# let a bioreactor do its stuff
 	def compute_cost_function(self):
-		return self.node.stabilise(self.position, self.observer.parameter_keys)
+		return self.node.stabilise(self.position, self.observer.parameter_keys, self.dir_name)
 		#return f(*self.position)
 
 	# decide new position for the bioreactor

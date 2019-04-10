@@ -10,6 +10,7 @@ class DataHolder():
 		self.OD_bounds = OD_bounds
 		self.data_history = []
 		self.time_history = []
+		self.reg_history = []
 		self.data = []
 		self.times = []
 		self.outliers = []
@@ -39,8 +40,11 @@ class DataHolder():
 				self.outliers.append((t,v))
 				return (self.OD_bounds[0] + self.OD_bounds[1])/2 # which is always True in the conditions
 
-	def reset(self):
+	def reset(self, value=None):
 		self.data_history += self.data
 		self.time_history += self.times
+		if value:
+			self.reg_history.append({"rate": value, "start": self.times[0],
+									  "end": self.times[-1], "n_0": self.data[0]})
 		self.data = []
 		self.times = []

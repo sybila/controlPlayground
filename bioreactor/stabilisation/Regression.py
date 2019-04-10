@@ -11,4 +11,4 @@ def exponentional_regression(times, values, n_0, initial_param=0.0001):
 
 def linear_regression(times, values):
 	popt, pcov = curve_fit(lambda t, a, b: a * t + b, times, values)
-	return popt[0]
+	return popt

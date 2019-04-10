@@ -6,10 +6,9 @@ def show_time():
     return str(datetime.datetime.now() + datetime.timedelta(hours=2)) + " | "
 
 class Logger(object):
-    def __init__(self):
+    def __init__(self, dir_name):
         self.terminal = sys.stdout
-        name = time.strftime("%Y%m%d-%H%M%S")
-        self.log = open(".log/" + name + ".log", "a")
+        self.log = open(dir_name + "/history.log", "a")
         self.new_line = True
 
     def write(self, message):
@@ -28,5 +27,3 @@ class Logger(object):
         #this handles the flush command by doing nothing.
         #you might want to specify some extra behavior here.
         pass    
-
-sys.stdout = Logger()

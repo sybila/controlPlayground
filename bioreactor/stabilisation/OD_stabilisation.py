@@ -1,8 +1,8 @@
 from .DataHolder import *
 from .GrowthChecker import *
 from .Regression import *
-from numpy import log
-import datetime
+import numpy as np
+import matplotlib.pyplot as plt 
 
 OD_MAX = 0.82
 OD_MIN = 0.78
@@ -46,7 +46,7 @@ def set_up_conditions(node, conditions, parameter_keys):
 			success.append(funs[parameter_keys[i]](conditions[i]))
 	return all(success)
 
-def get_growth_rate(node, conditions, parameter_keys):
+def get_growth_rate(node, conditions, parameter_keys, dir_name):
 	history_len = 6
 	print("Measuring growth rate...")
 	set_up_conditions(node, conditions, parameter_keys)
@@ -57,13 +57,52 @@ def get_growth_rate(node, conditions, parameter_keys):
 	while not checker.is_stable(history_len):
 		print("Iteration", len(checker.values))
 		value = reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT)
-		print("New growth rate:", value, " - Doubling time:", log(2)/value)
-		checker.values.append(log(2)/value)
+		doubling_time = (np.log(2)/value)/3600
+		print("New growth rate:", value, "(Doubling time:", doubling_time, "h)")
+		checker.values.append(doubling_time)
 		checker.times.append(time.time() - holder.init_time)
-		holder.reset()
+		holder.reset(value)
 		pump_out_population(holder, OD_MIN, 5, TIMEOUT)
 		holder.reset()
 	print("All data measured for this conditions:\n", 
 		  "times:", holder.time_history, 
 		  "\n data:", holder.data_history)
+	save_picture(holder, checker, history_len, dir_name)
+	save_csv() # TBA
 	return checker.values[-1] # which should be stable
+
+# saves data in svg and creates a picture
+def save_picture(holder, checker, history_len, dir_name):
+	fig, ax1 = plt.subplots()
+
+	plt.title("Stable doubling time " + "%.2f" % checker.values[-1] + " h" +\
+			   "\n for conditions " + str(conditions))
+
+	# raw OD data
+	ax1.plot(holder.time_history, holder.data_history, 'o', markersize=2)
+	ax1.set_xlabel('time (s)')
+	ax1.set_ylabel('OD')
+
+	# exponencial regression of OD regions
+	for data in holder.reg_history:
+		t = np.linspace(data["start"], data["end"], 1000)
+		v = data["n_0"] * np.exp(t*data["rate"])
+		ax1.plot(t, v, '-b')
+
+	# checker's data
+	ax2 = ax1.twinx()
+	ax2.set_ylabel('doubling time (h)')
+	ax2.plot(checker.times, checker.values, 'or')
+	ax2.yaxis.label.set_color('red')
+
+	# measured growth rates
+	coeffs = linear_regression(checker.times[-history_len:], checker.values[-history_len:])
+	t = np.linspace(checker.times[-history_len], checker.times[-1], 500)
+	v = coeffs[1] + coeffs[0]*t
+	ax2.plot(t, v, '-r')
+
+	fig.tight_layout()
+	plt.savefig(dir_name + "/figure.svg", dpi=150)
+
+def save_csv():
+	pass

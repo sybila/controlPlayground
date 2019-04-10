@@ -4,6 +4,12 @@ import numpy as np
 import bioreactor
 import random
 import logger
+import os, sys
+import time
+
+dir_name = ".log/" + time.strftime("%Y%m%d-%H%M%S")
+os.mkdir(dir_name)
+sys.stdout = logger.Logger(dir_name)
 
 params = ["temp", "light-red", "light-blue", "flow"]
 
@@ -47,7 +53,7 @@ for i in range(n_of_nodes):
 	# for key in swarm.parameter_keys:
 	# random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
 	################################
-	particles.append(Particle(np.array(random_position), step, swarm, nodes[i]))
+	particles.append(Particle(np.array(random_position), step, swarm, nodes[i], dir_name))
 
 print("Swarm created, starting...")
 
