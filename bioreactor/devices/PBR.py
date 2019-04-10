@@ -6,6 +6,9 @@ class PBR(Device):
     def __init__(self, particle, ID, adress):
         super(PBR, self).__init__(particle, ID, adress)
 
+    def id(self):
+        return "(" + self.ID + ")"
+
     def get_temp_settings(self):
         '''
         Get information about currently set temperature, maximal and

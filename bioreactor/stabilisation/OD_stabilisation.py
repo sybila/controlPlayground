@@ -10,22 +10,22 @@ TIMEOUT = 60
 
 # turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
 def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
-	print("Pump out the population.")
+	print(holder.device.id(), "Pump out the population.")
 	holder.device.set_pump_state(pump, True)
 	while holder.next_value() > OD_MIN: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
 	holder.device.set_pump_state(pump, False)
-	print("Minimum pupulation reached.")
+	print(holder.device.id(), "Minimum pupulation reached.")
 	return True
 
 # given a PBR, it checks in cycle the OD every n seconds, once OD_MAX is reached it
 # calculates current growth rate using measured OD data and exponentional regression
 # has to remember initial OD!
 def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
-	print("Reaching max population.")
+	print(holder.device.id(), "Reaching max population.")
 	while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
 		time.sleep(TIMEOUT)
-	print("Max population reached:\n",
+	print(holder.device.id(), "Max population reached:\n",
 	      "times = ", holder.times, 
 	      "\n data = ", holder.data)
 	return exponentional_regression(holder.times, holder.data, holder.data[0])
@@ -48,34 +48,34 @@ def set_up_conditions(node, conditions, parameter_keys):
 
 def get_growth_rate(node, conditions, parameter_keys, dir_name):
 	history_len = 6
-	print("Measuring growth rate...")
+	print(node.PBR.id(), "Measuring growth rate...")
 	set_up_conditions(node, conditions, parameter_keys)
-	print("Prepared given conditions.")
-	checker = GrowthChecker(0.03)
+	print(node.PBR.id(), "Prepared given conditions.")
+	checker = GrowthChecker(node.PBR.id())
 	holder = DataHolder(node.PBR, time.time(), [OD_MIN, OD_MAX])
-	print("Starting...")
+	print(node.PBR.id(), "Starting...")
 	while not checker.is_stable(history_len):
-		print("Iteration", len(checker.values))
+		print(node.PBR.id(), "Iteration", len(checker.values))
 		value = reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT)
 		doubling_time = (np.log(2)/value)/3600
-		print("New growth rate:", value, "(Doubling time:", doubling_time, "h)")
+		print(node.PBR.id(), "New growth rate:", value, "(Doubling time:", doubling_time, "h)")
 		checker.values.append(doubling_time)
 		checker.times.append(time.time() - holder.init_time)
 		holder.reset(value)
 		pump_out_population(holder, OD_MIN, 5, TIMEOUT)
 		holder.reset()
-	print("All data measured for this conditions:\n", 
+	print(node.PBR.id(), "All data measured for this conditions:\n", 
 		  "times:", holder.time_history, 
 		  "\n data:", holder.data_history)
-	save_picture(holder, checker, history_len, dir_name)
+	save_picture(holder, checker, history_len, dir_name, node.PBR.id())
 	save_csv() # TBA
 	return checker.values[-1] # which should be stable
 
 # saves data in svg and creates a picture
-def save_picture(holder, checker, history_len, dir_name):
+def save_picture(holder, checker, history_len, dir_name, ID):
 	fig, ax1 = plt.subplots()
 
-	plt.title("Stable doubling time " + "%.2f" % checker.values[-1] + " h" +\
+	plt.title(ID + " Stable doubling time " + "%.2f" % checker.values[-1] + " h" +\
 			   "\n for conditions " + str(conditions))
 
 	# raw OD data

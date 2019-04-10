@@ -24,19 +24,19 @@ class DataHolder():
 	def next_value(self):
 		t, v = self.measure_value()
 		if len(self.data) < 2:
-			print("New OD value:", v)
+			print(self.device.id(), "New OD value:", v)
 			self.data.append(v)
 			self.times.append(t)
 			return v
 		else:
 			avg = sum(self.data[-2:])/2
 			if v < (104*avg)/100 and v > (96*avg)/100: # 4% tolerance
-				print("New OD value:", v)
+				print(self.device.id(), "New OD value:", v)
 				self.data.append(v)
 				self.times.append(t)
 				return v
 			else:
-				print("An OD outlier :", t, v)
+				print(self.device.id(), "An OD outlier :", t, v)
 				self.outliers.append((t,v))
 				return (self.OD_bounds[0] + self.OD_bounds[1])/2 # which is always True in the conditions
 
