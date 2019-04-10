@@ -5,9 +5,10 @@ import bioreactor
 import random
 import logger
 import os, sys
-import time
+import datetime
 
-dir_name = ".log/" + time.strftime("%Y%m%d-%H%M%S")
+now =  datetime.datetime.now() + datetime.timedelta(hours=2)
+dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
 os.mkdir(dir_name)
 sys.stdout = logger.Logger(dir_name)
 
