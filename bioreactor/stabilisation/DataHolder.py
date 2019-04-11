@@ -18,6 +18,7 @@ class DataHolder():
 	def measure_value(self):
 		od = self.device.measure_od()
 		if od is None:
+			print(self.device.id(), "Error: Cannot measure OD! Trying again...")
 			return self.measure_value() # try it again, should be somehow limited!
 		return time.time() - self.init_time, od
 
