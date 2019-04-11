@@ -21,9 +21,9 @@ class GrowthChecker():
 			print(self.device_id, "Not enough values to check")
 			return False
 		avg = mean(self.values[-n:])
-		return self.regression_criteria(avg) and self.confidence_criteria(avg, n)
+		return self.regression_criteria(avg, n) and self.confidence_criteria(avg, n)
 
-	def regression_criteria(self, avg):
+	def regression_criteria(self, avg, n):
 		coeff = abs(linear_regression(self.times[-n:], self.values[-n:])[0])
 		print(self.device_id, "Regression check:", (coeff/avg), "<", self.linear_tol, "? :", (coeff/avg) < self.tolerance)
 		return (coeff/avg) < self.linear_tol
