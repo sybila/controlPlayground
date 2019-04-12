@@ -25,7 +25,7 @@ class GrowthChecker():
 
 	def regression_criteria(self, avg, n):
 		coeff = abs(linear_regression(self.times[-n:], self.values[-n:])[0])
-		print(self.device_id, "Regression check:", (coeff/avg), "<", self.linear_tol, "? :", (coeff/avg) < self.tolerance)
+		print(self.device_id, "Regression check:", (coeff/avg), "<", self.linear_tol, "? :", (coeff/avg) < self.linear_tol)
 		return (coeff/avg) < self.linear_tol
 
 	def confidence_criteria(self, avg, n, confidence=0.95):
