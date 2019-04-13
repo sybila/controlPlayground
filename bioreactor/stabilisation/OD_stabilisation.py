@@ -73,6 +73,7 @@ def get_growth_rate(node, conditions, parameter_keys, dir_name):
 
 # saves data in svg and creates a picture
 def save(holder, checker, history_len, dir_name, ID, conditions):
+	current_time = '{:%Y%m%d-%H%M%S}'.format(datetime.datetime.now() + datetime.timedelta(hours=2))
 	rows = []
 	fig, ax1 = plt.subplots()
 
@@ -88,7 +89,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	# exponencial regression of OD regions
 	for data in holder.reg_history:
 		times = np.linspace(data["start"], data["end"], 1000)
-		values = data["n_0"] * np.exp(times*data["rate"])
+		values = data["n_0"] * np.exp((times-data["start"])*data["rate"])
 		ax1.plot(times, values, '-b')
 		rows += list(map(lambda t, v: (t, None, None, v, None), times, values))
 
@@ -109,13 +110,13 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
 
 	fig.tight_layout()
-	plt.savefig(dir_name + "/" + ID + "_figure.svg", dpi=150)
+	plt.savefig(dir_name + "/" + ID + "/" + current_time + "_fig.svg", dpi=150)
 
 	save_csv(rows, dir_name, ID)
 
 def save_csv(rows, dir_name, ID):
 	rows.sort(key=lambda x: x[0])
-	with open(dir_name + "/" + ID + '_OD_measurement.csv', mode='w') as file:
+	with open(dir_name + "/" + ID + "/" + current_time + '_OD.csv', mode='w') as file:
 		row_writer = csv.writer(file, delimiter=',')
 		row_writer.writerow(["time", "OD", "doubling time", "expo regression", "lin regression"])
 		for row in rows:

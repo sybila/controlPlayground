@@ -56,6 +56,9 @@ for i in range(n_of_nodes):
 	################################
 	particles.append(Particle(np.array(random_position), step, swarm, nodes[i], dir_name))
 
+for particle in particles:
+	os.mkdir(dir_name + "/" + particle.node.PBR.ID)
+
 print("Swarm created, starting...")
 
 swarm.start()
