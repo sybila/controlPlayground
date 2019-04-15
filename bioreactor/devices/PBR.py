@@ -20,7 +20,8 @@ class PBR(Device):
         results = ["set", "min", "max"]
         try:
             values = self.parent.execute(self, "get-thermoregulator-settings")[0].rstrip()[1:-1].split()
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return None
         return dict(zip(results, list(map(float, values[1:-1]))))
 
@@ -33,7 +34,8 @@ class PBR(Device):
         '''
         try:
             return float(self.parent.execute(self, "get-current-temperature")[0])
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return None
 
     def set_temp(self, temp):
@@ -47,7 +49,8 @@ class PBR(Device):
         '''
         try:
             return self.parent.execute(self, "set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return False
 
     def get_ph(self):
@@ -59,7 +62,8 @@ class PBR(Device):
         '''
         try:
             return float(self.parent.execute(self, "get-ph", [5, 0])[0])
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return None
 
     def measure_od(self, channel=0):
@@ -72,7 +76,8 @@ class PBR(Device):
         try:
             result = self.parent.execute(self, "measure-od", [channel, 5])[0].rstrip().split()
             return -log10((int(result[1]) - int(result[2][:-1]))/100000)
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return None
 
     def get_pump_params(self, pump):
@@ -89,7 +94,8 @@ class PBR(Device):
             result = self.parent.execute(self, "get-pump-info", [pump])[0].rstrip()[1:-1].split()
             return {"direction": int(result[1]), "on": from_scheme_bool(result[2]), "valves": int(result[3]),
                     "flow": float(result[4]), "min": float(result[5]), "max": float(result[6])}
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return False
 
     def set_pump_params(self, pump, direction, flow):
@@ -106,7 +112,8 @@ class PBR(Device):
 
         try:
             return self.parent.execute(self, "set-pump-params", [pump, direction, flow])[0].rstrip() == 'ok'
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return False
 
     def set_pump_state(self, pump, on):
@@ -122,7 +129,8 @@ class PBR(Device):
 
         try:
             return self.parent.execute(self, "set-pump-state", [pump, to_scheme_bool(on)])[0].rstrip() == 'ok'
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return False
 
     def get_light_intensity(self, channel):
@@ -142,7 +150,8 @@ class PBR(Device):
         try:
             result = self.parent.execute(self, "get-actinic-continual-settings", [channel])[0].rstrip()[1:-1].split()
             return {"intensity": float(result[1]), "max": float(result[2]), "on": from_scheme_bool(result[3])}
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return None
 
     def set_light_intensity(self, channel, intensity):
@@ -158,7 +167,8 @@ class PBR(Device):
 
         try:
             return self.parent.execute(self, "set-actinic-continual-intensity", [channel, intensity])[0].rstrip() == 'ok'
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return False
 
     def turn_on_light(self, channel, on):
@@ -174,7 +184,8 @@ class PBR(Device):
 
         try:
             return self.parent.execute(self, "set-actinic-continual-mode", [channel, to_scheme_bool(on)])[0].rstrip() == 'ok'
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return False
 
     def get_pwm_settings(self):
@@ -193,7 +204,8 @@ class PBR(Device):
             result = self.parent.execute(self, "get-pwm-settings")[0].rstrip()[1:-1].split()
             return {"pulse": result[1], "min": result[2], 
                     "max": result[3], "on": from_scheme_bool(result[4])}
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return False
 
     def set_pwm(self, value, on):
@@ -210,7 +222,8 @@ class PBR(Device):
 
         try:
             return self.parent.execute(self, "set-pwm", [value, to_scheme_bool(on)])[0].rstrip() == 'ok'
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return False
 
     def get_o2(self, raw=True, repeats=5, wait=0):
@@ -227,7 +240,8 @@ class PBR(Device):
         '''
         try:
             return float(self.parent.execute(self, "get-o2/h2", [repeats, wait, to_scheme_bool(raw)])[0].rstrip())
-        except Exception:
+        except Exception as e:
+            print(self.id(), e)
             return False
 
 def to_scheme_bool(value):
