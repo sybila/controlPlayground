@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 
-OD_MAX = 0.82
-OD_MIN = 0.78
+OD_MAX = 0.87
+OD_MIN = 0.83
 TIMEOUT = 60
 
 # turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
@@ -36,9 +36,9 @@ def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
 # assume conditions has form [temp, co2-flow, [channel, intensity]]
 def set_up_conditions(node, conditions, parameter_keys):
 	funs =  {"temp": node.PBR.set_temp, 
-				  "light-red": lambda intensity: node.PBR.set_light_intensity(0, intensity),
-				  "light-blue": lambda intensity: node.PBR.set_light_intensity(1, intensity),
-				  "flow": node.GAS.set_flow_target}
+		     "light-red": lambda intensity: node.PBR.set_light_intensity(0, intensity),
+			 "light-blue": lambda intensity: node.PBR.set_light_intensity(1, intensity)}
+			 # "flow": node.GAS.set_flow_target}
 	success = []
 	for i in range(len(parameter_keys)):
 		if type(conditions[i]) == list:
