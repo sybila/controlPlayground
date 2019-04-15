@@ -22,10 +22,11 @@ HEADER = \
 types = {"PBR" : PBR, "GMS" : GMS, "GAS" : GAS}
 
 class Node():
-	def __init__(self, user='root', folder='/root/control/', server='192.168.17.13'):
+	def __init__(self, ID, user='root', folder='/root/control/', server='192.168.17.13'):
 		self.folder = folder
 		self.connection = SSHconnection(server, user)
 		self.devices = []
+		self.ID = str(ID)
 
 	def add_device(self, name, ID, adress):
 		setattr(self, name, types[name](self, ID, adress))

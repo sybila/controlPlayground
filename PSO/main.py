@@ -17,15 +17,15 @@ params = ["temp", "light-red", "light-blue", "flow"]
 
 print("Initial setup...")
 
-node1 = bioreactor.Node()
+node1 = bioreactor.Node(1)
 node1.add_device("PBR", "PBR01", 72700001)
 # node.add_device("GMS", "GMS", 46700003)
 # node.add_device("GAS", "GAS", 42700007)
 
-node2 = bioreactor.Node()
+node2 = bioreactor.Node(2)
 node2.add_device("PBR", "PBR02", 72700002)
 
-node3 = bioreactor.Node()
+node3 = bioreactor.Node(3)
 node3.add_device("PBR", "PBR03", 72700003)
 
 ############ initial setup #############
@@ -37,16 +37,19 @@ node1.PBR.set_pwm(50, True)
 node1.PBR.turn_on_light(0, True)
 node1.PBR.turn_on_light(1, True)
 node1.PBR.set_pump_state(5, False)
+node1.PBR.set_temp(25)
 
 node2.PBR.set_pwm(50, True)
 node2.PBR.turn_on_light(0, True)
 node2.PBR.turn_on_light(1, True)
 node2.PBR.set_pump_state(5, False)
+node2.PBR.set_temp(25)
 
 node3.PBR.set_pwm(50, True)
 node3.PBR.turn_on_light(0, True)
 node3.PBR.turn_on_light(1, True)
 node3.PBR.set_pump_state(5, False)
+node3.PBR.set_temp(25)
 ########################################
 
 print("Setup done.")
