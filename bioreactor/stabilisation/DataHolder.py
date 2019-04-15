@@ -37,7 +37,7 @@ class DataHolder():
 				self.times.append(t)
 				return v
 			else:
-				print(self.device.id(), "An OD outlier :", t, v)
+				print(self.device.id(), "! An OD outlier :", v)
 				self.outliers.append((t,v))
 				return (self.OD_bounds[0] + self.OD_bounds[1])/2 # which is always True in the conditions
 
