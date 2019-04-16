@@ -29,7 +29,7 @@ def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
 	print(holder.device.id(), "Max population reached:\n",
 		  "times = ", holder.times, 
 		  "\n data = ", holder.data)
-	return exponentional_regression(holder.times, holder.data, holder.data[0])
+	return exponentional_regression(holder.times[1:], holder.data[1:], holder.data[1])
 
 # it is called when we start with new conditions
 # and they are all set for given node
@@ -48,7 +48,7 @@ def set_up_conditions(node, conditions, parameter_keys):
 	return all(success)
 
 def get_growth_rate(node, conditions, parameter_keys, dir_name):
-	history_len = 6
+	history_len = 5
 	print(node.PBR.id(), "Measuring growth rate...")
 	set_up_conditions(node, conditions, parameter_keys)
 	print(node.PBR.id(), "Prepared given conditions.")

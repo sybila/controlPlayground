@@ -31,13 +31,13 @@ class DataHolder():
 			return v
 		else:
 			avg = sum(self.data[-2:])/2
-			if v < (104*avg)/100 and v > (96*avg)/100: # 4% tolerance
+			if v < (101.5*avg)/100 and v > (98.5*avg)/100: # 1.5% tolerance
 				print(self.device.id(), "New OD value:", v)
 				self.data.append(v)
 				self.times.append(t)
 				return v
 			else:
-				print(self.device.id(), "! An OD outlier :", v, "allowed range: [{0}, {1}]".format((96*avg)/100, (104*avg)/100))
+				print(self.device.id(), "! An OD outlier :", v, "allowed range: [{0}, {1}]".format((98.5*avg)/100, (101.5*avg)/100))
 				self.outliers.append((t,v))
 				return (self.OD_bounds[0] + self.OD_bounds[1])/2 # which is always True in the conditions
 
@@ -47,5 +47,5 @@ class DataHolder():
 		if value:
 			self.reg_history.append({"rate": value, "start": self.times[0],
 									  "end": self.times[-1], "n_0": self.data[0]})
-		self.data = [self.data[-1]]
-		self.times = [self.times[-1]]
+		self.data = self.data[-2:]
+		self.times = self.times[-2:]
