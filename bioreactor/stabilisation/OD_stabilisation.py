@@ -68,7 +68,10 @@ def get_growth_rate(node, conditions, parameter_keys, dir_name):
 	print(node.PBR.id(), "All data measured for this conditions:\n", 
 		  "times:", holder.time_history, 
 		  "\n data:", holder.data_history)
-	save(holder, checker, history_len, dir_name, node.PBR.id(), conditions)
+	try:
+		save(holder, checker, history_len, dir_name, node.PBR.id(), conditions)
+	except Exception as e:
+		print(node.PBR.id(), e)
 	return checker.values[-1] # which should be stable
 
 # saves data in svg and creates a picture

@@ -47,5 +47,5 @@ class DataHolder():
 		if value:
 			self.reg_history.append({"rate": value, "start": self.times[0],
 									  "end": self.times[-1], "n_0": self.data[0]})
-		self.data = []
-		self.times = []
+		self.data = [self.data[-1]]
+		self.times = [self.times[-1]]
