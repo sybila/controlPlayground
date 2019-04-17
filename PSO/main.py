@@ -28,6 +28,9 @@ node2.add_device("PBR", "PBR02", 72700002)
 node3 = bioreactor.Node(3)
 node3.add_device("PBR", "PBR03", 72700003)
 
+node7 = bioreactor.Node(7)
+node7.add_device("PBR", "PBR07", 72700007)
+
 ############ initial setup #############
 #node.PBR.set_temp(25)
 #node.GMS.set_valve_flow(0, 0.01)
@@ -50,15 +53,23 @@ node3.PBR.turn_on_light(0, True)
 node3.PBR.turn_on_light(1, True)
 node3.PBR.set_pump_state(5, False)
 node3.PBR.set_temp(25)
+
+node7.PBR.set_pwm(50, True)
+node7.PBR.turn_on_light(0, True)
+node7.PBR.turn_on_light(1, True)
+node7.PBR.set_pump_state(5, False)
+node7.PBR.set_temp(25)
 ########################################
 
 print("Setup done.")
 
 #nodes = [node1, node2, node3]
-nodes = [node2, node3]
+nodes = [node2, node3, node7]
 
-multiparametric_space = {params[1]: (100, 800), # red light
-						 params[2]: (100, 800)} # blue light
+# multiparametric_space = {params[1]: (100, 800), # red light
+# 						 params[2]: (100, 800)} # blue light
+
+multiparametric_space = {params[0]: (15, 35)}
 
 particles = []
 swarm_results = []  # important variable shared by all particles (including swarm)
@@ -66,7 +77,8 @@ swarm_results = []  # important variable shared by all particles (including swar
 swarm = Swarm(swarm_results, multiparametric_space)
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([211, 164]), np.array([327, 404])]
+# conditions = [np.array([211, 164]), np.array([327, 404])]
+conditions = [np.array([23]), np.array([25]), np.array([27])]
 
 n_of_nodes = len(nodes)
 

@@ -33,8 +33,8 @@ class Swarm(threading.Thread):
 
 	def create_boundaries(self, space):
 		##### JUST TOO KEEP SAME #######
-		# self.parameter_keys = list(space.keys())
-		self.parameter_keys = ["light-red", "light-blue"]
+		self.parameter_keys = list(space.keys())
+		# self.parameter_keys = ["light-red", "light-blue"]
 		################################
 		self.swarm_best = []
 		boundaries = [[], []]

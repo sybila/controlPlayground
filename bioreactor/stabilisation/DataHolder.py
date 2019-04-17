@@ -49,3 +49,4 @@ class DataHolder():
 									  "end": self.times[-1], "n_0": self.data[0]})
 		self.data = self.data[-2:]
 		self.times = self.times[-2:]
+		print(self.device.id(), "Data and times after reset: ", self.data, self.times)
