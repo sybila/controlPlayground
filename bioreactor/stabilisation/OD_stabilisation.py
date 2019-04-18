@@ -4,6 +4,7 @@ from .Regression import *
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
+import datetime
 
 OD_MAX = 0.87
 OD_MIN = 0.83
