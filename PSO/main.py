@@ -46,19 +46,19 @@ node2.PBR.set_pwm(50, True)
 node2.PBR.turn_on_light(0, True)
 node2.PBR.turn_on_light(1, True)
 node2.PBR.set_pump_state(5, False)
-node2.PBR.set_temp(25)
+#node2.PBR.set_temp(25)
 
 node3.PBR.set_pwm(50, True)
 node3.PBR.turn_on_light(0, True)
 node3.PBR.turn_on_light(1, True)
 node3.PBR.set_pump_state(5, False)
-node3.PBR.set_temp(25)
+#node3.PBR.set_temp(25)
 
 node7.PBR.set_pwm(50, True)
 node7.PBR.turn_on_light(0, True)
 node7.PBR.turn_on_light(1, True)
 node7.PBR.set_pump_state(5, False)
-node7.PBR.set_temp(25)
+#node7.PBR.set_temp(25)
 ########################################
 
 print("Setup done.")
@@ -78,7 +78,7 @@ swarm = Swarm(swarm_results, multiparametric_space)
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
 # conditions = [np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([23]), np.array([25]), np.array([27])]
+conditions = [np.array([23]), np.array([26.2]), np.array([24.4])]
 
 n_of_nodes = len(nodes)
 

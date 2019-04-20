@@ -58,4 +58,7 @@ class Node():
 		return output
 
 	def stabilise(self, conditions, parameter_keys, dir_name):
-		return get_growth_rate(self, conditions, parameter_keys, dir_name)
+		try:
+			return get_growth_rate(self, conditions, parameter_keys, dir_name)
+		except Exception as e:
+			print(self.ID, e)

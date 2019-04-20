@@ -116,9 +116,9 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	fig.tight_layout()
 	plt.savefig(dir_name + "/" + ID + "/" + current_time + "_fig.svg", dpi=150)
 
-	save_csv(rows, dir_name, ID)
+	save_csv(rows, dir_name, ID, current_time)
 
-def save_csv(rows, dir_name, ID):
+def save_csv(rows, dir_name, ID, current_time):
 	rows.sort(key=lambda x: x[0])
 	with open(dir_name + "/" + ID + "/" + current_time + '_OD.csv', mode='w') as file:
 		row_writer = csv.writer(file, delimiter=',')
