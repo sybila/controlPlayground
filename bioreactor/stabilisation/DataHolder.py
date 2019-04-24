@@ -1,4 +1,5 @@
 import time
+import numpy as np
 
 from bioreactor import logger
 
@@ -23,7 +24,28 @@ class DataHolder(logger.Logger):
 		self.init_time = t
 
 	def measure_initial_OD(self):
-		self.average = ...
+		data = []
+		for i in range(5):
+			data.append(self.measure_value()[1])
+			time.sleep(2)
+		self.average = 0
+		data.sort()
+		computed = False
+		while not computed:
+			mean = np.mean(data)
+			median = np.median(data)
+			if len(data) < 2:
+				computed = True
+				self.average = data[0]
+
+			if mean/median <= 1:
+				if mean/median >= 0.9:
+					computed = True
+					self.average = mean
+				else:
+					data = data[1:]
+			else:
+				data = data[:-1]
 
 	def measure_value(self):
 		od = self.device.measure_od()

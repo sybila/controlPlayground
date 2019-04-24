@@ -63,7 +63,9 @@ class Stabiliser(logger.Logger):
 			self.log("Measuring growth rate...")
 			self.set_up_conditions(conditions, parameter_keys)
 			self.log("Prepared given conditions.")
+			self.log("Computing initial OD average.")
 			self.holder.measure_initial_OD()
+			self.log("Initial OD average:", self.holder.average)
 			self.holder.set_init_time(time.time())
 			self.log("Starting...")
 
