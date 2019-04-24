@@ -30,6 +30,7 @@ class DataHolder(logger.Logger):
 			time.sleep(2)
 		self.average = 0
 		data.sort()
+		print("+++++++++++++++++ OD data:", data)
 		computed = False
 		while not computed:
 			mean = np.mean(data)
@@ -76,7 +77,7 @@ class DataHolder(logger.Logger):
 		self.log("Too many outliers, considering them as correct data.")
 		self.data += [x[1] for x in self.outliers]
 		self.times += [x[0] for x in self.outliers]
-		self.average = sum(self.outliers[-2:])/2
+		self.average = sum(self.data[-2:])/2
 		self.outliers = []
 		return self.data[-1]
 

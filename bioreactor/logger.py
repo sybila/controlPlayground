@@ -1,4 +1,5 @@
 import datetime
+import os
 
 def show_time():
 	return str(datetime.datetime.now() + datetime.timedelta(hours=2)) + " | "

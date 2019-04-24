@@ -22,7 +22,7 @@ class GrowthChecker(logger.Logger):
 			  "times = ", self.times[-n:], 
 			  "data = ", self.values[-n:])
 		if len(self.values) < n:
-			printself.log("Not enough values to check")
+			self.log("Not enough values to check")
 			return False
 		avg = mean(self.values[-n:])
 		return self.regression_criteria(avg, n) and self.confidence_criteria(avg, n)

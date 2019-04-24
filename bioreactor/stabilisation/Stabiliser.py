@@ -8,7 +8,7 @@ import datetime
 from bioreactor import logger
 
 class Stabiliser(logger.Logger):
-	def __init__(node, dir_name, OD_MAX=0.87, OD_MIN=0.83, TIMEOUT=60):
+	def __init__(self, node, dir_name, OD_MAX=0.87, OD_MIN=0.83, TIMEOUT=60):
 		self.dir_name = dir_name
 		self.node = node
 
@@ -16,7 +16,7 @@ class Stabiliser(logger.Logger):
 		self.OD_MIN = OD_MIN
 		self.TIMEOUT = TIMEOUT
 
-		self.checker = GrowthChecker(self.node.PBR.id(), self.dir_name)
+		self.checker = GrowthChecker(self.node.PBR.ID, self.dir_name)
 		self.holder = DataHolder(self.node.PBR, [OD_MIN, OD_MAX], self.dir_name)
 
 		logger.Logger.__init__(self, self.dir_name, self.node.PBR.ID)

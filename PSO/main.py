@@ -11,7 +11,11 @@ import bioreactor
 now =  datetime.datetime.now() + datetime.timedelta(hours=2)
 dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
 os.mkdir(dir_name)
-sys.stdout = logger.Logger(dir_name)
+
+node_IDs = ["PBR02", "PBR03", "PBR07"]
+
+for ID in node_IDs:
+	os.mkdir(dir_name + "/" + ID)
 
 params = ["temp", "light-red", "light-blue", "flow"]
 
@@ -22,14 +26,19 @@ print("Initial setup...")
 # node.add_device("GMS", "GMS", 46700003)
 # node.add_device("GAS", "GAS", 42700007)
 
-node2 = bioreactor.Node(2, dir_name)
+node2 = bioreactor.Node(2)
 node2.add_device("PBR", "PBR02", 72700002)
+node2.setup_stabiliser(dir_name)
 
-node3 = bioreactor.Node(3, dir_name)
+node3 = bioreactor.Node(3)
 node3.add_device("PBR", "PBR03", 72700003)
+node3.setup_stabiliser(dir_name)
 
-node7 = bioreactor.Node(7, dir_name)
+node7 = bioreactor.Node(7)
 node7.add_device("PBR", "PBR07", 72700007)
+node7.setup_stabiliser(dir_name)
+
+print("Devices ready.")
 
 ############ initial setup #############
 #node.PBR.set_temp(25)
@@ -91,9 +100,6 @@ for i in range(n_of_nodes):
 		# random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
 	################################
 	particles.append(Particle(conditions[i], step, swarm, nodes[i], dir_name))
-
-for particle in particles:
-	os.mkdir(dir_name + "/" + particle.node.PBR.ID)
 
 print("Swarm created, starting...")
 

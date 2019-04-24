@@ -22,12 +22,14 @@ HEADER = \
 types = {"PBR" : PBR, "GMS" : GMS, "GAS" : GAS}
 
 class Node():
-	def __init__(self, ID, dir_name, user='root', folder='/root/control/', server='192.168.17.13'):
+	def __init__(self, ID, user='root', folder='/root/control/', server='192.168.17.13'):
 		self.folder = folder
 		self.connection = SSHconnection(server, user)
 		self.devices = []
 		self.ID = str(ID)
-		self.stabiliser = Stabiliser(self, dir_name)
+		
+	def setup_stabiliser(self, dir_name):
+		self.stabiliser = Stabiliser(self, dir_name, TIMEOUT=5)
 
 	def add_device(self, name, ID, adress):
 		setattr(self, name, types[name](self, ID, adress))
@@ -59,4 +61,4 @@ class Node():
 		return output
 
 	def stabilise(self, conditions, parameter_keys):
-		return Stabiliser.get_growth_rate(conditions, parameter_keys)
+		return self.stabiliser.get_growth_rate(conditions, parameter_keys)

@@ -39,7 +39,7 @@ class Particle(threading.Thread, bioreactor.Logger):
 
 	# let a bioreactor do its stuff
 	def compute_cost_function(self):
-		return self.node.stabilise(self.position, self.observer.parameter_keys, self.dir_name)
+		return self.node.stabilise(self.position, self.observer.parameter_keys)
 		#return f(*self.position)
 
 	# decide new position for the bioreactor
