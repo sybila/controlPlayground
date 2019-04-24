@@ -10,10 +10,10 @@ import bioreactor
 
 now =  datetime.datetime.now() + datetime.timedelta(hours=2)
 dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
-# dir_name =  ".log/TESTING/" # for testing
+# dir_name =  ".log/TESTING" # for testing
 os.mkdir(dir_name)
 
-redirect = open(dir_name + 'history.log', 'a')
+redirect = open(dir_name + '/history.log', 'a')
 sys.stderr = redirect
 sys.stdout = redirect
 
@@ -25,6 +25,7 @@ for ID in node_IDs:
 params = ["temp", "light-red", "light-blue", "flow"]
 
 print("Initial setup...")
+sys.stdout.flush()
 
 #node1 = bioreactor.Node(1)
 #node1.add_device("PBR", "PBR01", 72700001)
@@ -44,6 +45,7 @@ node7.add_device("PBR", "PBR07", 72700007)
 node7.setup_stabiliser(dir_name)
 
 print("Devices ready.")
+sys.stdout.flush()
 
 ############ initial setup #############
 #node.PBR.set_temp(25)
@@ -76,6 +78,7 @@ node7.PBR.set_pump_state(5, False)
 ########################################
 
 print("Setup done.")
+sys.stdout.flush()
 
 #nodes = [node1, node2, node3]
 nodes = [node2, node3, node7]
@@ -107,6 +110,7 @@ for i in range(n_of_nodes):
 	particles.append(Particle(conditions[i], step, swarm, nodes[i], dir_name))
 
 print("Swarm created, starting...")
+sys.stdout.flush()
 
 swarm.start()
 
