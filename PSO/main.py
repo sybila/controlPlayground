@@ -13,6 +13,10 @@ dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
 # dir_name =  ".log/TESTING/" # for testing
 os.mkdir(dir_name)
 
+redirect = open(dir_name + 'history.log', 'a')
+sys.stderr = redirect
+sys.stdout = redirect
+
 node_IDs = ["PBR02", "PBR03", "PBR07"]
 
 for ID in node_IDs:
@@ -84,7 +88,7 @@ multiparametric_space = {params[0]: (15, 35)}
 particles = []
 swarm_results = []  # important variable shared by all particles (including swarm)
 
-swarm = Swarm(swarm_results, multiparametric_space)
+swarm = Swarm(swarm_results, multiparametric_space, dir_name)
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
 # conditions = [np.array([211, 164]), np.array([327, 404])]
@@ -129,3 +133,5 @@ for particle in particles:
 
 print("Actual best:", max(values))
 print('Swarm best:', swarm.swarm_best)
+
+redirect.close()
