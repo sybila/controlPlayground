@@ -3,11 +3,12 @@ import random
 import time
 import numpy as np
 from scipy import interpolate
+from bioreactor import Logger
 
-# this is basically the Particle
-class Particle(threading.Thread):
+class Particle(threading.Thread, bioreactor.Logger):
 	def __init__(self, position, step, observer, node, dir_name, cognitive_parameter=0.3, social_parameter=0.5, inertia_weight=0.4):
-		super(Particle, self).__init__()
+		threading.Thread.__init__(self)
+		bioreactor.Logger.__init__(self)
 		self.position = position
 		self.step = step
 
