@@ -10,6 +10,7 @@ import bioreactor
 
 now =  datetime.datetime.now() + datetime.timedelta(hours=2)
 dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
+# dir_name =  ".log/TESTING/" # for testing
 os.mkdir(dir_name)
 
 node_IDs = ["PBR02", "PBR03", "PBR07"]

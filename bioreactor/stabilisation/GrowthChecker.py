@@ -8,7 +8,7 @@ from bioreactor import logger
 # will use it and K last values to compute linear regression and decide whether
 # growth is already stable (i.e. population is adapted to given conditions)
 class GrowthChecker(logger.Logger):
-	def __init__(self, device_id, dir_name, linear_tol=0.04, confidence_tol=0.06):
+	def __init__(self, device_id, dir_name, linear_tol=0.04, confidence_tol=0.06): # 0.3 for testing
 		self.values = []
 		self.times = []
 		self.device_id = device_id
@@ -37,3 +37,7 @@ class GrowthChecker(logger.Logger):
 		h = std_err * t.ppf((1 + confidence) / 2, n - 1)
 		self.log("Confidence check:", (h/avg), "<", self.confidence_tol, "? :", (h/avg) < self.confidence_tol)
 		return (h/avg) < self.confidence_tol
+
+	def restart(self):
+		self.values = []
+		self.times = []

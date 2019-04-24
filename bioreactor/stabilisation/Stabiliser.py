@@ -59,6 +59,8 @@ class Stabiliser(logger.Logger):
 		return all(success)
 
 	def get_growth_rate(self, conditions, parameter_keys, history_len=5):
+		self.holder.restart()
+		self.checker.restart()
 		try:
 			self.log("Measuring growth rate...")
 			self.set_up_conditions(conditions, parameter_keys)
@@ -84,7 +86,7 @@ class Stabiliser(logger.Logger):
 				  "times:", self.holder.time_history, 
 				  "\n data:", self.holder.data_history)
 
-			save(self.holder, self.checker, history_len, self.dir_name, self.node.PBR.id(), conditions)
+			save(self.holder, self.checker, history_len, self.dir_name, self.node.PBR.ID, conditions)
 		except Exception as e:
 			self.log_error(e)
 		return self.checker.values[-1] # which should be stable
@@ -128,7 +130,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
 
 	fig.tight_layout()
-	plt.savefig(dir_name + "/" + ID + "/" + current_time + "_fig.svg", dpi=150)
+	plt.savefig(dir_name + ID + "/" + current_time + "_fig.svg", dpi=150)
 
 	save_csv(rows, dir_name, ID, current_time)
 

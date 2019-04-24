@@ -28,4 +28,4 @@ class Logger():
 		return show_time() + "(" + self.ID + ") " + " ".join(map(str, *args)) + "\n"
 
 	def error(self, error_text):
-		return show_time() + "(" + self.ID + ") ERROR: " + error_text + "\n"
+		return show_time() + "(" + self.ID + ") ERROR: " + str(error_text) + "\n"

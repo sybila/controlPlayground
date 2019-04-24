@@ -30,7 +30,6 @@ class DataHolder(logger.Logger):
 			time.sleep(2)
 		self.average = 0
 		data.sort()
-		print("+++++++++++++++++ OD data:", data)
 		computed = False
 		while not computed:
 			mean = np.mean(data)
@@ -87,5 +86,9 @@ class DataHolder(logger.Logger):
 		if value:
 			self.reg_history.append({"rate": value, "start": self.times[0],
 									  "end": self.times[-1], "n_0": self.data[0]})
+		self.data = []
+		self.times = []
+
+	def restart(self):
 		self.data = []
 		self.times = []

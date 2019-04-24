@@ -25,7 +25,7 @@ class PBR(Device):
         return 7
 
     def measure_od(self, channel=0):
-        step = 0.005
+        step = 0.002
         sign = 1 if self.increasing else -1
         if random.random() < 0.05:
             step = random.random()
