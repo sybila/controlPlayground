@@ -12,11 +12,11 @@ class Logger():
 
 	def log(self, *args):
 		self.write(self.message(args))
-		print(self.message(args), end="")
+		#print(self.message(args), end="")
 
 	def log_error(self, error_text):
 		self.write(self.error(error_text))
-		print(self.error(error_text), end="")
+		#print(self.error(error_text), end="")
 
 	def write(self, text):
 		self.global_log.write(text)

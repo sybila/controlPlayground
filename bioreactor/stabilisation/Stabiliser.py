@@ -130,7 +130,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
 
 	fig.tight_layout()
-	plt.savefig(dir_name + ID + "/" + current_time + "_fig.svg", dpi=150)
+	plt.savefig(dir_name + "/" + ID + "/" + current_time + "_fig.svg", dpi=150)
 
 	save_csv(rows, dir_name, ID, current_time)
 
