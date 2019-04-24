@@ -2,7 +2,7 @@ import os, sys, re, time
 
 from .devices import GMS, GAS, PBR
 from .connection import SSHconnection
-from .stabilisation import get_growth_rate
+from .stabilisation import Stabiliser
 
 HEADER = \
 '''#!/usr/bin/env gosh
@@ -22,11 +22,12 @@ HEADER = \
 types = {"PBR" : PBR, "GMS" : GMS, "GAS" : GAS}
 
 class Node():
-	def __init__(self, ID, user='root', folder='/root/control/', server='192.168.17.13'):
+	def __init__(self, ID, dir_name, user='root', folder='/root/control/', server='192.168.17.13'):
 		self.folder = folder
 		self.connection = SSHconnection(server, user)
 		self.devices = []
 		self.ID = str(ID)
+		self.stabiliser = Stabiliser(self, dir_name)
 
 	def add_device(self, name, ID, adress):
 		setattr(self, name, types[name](self, ID, adress))
@@ -57,8 +58,5 @@ class Node():
 
 		return output
 
-	def stabilise(self, conditions, parameter_keys, dir_name):
-		try:
-			return get_growth_rate(self, conditions, parameter_keys, dir_name)
-		except Exception as e:
-			print(self.ID, e)
+	def stabilise(self, conditions, parameter_keys):
+		return Stabiliser.get_growth_rate(conditions, parameter_keys)

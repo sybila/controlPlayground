@@ -5,10 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 import datetime
-import bioreactor
+from bioreactor import logger
 
-class Stabiliser(bioreactor.Logger):
-	def __init__(dir_name, node, OD_MAX=0.87, OD_MIN=0.83, TIMEOUT=60):
+class Stabiliser(logger.Logger):
+	def __init__(node, dir_name, OD_MAX=0.87, OD_MIN=0.83, TIMEOUT=60):
 		self.dir_name = dir_name
 		self.node = node
 
@@ -16,10 +16,10 @@ class Stabiliser(bioreactor.Logger):
 		self.OD_MIN = OD_MIN
 		self.TIMEOUT = TIMEOUT
 
-		self.checker = GrowthChecker(self.node.PBR.id())
-		self.holder = DataHolder(self.node.PBR, [OD_MIN, OD_MAX])
+		self.checker = GrowthChecker(self.node.PBR.id(), self.dir_name)
+		self.holder = DataHolder(self.node.PBR, [OD_MIN, OD_MAX], self.dir_name)
 
-		bioreactor.Logger.__init__(self, self.dir_name, self.node.PBR.ID)
+		logger.Logger.__init__(self, self.dir_name, self.node.PBR.ID)
 
 	# turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
 	def pump_out_population(self, pump):
@@ -59,27 +59,29 @@ class Stabiliser(bioreactor.Logger):
 		return all(success)
 
 	def get_growth_rate(self, conditions, parameter_keys, history_len=5):
-		self.log("Measuring growth rate...")
-		self.set_up_conditions(conditions, parameter_keys)
-		self.log("Prepared given conditions.")
-		self.holder.set_init_time(time.time())
-		self.log("Starting...")
-		
-		while not self.checker.is_stable(history_len):
-			self.pump_out_population(5)
-			self.holder.reset()
-			self.log("Iteration", len(self.checker.values))
-			value = self.reach_max_population()
-			doubling_time = (np.log(2)/value)/3600
-			self.log("New growth rate:", value, "(Doubling time:", doubling_time, "h)")
-			self.checker.values.append(doubling_time)
-			self.checker.times.append(time.time() - self.holder.init_time)
-			self.holder.reset(value)
-
-		self.log("All data measured for this conditions:\n", 
-			  "times:", self.holder.time_history, 
-			  "\n data:", self.holder.data_history)
 		try:
+			self.log("Measuring growth rate...")
+			self.set_up_conditions(conditions, parameter_keys)
+			self.log("Prepared given conditions.")
+			self.holder.measure_initial_OD()
+			self.holder.set_init_time(time.time())
+			self.log("Starting...")
+
+			while not self.checker.is_stable(history_len):
+				self.pump_out_population(5)
+				self.holder.reset()
+				self.log("Iteration", len(self.checker.values))
+				value = self.reach_max_population()
+				doubling_time = (np.log(2)/value)/3600
+				self.log("New growth rate:", value, "(Doubling time:", doubling_time, "h)")
+				self.checker.values.append(doubling_time)
+				self.checker.times.append(time.time() - self.holder.init_time)
+				self.holder.reset(value)
+
+			self.log("All data measured for this conditions:\n", 
+				  "times:", self.holder.time_history, 
+				  "\n data:", self.holder.data_history)
+
 			save(self.holder, self.checker, history_len, self.dir_name, self.node.PBR.id(), conditions)
 		except Exception as e:
 			self.log_error(e)

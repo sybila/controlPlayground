@@ -1,12 +1,12 @@
-from Particle import *
-from Swarm import *
 import numpy as np
-import bioreactor
 import random
-import logger
 import os, sys
 import datetime
 import time
+
+from Particle import *
+from Swarm import *
+import bioreactor
 
 now =  datetime.datetime.now() + datetime.timedelta(hours=2)
 dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
@@ -22,13 +22,13 @@ print("Initial setup...")
 # node.add_device("GMS", "GMS", 46700003)
 # node.add_device("GAS", "GAS", 42700007)
 
-node2 = bioreactor.Node(2)
+node2 = bioreactor.Node(2, dir_name)
 node2.add_device("PBR", "PBR02", 72700002)
 
-node3 = bioreactor.Node(3)
+node3 = bioreactor.Node(3, dir_name)
 node3.add_device("PBR", "PBR03", 72700003)
 
-node7 = bioreactor.Node(7)
+node7 = bioreactor.Node(7, dir_name)
 node7.add_device("PBR", "PBR07", 72700007)
 
 ############ initial setup #############
