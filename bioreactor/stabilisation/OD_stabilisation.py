@@ -5,75 +5,85 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 import datetime
+import bioreactor
 
-OD_MAX = 0.87
-OD_MIN = 0.83
-TIMEOUT = 60
+class Stabiliser(bioreactor.Logger):
+	def __init__(dir_name, node, OD_MAX=0.87, OD_MIN=0.83, TIMEOUT=60):
+		self.dir_name = dir_name
+		self.node = node
 
-# turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
-def pump_out_population(holder, OD_MIN, pump, TIMEOUT):
-	print(holder.device.id(), "Pump out the population.")
-	holder.device.set_pump_state(pump, True)
-	while holder.next_value() > OD_MIN: # or make a better condition with some tolerance
-		time.sleep(TIMEOUT)
-	holder.device.set_pump_state(pump, False)
-	print(holder.device.id(), "Minimum pupulation reached.")
-	return True
+		self.OD_MAX = OD_MAX
+		self.OD_MIN = OD_MIN
+		self.TIMEOUT = TIMEOUT
 
-# given a PBR, it checks in cycle the OD every n seconds, once OD_MAX is reached it
-# calculates current growth rate using measured OD data and exponentional regression
-# has to remember initial OD!
-def reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT):
-	print(holder.device.id(), "Reaching max population.")
-	while holder.next_value() < OD_MAX: # or make a better condition with some tolerance
-		time.sleep(TIMEOUT)
-	print(holder.device.id(), "Max population reached:\n",
-		  "times = ", holder.times, 
-		  "\n data = ", holder.data)
-	return exponentional_regression(holder.times[1:], holder.data[1:], holder.data[1])
+		self.checker = GrowthChecker(self.node.PBR.id())
+		self.holder = DataHolder(self.node.PBR, [OD_MIN, OD_MAX])
 
-# it is called when we start with new conditions
-# and they are all set for given node
-# assume conditions has form [temp, co2-flow, [channel, intensity]]
-def set_up_conditions(node, conditions, parameter_keys):
-	funs =  {"temp": node.PBR.set_temp, 
-		     "light-red": lambda intensity: node.PBR.set_light_intensity(0, intensity),
-			 "light-blue": lambda intensity: node.PBR.set_light_intensity(1, intensity)}
-			 # "flow": node.GAS.set_flow_target}
-	success = []
-	for i in range(len(parameter_keys)):
-		if type(conditions[i]) == list:
-			success.append(funs[parameter_keys[i]](*conditions[i]))
-		else:
-			success.append(funs[parameter_keys[i]](conditions[i]))
-	return all(success)
+		bioreactor.Logger.__init__(self, self.dir_name, self.node.PBR.ID)
 
-def get_growth_rate(node, conditions, parameter_keys, dir_name):
-	history_len = 5
-	print(node.PBR.id(), "Measuring growth rate...")
-	set_up_conditions(node, conditions, parameter_keys)
-	print(node.PBR.id(), "Prepared given conditions.")
-	checker = GrowthChecker(node.PBR.id())
-	holder = DataHolder(node.PBR, time.time(), [OD_MIN, OD_MAX])
-	print(node.PBR.id(), "Starting...")
-	while not checker.is_stable(history_len):
-		print(node.PBR.id(), "Iteration", len(checker.values))
-		value = reach_max_population(holder, OD_MIN, OD_MAX, TIMEOUT)
-		doubling_time = (np.log(2)/value)/3600
-		print(node.PBR.id(), "New growth rate:", value, "(Doubling time:", doubling_time, "h)")
-		checker.values.append(doubling_time)
-		checker.times.append(time.time() - holder.init_time)
-		holder.reset(value)
-		pump_out_population(holder, OD_MIN, 5, TIMEOUT)
-		holder.reset()
-	print(node.PBR.id(), "All data measured for this conditions:\n", 
-		  "times:", holder.time_history, 
-		  "\n data:", holder.data_history)
-	try:
-		save(holder, checker, history_len, dir_name, node.PBR.id(), conditions)
-	except Exception as e:
-		print(node.PBR.id(), e)
-	return checker.values[-1] # which should be stable
+	# turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
+	def pump_out_population(self, pump):
+		self.log("Reaching min population...")
+		self.holder.device.set_pump_state(pump, True)
+		while self.holder.next_value() > self.OD_MIN:
+			time.sleep(self.TIMEOUT)
+		self.holder.device.set_pump_state(pump, False)
+		self.log("Min pupulation reached.")
+
+	# given a PBR, it checks in cycle the OD every n seconds, once OD_MAX is reached it
+	# calculates current growth rate using measured OD data and exponentional regression
+	# has to remember initial OD!
+	def reach_max_population(self):
+		self.log("Reaching max population...")
+		while self.holder.next_value() < self.OD_MAX: 
+			time.sleep(self.TIMEOUT)
+		self.log("Max population reached:\n",
+			  "times = ", self.holder.times, 
+			  "\n data = ", self.holder.data)
+		return exponentional_regression(self.holder.times[1:], self.holder.data[1:], self.holder.data[1])
+
+	# it is called when we start with new conditions
+	# and they are all set for given node
+	# assume conditions has form [temp, co2-flow, [channel, intensity]]
+	def set_up_conditions(self, conditions, parameter_keys):
+		funcs =  {"temp": self.node.PBR.set_temp, 
+			     "light-red": lambda intensity: self.node.PBR.set_light_intensity(0, intensity),
+				 "light-blue": lambda intensity: self.node.PBR.set_light_intensity(1, intensity)}
+				 # "flow": node.GAS.set_flow_target}
+		success = []
+		for i in range(len(parameter_keys)):
+			if type(conditions[i]) == list:
+				success.append(funcs[parameter_keys[i]](*conditions[i]))
+			else:
+				success.append(funcs[parameter_keys[i]](conditions[i]))
+		return all(success)
+
+	def get_growth_rate(self, conditions, parameter_keys, history_len=5):
+		self.log("Measuring growth rate...")
+		self.set_up_conditions(conditions, parameter_keys)
+		self.log("Prepared given conditions.")
+		self.holder.set_init_time(time.time())
+		self.log("Starting...")
+		
+		while not self.checker.is_stable(history_len):
+			self.pump_out_population(5)
+			self.holder.reset()
+			self.log("Iteration", len(self.checker.values))
+			value = self.reach_max_population()
+			doubling_time = (np.log(2)/value)/3600
+			self.log("New growth rate:", value, "(Doubling time:", doubling_time, "h)")
+			self.checker.values.append(doubling_time)
+			self.checker.times.append(time.time() - self.holder.init_time)
+			self.holder.reset(value)
+
+		self.log("All data measured for this conditions:\n", 
+			  "times:", self.holder.time_history, 
+			  "\n data:", self.holder.data_history)
+		try:
+			save(self.holder, self.checker, history_len, self.dir_name, self.node.PBR.id(), conditions)
+		except Exception as e:
+			self.log_error(e)
+		return self.checker.values[-1] # which should be stable
 
 # saves data in svg and creates a picture
 def save(holder, checker, history_len, dir_name, ID, conditions):

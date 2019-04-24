@@ -4,7 +4,7 @@ import time
 # also is responsible for measurements and for calculation of median
 # from last several measurements (due to possible errors in measurement)
 class DataHolder():
-	def __init__(self, device, init_time, OD_bounds):
+	def __init__(self, device, OD_bounds):
 		self.device = device
 		self.init_time = init_time
 		self.OD_bounds = OD_bounds
@@ -14,6 +14,9 @@ class DataHolder():
 		self.data = []
 		self.times = []
 		self.outliers = []
+
+	def set_init_time(self, t):
+		self.init_time = t
 
 	def measure_value(self):
 		od = self.device.measure_od()

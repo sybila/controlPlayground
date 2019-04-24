@@ -3,18 +3,19 @@ import random
 import time
 import numpy as np
 from scipy import interpolate
-from bioreactor import Logger
+import bioreactor
 
 class Particle(threading.Thread, bioreactor.Logger):
 	def __init__(self, position, step, observer, node, dir_name, cognitive_parameter=0.3, social_parameter=0.5, inertia_weight=0.4):
 		threading.Thread.__init__(self)
-		bioreactor.Logger.__init__(self)
 		self.position = position
 		self.step = step
 
 		self.observer = observer
 		self.node = node
 		self.dir_name = dir_name
+
+		bioreactor.Logger.__init__(self, dir_name, node.PBR.ID)
 
 		self.particle_result = ([], 0)
 		self.particle_trace = []
@@ -27,10 +28,9 @@ class Particle(threading.Thread, bioreactor.Logger):
 
 	def run(self):
 		while not self.stoprequest.isSet():
-			print(self.node.PBR.ID, "({0})".format(self.name), "I'm computing:\n", 
-				  list(zip(self.observer.parameter_keys, self.position)), "\n")
+			self.log("I'm computing:\n", list(zip(self.observer.parameter_keys, self.position)))
 			result = self.compute_cost_function()
-			print(self.node.PBR.ID, "({0})".format(self.name), "I have computed:", result)
+			self.log("I have computed:", result)
 			self.particle_trace.append((self.position, result))
 			self.observer.swarm_results.append((self.position, result))
 			if result > self.particle_result[1]:

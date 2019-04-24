@@ -28,7 +28,3 @@ class Logger():
 
 	def error(self, error_text):
 		return show_time() + "(" + self.ID + ") ERROR: " + error_text + "\n"
-
-mylog = Logger("here", "PBR07")
-mylog.log("this", "is", "a", "\n", "message")
-mylog.log_error("devision")
