@@ -90,5 +90,9 @@ class DataHolder(logger.Logger):
 		self.times = []
 
 	def restart(self):
+		self.data_history = []
+		self.time_history = []
+		self.reg_history = []
 		self.data = []
 		self.times = []
+		self.outliers = []

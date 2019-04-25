@@ -65,16 +65,16 @@ class Stabiliser(logger.Logger):
 			self.log("Measuring growth rate...")
 			self.set_up_conditions(conditions, parameter_keys)
 			self.log("Prepared given conditions.")
-			self.log("Computing initial OD average.")
+			self.log("Computing initial OD average...")
 			self.holder.measure_initial_OD()
 			self.log("Initial OD average:", self.holder.average)
 			self.holder.set_init_time(time.time())
 			self.log("Starting...")
 
 			while not self.checker.is_stable(history_len):
+				self.log("Iteration", len(self.checker.values))
 				self.pump_out_population(5)
 				self.holder.reset()
-				self.log("Iteration", len(self.checker.values))
 				value = self.reach_max_population()
 				doubling_time = (np.log(2)/value)/3600
 				self.log("New growth rate:", value, "(Doubling time:", doubling_time, "h)")
@@ -130,7 +130,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
 
 	fig.tight_layout()
-	plt.savefig(dir_name + "/" + ID + "/" + current_time + "_fig.svg", dpi=150)
+	plt.savefig(dir_name + "/" + ID + "/" + current_time + "_fig.png", dpi=150)
 
 	save_csv(rows, dir_name, ID, current_time)
 
