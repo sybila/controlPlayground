@@ -23,3 +23,8 @@ The repository provides several tools:
 25.68
 
 ```
+
+When testing all the functionality, it is useful to use *fake* bioreactor. In order to do it, three files has to be edited:
+* `bioreactor/devices/__init__.py` - change `modules`
+* `bioreactor/node.py` - change `TIMEOUT` to a smaller value
+* `bioreactor/stabilisation/GrowthChecker.py` - change `confidence_tol` to a higher value
