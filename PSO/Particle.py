@@ -3,17 +3,19 @@ import random
 import time
 import numpy as np
 from scipy import interpolate
+import bioreactor
 
-# this is basically the Particle
-class Particle(threading.Thread):
+class Particle(threading.Thread, bioreactor.Logger):
 	def __init__(self, position, step, observer, node, dir_name, cognitive_parameter=0.3, social_parameter=0.5, inertia_weight=0.4):
-		super(Particle, self).__init__()
+		threading.Thread.__init__(self)
 		self.position = position
 		self.step = step
 
 		self.observer = observer
 		self.node = node
 		self.dir_name = dir_name
+
+		bioreactor.Logger.__init__(self, dir_name, node.PBR.ID)
 
 		self.particle_result = ([], 0)
 		self.particle_trace = []
@@ -26,10 +28,9 @@ class Particle(threading.Thread):
 
 	def run(self):
 		while not self.stoprequest.isSet():
-			print(self.node.PBR.ID, "({0})".format(self.name), "I'm computing:\n", 
-				  list(zip(self.observer.parameter_keys, self.position)), "\n")
+			self.log("_"*30, "\nI'm computing:\n", list(zip(self.observer.parameter_keys, self.position)))
 			result = self.compute_cost_function()
-			print(self.node.PBR.ID, "({0})".format(self.name), "I have computed:", result)
+			self.log("I have computed:", result)
 			self.particle_trace.append((self.position, result))
 			self.observer.swarm_results.append((self.position, result))
 			if result > self.particle_result[1]:
@@ -38,8 +39,7 @@ class Particle(threading.Thread):
 
 	# let a bioreactor do its stuff
 	def compute_cost_function(self):
-		return self.node.stabilise(self.position, self.observer.parameter_keys, self.dir_name)
-		#return f(*self.position)
+		return self.node.stabilise(self.position, self.observer.parameter_keys)
 
 	# decide new position for the bioreactor
 	def next_position(self):
@@ -61,8 +61,3 @@ class Particle(threading.Thread):
 
 	def join(self, timeout=None):
 		super(Particle, self).join(timeout)
-
-# temperature = (20,25,30,35,40)
-# lights = (100,200,400,800)
-# growth_rates = ((1.5,2,2.1,2,1),(1.7,0.8,2.3,2.1,1.2),(1.8,1.4,2.9,2.2,1.3),(1.6,2.1,2.2,2,1.1))
-# f = interpolate.interp2d(temperature, lights, growth_rates, kind='linear')

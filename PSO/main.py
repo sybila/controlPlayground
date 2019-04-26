@@ -1,21 +1,31 @@
-from Particle import *
-from Swarm import *
 import numpy as np
-import bioreactor
 import random
-import logger
 import os, sys
 import datetime
 import time
 
+from Particle import *
+from Swarm import *
+import bioreactor
+
 now =  datetime.datetime.now() + datetime.timedelta(hours=2)
 dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
+# dir_name =  ".log/TESTING" # for testing
 os.mkdir(dir_name)
-sys.stdout = logger.Logger(dir_name)
+
+redirect = open(dir_name + '/history.log', 'a')
+sys.stderr = redirect
+sys.stdout = redirect
+
+node_IDs = ["PBR02", "PBR03", "PBR07"]
+
+for ID in node_IDs:
+	os.mkdir(dir_name + "/" + ID)
 
 params = ["temp", "light-red", "light-blue", "flow"]
 
 print("Initial setup...")
+sys.stdout.flush()
 
 #node1 = bioreactor.Node(1)
 #node1.add_device("PBR", "PBR01", 72700001)
@@ -24,44 +34,44 @@ print("Initial setup...")
 
 node2 = bioreactor.Node(2)
 node2.add_device("PBR", "PBR02", 72700002)
+node2.setup_stabiliser(dir_name)
 
 node3 = bioreactor.Node(3)
 node3.add_device("PBR", "PBR03", 72700003)
+node3.setup_stabiliser(dir_name)
 
 node7 = bioreactor.Node(7)
 node7.add_device("PBR", "PBR07", 72700007)
+node7.setup_stabiliser(dir_name)
+
+print("Devices ready.")
+sys.stdout.flush()
 
 ############ initial setup #############
-#node.PBR.set_temp(25)
-#node.GMS.set_valve_flow(0, 0.01)
-#node.GMS.set_valve_flow(1, 0.33)
-#node.GAS.set_flow_target(0.2)
-# node1.PBR.set_pwm(50, True)
-# node1.PBR.turn_on_light(0, True)
-# node1.PBR.turn_on_light(1, True)
-# node1.PBR.set_pump_state(5, False)
-# node1.PBR.set_temp(25)
-
 node2.PBR.set_pwm(50, True)
 node2.PBR.turn_on_light(0, True)
 node2.PBR.turn_on_light(1, True)
 node2.PBR.set_pump_state(5, False)
-#node2.PBR.set_temp(25)
+node2.PBR.set_light_intensity(0, 200)
+node2.PBR.set_light_intensity(1, 150)
 
 node3.PBR.set_pwm(50, True)
 node3.PBR.turn_on_light(0, True)
 node3.PBR.turn_on_light(1, True)
 node3.PBR.set_pump_state(5, False)
-#node3.PBR.set_temp(25)
+node3.PBR.set_light_intensity(0, 200)
+node3.PBR.set_light_intensity(1, 150)
 
 node7.PBR.set_pwm(50, True)
 node7.PBR.turn_on_light(0, True)
 node7.PBR.turn_on_light(1, True)
 node7.PBR.set_pump_state(5, False)
-#node7.PBR.set_temp(25)
+node7.PBR.set_light_intensity(0, 200)
+node7.PBR.set_light_intensity(1, 150)
 ########################################
 
 print("Setup done.")
+sys.stdout.flush()
 
 #nodes = [node1, node2, node3]
 nodes = [node2, node3, node7]
@@ -74,11 +84,11 @@ multiparametric_space = {params[0]: (15, 35)}
 particles = []
 swarm_results = []  # important variable shared by all particles (including swarm)
 
-swarm = Swarm(swarm_results, multiparametric_space)
+swarm = Swarm(swarm_results, multiparametric_space, dir_name)
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
 # conditions = [np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([23]), np.array([26.2]), np.array([24.4])]
+conditions = [np.array([21]), np.array([25]), np.array([29])]
 
 n_of_nodes = len(nodes)
 
@@ -92,10 +102,8 @@ for i in range(n_of_nodes):
 	################################
 	particles.append(Particle(conditions[i], step, swarm, nodes[i], dir_name))
 
-for particle in particles:
-	os.mkdir(dir_name + "/" + particle.node.PBR.ID)
-
 print("Swarm created, starting...")
+sys.stdout.flush()
 
 swarm.start()
 
@@ -122,3 +130,5 @@ for particle in particles:
 
 print("Actual best:", max(values))
 print('Swarm best:', swarm.swarm_best)
+
+redirect.close()

@@ -1,11 +1,12 @@
 import threading
 import numpy as np
+import bioreactor
 
 # an Observer over all threads globally
 # workers append their results to shared list
 # observer takes them one by one and evaluates them
 class Swarm(threading.Thread):
-	def __init__(self, results, multiparametric_space):
+	def __init__(self, results, multiparametric_space, dir_name):
 		super(Swarm, self).__init__()
 
 		self.type = 1 # optimum type, -1 for min
@@ -13,6 +14,7 @@ class Swarm(threading.Thread):
 		self.boundaries = self.create_boundaries(multiparametric_space)
 		self.No_of_results = 0
 		self.stoprequest = threading.Event()
+		self.log = open(dir_name + "/history.log", "a")
 
 	def run(self):
 		while not self.stoprequest.isSet():
@@ -23,9 +25,11 @@ class Swarm(threading.Thread):
 				self.condition_holds()
 
 	def condition_holds(self):
-		print("Swarm:", self.No_of_results, self.swarm_best)
+		self.log.write(bioreactor.show_time() + "Swarm best so far: No " +
+					str(self.No_of_results) + ", best: " + str(self.swarm_best) + "\n")
+		self.log.flush()
 		self.No_of_results += 1
-		if self.No_of_results > 10:
+		if self.No_of_results > 100:
 			self.stoprequest.set()
 
 	def join(self, timeout=None):

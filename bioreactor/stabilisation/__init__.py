@@ -1,4 +1,4 @@
-modules = [".DataHolder", ".GrowthChecker", ".Regression", ".OD_stabilisation"]
+modules = [".DataHolder", ".GrowthChecker", ".Regression", ".Stabiliser"]
 
 for module in modules:
 	exec("from " + module + " import *")
