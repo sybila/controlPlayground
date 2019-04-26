@@ -29,7 +29,7 @@ class Node():
 		self.ID = str(ID)
 		
 	def setup_stabiliser(self, dir_name):
-		self.stabiliser = Stabiliser(self, dir_name) #, TIMEOUT=0.01) # for testing
+		self.stabiliser = Stabiliser(self, dir_name, OD_MAX=0.67, OD_MIN=0.63) #, TIMEOUT=0.01) # for testing
 
 	def add_device(self, name, ID, adress):
 		setattr(self, name, types[name](self, ID, adress))

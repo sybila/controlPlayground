@@ -48,33 +48,26 @@ print("Devices ready.")
 sys.stdout.flush()
 
 ############ initial setup #############
-#node.PBR.set_temp(25)
-#node.GMS.set_valve_flow(0, 0.01)
-#node.GMS.set_valve_flow(1, 0.33)
-#node.GAS.set_flow_target(0.2)
-# node1.PBR.set_pwm(50, True)
-# node1.PBR.turn_on_light(0, True)
-# node1.PBR.turn_on_light(1, True)
-# node1.PBR.set_pump_state(5, False)
-# node1.PBR.set_temp(25)
-
 node2.PBR.set_pwm(50, True)
 node2.PBR.turn_on_light(0, True)
 node2.PBR.turn_on_light(1, True)
 node2.PBR.set_pump_state(5, False)
-#node2.PBR.set_temp(25)
+node2.PBR.set_light_intensity(0, 200)
+node2.PBR.set_light_intensity(1, 150)
 
 node3.PBR.set_pwm(50, True)
 node3.PBR.turn_on_light(0, True)
 node3.PBR.turn_on_light(1, True)
 node3.PBR.set_pump_state(5, False)
-#node3.PBR.set_temp(25)
+node3.PBR.set_light_intensity(0, 200)
+node3.PBR.set_light_intensity(1, 150)
 
 node7.PBR.set_pwm(50, True)
 node7.PBR.turn_on_light(0, True)
 node7.PBR.turn_on_light(1, True)
 node7.PBR.set_pump_state(5, False)
-#node7.PBR.set_temp(25)
+node7.PBR.set_light_intensity(0, 200)
+node7.PBR.set_light_intensity(1, 150)
 ########################################
 
 print("Setup done.")
@@ -95,7 +88,7 @@ swarm = Swarm(swarm_results, multiparametric_space, dir_name)
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
 # conditions = [np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([23]), np.array([26.2]), np.array([24.4])]
+conditions = [np.array([21]), np.array([25]), np.array([29])]
 
 n_of_nodes = len(nodes)
 
