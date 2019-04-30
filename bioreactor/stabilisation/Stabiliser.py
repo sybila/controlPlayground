@@ -105,7 +105,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	ax1.plot(to_hours(holder.time_history), holder.data_history, 'o', markersize=2)
 	ax1.set_xlabel('time (h)')
 	ax1.set_ylabel('OD')
-	ax2.yaxis.label.set_color('blue')
+	ax1.yaxis.label.set_color('blue')
 
 	# exponencial regression of OD regions
 	for data in holder.reg_history:
