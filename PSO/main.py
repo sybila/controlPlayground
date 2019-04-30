@@ -85,6 +85,7 @@ particles = []
 swarm_results = []  # important variable shared by all particles (including swarm)
 
 swarm = Swarm(swarm_results, multiparametric_space, dir_name)
+swarm.type = -1
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
 # conditions = [np.array([211, 164]), np.array([327, 404])]
