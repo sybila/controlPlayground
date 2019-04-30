@@ -102,21 +102,22 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 
 	rows += list(map(lambda t, v: (t, v, None, None, None), holder.time_history, holder.data_history))
 	# raw OD data
-	ax1.plot(holder.time_history, holder.data_history, 'o', markersize=2)
-	ax1.set_xlabel('time (s)')
+	ax1.plot(to_hours(holder.time_history), holder.data_history, 'o', markersize=2)
+	ax1.set_xlabel('time (h)')
 	ax1.set_ylabel('OD')
+	ax2.yaxis.label.set_color('blue')
 
 	# exponencial regression of OD regions
 	for data in holder.reg_history:
 		times = np.linspace(data["start"], data["end"], 1000)
 		values = data["n_0"] * np.exp((times-data["start"])*data["rate"])
-		ax1.plot(times, values, '-b')
+		ax1.plot(to_hours(times), values, '-b')
 		rows += list(map(lambda t, v: (t, None, None, v, None), times, values))
 
 	# checker's data
 	ax2 = ax1.twinx()
 	ax2.set_ylabel('doubling time (h)')
-	ax2.plot(checker.times, checker.values, 'or')
+	ax2.plot(to_hours(checker.times), checker.values, 'or')
 	ax2.yaxis.label.set_color('red')
 
 	rows += list(map(lambda t, v: (t, None, v, None, None), checker.times, checker.values))
@@ -125,7 +126,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	coeffs = linear_regression(checker.times[-history_len:], checker.values[-history_len:])
 	times = np.linspace(checker.times[-history_len], checker.times[-1], 500)
 	values = coeffs[1] + coeffs[0]*times
-	ax2.plot(times, values, '-r')
+	ax2.plot(to_hours(times), values, '-r')
 
 	rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
 
@@ -141,3 +142,6 @@ def save_csv(rows, dir_name, ID, current_time):
 		row_writer.writerow(["time", "OD", "doubling time", "expo regression", "lin regression"])
 		for row in rows:
 			row_writer.writerow(row)
+
+def to_hours(times):
+	return np.array(times) / 3600
