@@ -6,10 +6,10 @@ import bioreactor
 # workers append their results to shared list
 # observer takes them one by one and evaluates them
 class Swarm(threading.Thread):
-	def __init__(self, results, multiparametric_space, dir_name):
+	def __init__(self, results, multiparametric_space, dir_name, optimum_type=-1):
 		super(Swarm, self).__init__()
 
-		self.type = 1 # optimum type, -1 for min
+		self.optimum_type = optimum_type # optimum type, -1 for min
 		self.swarm_results = results 
 		self.boundaries = self.create_boundaries(multiparametric_space)
 		self.No_of_results = 0
@@ -20,7 +20,7 @@ class Swarm(threading.Thread):
 		while not self.stoprequest.isSet():
 			if self.swarm_results:
 				new_value = self.swarm_results.pop(0)
-				if new_value[1]*self.type > self.swarm_best[1]*self.type:
+				if new_value[1]*self.optimum_type > self.swarm_best[1]*self.optimum_type:
 					self.swarm_best = new_value
 				self.condition_holds()
 
@@ -46,7 +46,7 @@ class Swarm(threading.Thread):
 			boundaries[0].append(space[key][0])
 			boundaries[1].append(space[key][1])
 			self.swarm_best.append(sum(boundaries[-1])/2)
-		self.swarm_best = (np.array(self.swarm_best), 0)
+		self.swarm_best = (np.array(self.swarm_best), - self.optimum_type * np.inf)
 		return boundaries
 
 def column(i, space):
