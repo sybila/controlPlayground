@@ -10,13 +10,6 @@ from prompt_toolkit.lexers import PygmentsLexer
 from pygments.styles import get_style_by_name
 from prompt_toolkit.styles import style_from_pygments_cls, Style, merge_styles
 
-class MyCompleter(Completer):
-    def get_completions(self, document, complete_event):
-        word_before_cursor = document.get_word_before_cursor(WORD=True)
-        matches = fuzzyfinder(word_before_cursor, list(globals().keys()))
-        for m in matches:
-            yield Completion(m, start_position=-len(word_before_cursor))
-
 my_lexer = PygmentsLexer(Python3Lexer)
 
 prompt_style = Style.from_dict({
@@ -31,24 +24,24 @@ final_style = merge_styles([
     python_style
 ])
 
-prompt_text = [('class:prompt', 'bioarineo'), 
-               ('class:arrow', '> ')]
+class MyCompleter(Completer):
+    def __init__(self, key_words):
+        Completer.__init__(self)
+        self.key_words = key_words
 
-class Test():
-    def __init__(self):
-        self.CONST = 5
+    def get_completions(self, document, complete_event):
+        word_before_cursor = document.get_word_before_cursor(WORD=True)
+        words = list(filter(lambda item: "__" not in item, self.key_words.keys()))
+        matches = fuzzyfinder(word_before_cursor, words)
+        for m in matches:
+            yield Completion(m, start_position=-len(word_before_cursor))
 
-t = Test()
-
-while 1:
-    user_input = prompt(prompt_text,
-                        history=FileHistory('history.txt'),
-                        auto_suggest=AutoSuggestFromHistory(),
-                        completer=MyCompleter(),
-                        lexer=my_lexer,
-                        style=final_style
-                        )
-    try:
-        exec(user_input)
-    except Exception as e:
-        print(e)
+def command(key_words):
+    prompt_text = [('class:prompt', 'bioarineo'), ('class:arrow', '> ')]
+    return prompt(prompt_text,
+                  history=FileHistory('history.txt'),
+                  auto_suggest=AutoSuggestFromHistory(),
+                  completer=MyCompleter(key_words),
+                  lexer=my_lexer,
+                  style=final_style
+                 )
