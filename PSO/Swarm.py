@@ -62,7 +62,8 @@ class Swarm(threading.Thread):
 
 	def exit(self):
 		for particle in self.particles:
-			particle.stoprequest.set()
+			particle.exit()
+		self.stoprequest.set()
 
 def column(i, space):
 	return np.array([row[i] for row in space])
