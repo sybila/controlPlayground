@@ -27,9 +27,10 @@ class Node():
 		self.connection = SSHconnection(server, user)
 		self.devices = []
 		self.ID = str(ID)
+		self.stop_working = False
 		
 	def setup_stabiliser(self, dir_name):
-		self.stabiliser = Stabiliser(self, dir_name, OD_MAX=0.67, OD_MIN=0.63) #, TIMEOUT=0.01) # for testing
+		self.stabiliser = Stabiliser(self, dir_name, OD_MAX=0.67, OD_MIN=0.63) #, TIMEOUT=10) # for testing
 
 	def add_device(self, name, ID, adress):
 		setattr(self, name, types[name](self, ID, adress))

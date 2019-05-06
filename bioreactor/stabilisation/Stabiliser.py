@@ -26,6 +26,8 @@ class Stabiliser(logger.Logger):
 		self.log("Reaching min population...")
 		self.holder.device.set_pump_state(pump, True)
 		while self.holder.next_value() > self.OD_MIN:
+			if self.node.stop_working:
+				return
 			time.sleep(self.TIMEOUT)
 		self.holder.device.set_pump_state(pump, False)
 		self.log("Min pupulation reached.")
@@ -35,7 +37,9 @@ class Stabiliser(logger.Logger):
 	# has to remember initial OD!
 	def reach_max_population(self):
 		self.log("Reaching max population...")
-		while self.holder.next_value() < self.OD_MAX: 
+		while self.holder.next_value() < self.OD_MAX:
+			if self.node.stop_working:
+				return
 			time.sleep(self.TIMEOUT)
 		self.log("Max population reached:\n",
 			  "times = ", self.holder.times, 
@@ -74,8 +78,12 @@ class Stabiliser(logger.Logger):
 			while not self.checker.is_stable(history_len):
 				self.log("Iteration", len(self.checker.values))
 				self.pump_out_population(5)
+				if self.node.stop_working:
+					return
 				self.holder.reset()
 				value = self.reach_max_population()
+				if self.node.stop_working:
+					return
 				doubling_time = (np.log(2)/value)/3600
 				self.log("New growth rate:", value, "(Doubling time:", doubling_time, "h)")
 				self.checker.values.append(doubling_time)

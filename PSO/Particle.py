@@ -3,6 +3,11 @@ import random
 import time
 import numpy as np
 from scipy import interpolate
+
+############## REMOVE THIS !!!
+import sys
+sys.path.append('/home/matho/Documents/GITs/controlPlayground/')
+
 import bioreactor
 
 class Particle(threading.Thread, bioreactor.Logger):
@@ -30,6 +35,8 @@ class Particle(threading.Thread, bioreactor.Logger):
 		while not self.stoprequest.isSet():
 			self.log("_"*30, "\nI'm computing:\n", list(zip(self.observer.parameter_keys, self.position)))
 			result = self.compute_cost_function()
+			if self.node.stop_working:
+				continue
 			self.log("I have computed:", result)
 			self.particle_trace.append((self.position, result))
 			self.observer.swarm_results.append((self.position, result))
@@ -61,3 +68,9 @@ class Particle(threading.Thread, bioreactor.Logger):
 
 	def join(self, timeout=None):
 		super(Particle, self).join(timeout)
+
+	def exit(self):
+		self.node.stop_working = True
+		self.node.PBR.set_pump_state(5, False)
+		self.stoprequest.set()
+		self.log("Particle interrupted, bye sweet world!")

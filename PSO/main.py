@@ -7,15 +7,16 @@ import time
 from Particle import *
 from Swarm import *
 import bioreactor
+from prompt import prompt
 
 now =  datetime.datetime.now() + datetime.timedelta(hours=2)
-dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
-# dir_name =  ".log/TESTING" # for testing
+# dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
+dir_name =  ".log/TESTING" # for testing
 os.mkdir(dir_name)
 
-redirect = open(dir_name + '/history.log', 'a')
-sys.stderr = redirect
-sys.stdout = redirect
+# redirect = open(dir_name + '/history.log', 'a')
+# sys.stderr = redirect
+# sys.stdout = redirect
 
 node_IDs = ["PBR02", "PBR03", "PBR07"]
 
@@ -107,23 +108,32 @@ print("Swarm created, starting...")
 sys.stdout.flush()
 
 swarm.start()
+swarm.set_particles(particles)
 
-for particle in particles:
+for particle in swarm.particles:
 	time.sleep(5)
 	particle.start()
 
+print("Particles started")
+sys.stdout.flush()
+
 while swarm.is_alive():
-	pass # we just have to wait until the swarm particle is finished
+	user_input = prompt.command(globals())
+
+	try:
+		exec(user_input)
+	except Exception as e:
+		print(e)
 
 print("************* Experiment is finishing ***********")
 
-for particle in particles:
+for particle in swarm.particles:
 	particle.stoprequest.set()
 
 print("\n++++++++++++ OVERALL RESULTS ++++++++++++\n")
 
 values = []
-for particle in particles:
+for particle in swarm.particles:
 	print("------- Results for particle", particle.node.PBR.ID, particle.name)
 	print(particle.particle_trace)
 	values.append(max(column(1, particle.particle_trace)))

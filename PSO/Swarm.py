@@ -49,5 +49,20 @@ class Swarm(threading.Thread):
 		self.swarm_best = (np.array(self.swarm_best), - self.optimum_type * np.inf)
 		return boundaries
 
+	def set_particles(self, particles):
+		self.particles = particles
+
+	def add_particle(self, particle):
+		particle.start()
+		self.particles.append(particle)
+
+	def remove_particle(self, ID):
+		particle = self.particles.pop(ID)
+		particle.exit()
+
+	def exit(self):
+		for particle in self.particles:
+			particle.stoprequest.set()
+
 def column(i, space):
 	return np.array([row[i] for row in space])
