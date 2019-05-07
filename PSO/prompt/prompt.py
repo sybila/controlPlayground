@@ -39,7 +39,7 @@ class MyCompleter(Completer):
 def command(key_words):
     prompt_text = [('class:prompt', 'bioarineo'), ('class:arrow', '> ')]
     return prompt(prompt_text,
-                  history=FileHistory('history.txt'),
+                  history=FileHistory('.history.txt'),
                   auto_suggest=AutoSuggestFromHistory(),
                   completer=MyCompleter(key_words),
                   lexer=my_lexer,
