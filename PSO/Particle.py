@@ -74,7 +74,7 @@ class Particle(threading.Thread, bioreactor.Logger):
 	def exit(self):
 		self.node.stop_working = True
 		self.stoprequest.set()
-		self.node.connection.disconnect()
 		time.sleep(2)
+		self.node.connection.disconnect()
 		self.node.PBR.set_pump_state(5, False)
 		self.log("Particle interrupted, bye sweet world!")
