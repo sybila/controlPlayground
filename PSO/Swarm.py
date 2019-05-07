@@ -34,7 +34,7 @@ class Swarm(threading.Thread):
 				if new_value[1]*self.optimum_type > self.swarm_best[1]*self.optimum_type:
 					self.swarm_best = new_value
 				self.condition_holds()
-		self.exit()
+		self.quit_particles()
 
 	def condition_holds(self):
 		self.log.write(bioreactor.show_time() + "Swarm best so far: No " +
@@ -72,9 +72,11 @@ class Swarm(threading.Thread):
 		particle = self.particles.pop(ID)
 		particle.exit()
 
-	def exit(self):
+	def quit_particles(self):
 		for particle in self.particles:
 			particle.exit()
+
+	def exit(self):
 		self.stoprequest.set()
 
 	def save(self):

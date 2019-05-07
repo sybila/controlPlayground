@@ -89,18 +89,25 @@ for i in range(len(nodes)):
 	# for key in swarm.parameter_keys:
 		# random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
 	################################
-	swarm.add_particle(Particle(conditions[i], step, swarm, nodes[i], dir_name))
 	time.sleep(5)
+	swarm.add_particle(Particle(conditions[i], step, swarm, nodes[i], dir_name))
 
 print("Swarm started.")
 
 while swarm.is_alive():
-	user_input = prompt.command(globals())
-
 	try:
-		exec(user_input)
-	except Exception as e:
-		print(e)
+		user_input = prompt.command(globals())
+		try:
+			exec(user_input)
+		except Exception as e:
+			print(e)
+	except KeyboardInterrupt as e:
+		print("Type exit() to quit the interpreter.\nType swarm.exit() or press Ctrl+D to end the experiment.")
+	except EOFError as e:
+		swarm.exit()
+		time.sleep(5)
+
+swarm.exit()
 
 print("Experiment finished.")
 print('Swarm best:', swarm.swarm_best)
