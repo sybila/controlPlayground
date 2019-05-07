@@ -40,7 +40,7 @@ class Swarm(threading.Thread):
 					str(self.No_of_results) + ", best: " + str(self.swarm_best) + "\n")
 		self.log.flush()
 		self.No_of_results += 1
-		if self.No_of_results > 3:
+		if self.No_of_results > 20:
 			self.stoprequest.set()
 
 	def join(self, timeout=None):
@@ -61,8 +61,11 @@ class Swarm(threading.Thread):
 		return boundaries
 
 	def add_particle(self, particle):
-		particle.start()
-		self.particles.append(particle)
+		if particle.node.PBR.ID in map(lambda p: p.node.PBR.ID, self.particles):
+			print("Device already exists.")
+		else:
+			particle.start()
+			self.particles.append(particle)
 
 	def remove_particle(self, ID):
 		particle = self.particles.pop(ID)
