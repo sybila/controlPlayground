@@ -79,7 +79,7 @@ class Swarm(threading.Thread):
 	def exit(self):
 		self.stoprequest.set()
 
-	def save(self):
+	def export_data(self):
 		self.rows = []
 		self.header = list(self.parameter_keys)
 		n_params = len(self.parameter_keys)
@@ -91,17 +91,20 @@ class Swarm(threading.Thread):
 				row[0:n_params] = point[0]
 				row[i+n_params] = point[1]
 				self.rows.append(row)
+
+	def save(self):
+		self.export_data()
 		self.save_csv()
 		self.save_plot()
 
-	def save_csv(self):
-		with open(self.dir_name + '/results.csv', mode='w') as file:
+	def save_csv(self, filename='results.csv'):
+		with open(self.dir_name + '/' + filename, mode='w') as file:
 			row_writer = csv.writer(file, delimiter=',')
 			row_writer.writerow(self.header)
 			for row in self.rows:
 				row_writer.writerow(row)
 
-	def save_plot(self):
+	def save_plot(self, filename='results.png'):
 		f, ax = plt.subplots()
 
 		for i, particle in enumerate(self.particles):
@@ -119,7 +122,7 @@ class Swarm(threading.Thread):
 
 		legend = ax.legend(shadow=True)
 
-		plt.savefig(self.dir_name + "/results.png", dpi=150)
+		plt.savefig(self.dir_name + '/' + filename, dpi=150)
 
 def temp(data):
 	return [d[0][0] for d in data]

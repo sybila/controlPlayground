@@ -4,10 +4,6 @@ import time
 import numpy as np
 from scipy import interpolate
 
-############## REMOVE THIS !!!
-import sys
-sys.path.append('/home/matho/Documents/GITs/controlPlayground/')
-
 import bioreactor
 
 class Particle(threading.Thread, bioreactor.Logger):
@@ -71,7 +67,8 @@ class Particle(threading.Thread, bioreactor.Logger):
 
 	def exit(self):
 		self.node.stop_working = True
-		self.node.PBR.set_pump_state(5, False)
 		self.stoprequest.set()
 		self.node.connection.disconnect()
+		time.sleep(2)
+		self.node.PBR.set_pump_state(5, False)
 		self.log("Particle interrupted, bye sweet world!")

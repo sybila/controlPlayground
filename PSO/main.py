@@ -105,7 +105,7 @@ while swarm.is_alive():
 		print("Type exit() to quit the interpreter.\nType swarm.exit() or press Ctrl+D to end the experiment.")
 	except EOFError as e:
 		swarm.exit()
-		time.sleep(5)
+		time.sleep(10)
 
 swarm.exit()
 
