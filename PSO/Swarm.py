@@ -1,6 +1,7 @@
 import threading
 import numpy as np
 import csv
+import time
 
 import matplotlib
 matplotlib.use('Agg')
@@ -78,6 +79,7 @@ class Swarm(threading.Thread):
 
 	def exit(self):
 		self.stoprequest.set()
+		time.sleep(10)
 
 	def export_data(self):
 		self.rows = []

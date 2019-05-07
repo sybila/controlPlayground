@@ -27,6 +27,12 @@ class Particle(threading.Thread, bioreactor.Logger):
 
 		self.stoprequest = threading.Event()
 
+	def __str__(self):
+		return str(self.node.PBR.ID)
+
+	def __repr__(self):
+		return "Particle({0})".format(self.node.PBR.ID)
+
 	def run(self):
 		while not self.stoprequest.isSet():
 			self.log("_"*30, "\nI'm computing:\n", list(zip(self.observer.parameter_keys, self.position)))

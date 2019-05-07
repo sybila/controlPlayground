@@ -19,7 +19,7 @@ now =  datetime.datetime.now() + datetime.timedelta(hours=2)
 dir_name =  ".log/RUNNING"
 os.mkdir(dir_name)
 
-node_IDs = ["PBR02", "PBR03", "PBR07"]
+node_IDs = ["PBR01", "PBR02", "PBR03", "PBR04"]
 
 for ID in node_IDs:
 	os.mkdir(dir_name + "/" + ID)
@@ -27,6 +27,10 @@ for ID in node_IDs:
 ####### setup nodes ########
 
 nodes = []
+
+nodes.append(bioreactor.Node(1))
+nodes[-1].add_device("PBR", "PBR01", 72700001)
+nodes[-1].setup_stabiliser(dir_name)
 
 nodes.append(bioreactor.Node(2))
 nodes[-1].add_device("PBR", "PBR02", 72700002)
@@ -36,34 +40,21 @@ nodes.append(bioreactor.Node(3))
 nodes[-1].add_device("PBR", "PBR03", 72700003)
 nodes[-1].setup_stabiliser(dir_name)
 
-nodes.append(bioreactor.Node(7))
-nodes[-1].add_device("PBR", "PBR07", 72700007)
+nodes.append(bioreactor.Node(4))
+nodes[-1].add_device("PBR", "PBR04", 72700004)
 nodes[-1].setup_stabiliser(dir_name)
 
 print("Devices ready.")
 
 ############ initial setup #############
 
-nodes[-1].PBR.set_pwm(50, True)
-nodes[-1].PBR.turn_on_light(0, True)
-nodes[-1].PBR.turn_on_light(1, True)
-nodes[-1].PBR.set_pump_state(5, False)
-nodes[-1].PBR.set_light_intensity(0, 200)
-nodes[-1].PBR.set_light_intensity(1, 150)
-
-nodes[-1].PBR.set_pwm(50, True)
-nodes[-1].PBR.turn_on_light(0, True)
-nodes[-1].PBR.turn_on_light(1, True)
-nodes[-1].PBR.set_pump_state(5, False)
-nodes[-1].PBR.set_light_intensity(0, 200)
-nodes[-1].PBR.set_light_intensity(1, 150)
-
-nodes[-1].PBR.set_pwm(50, True)
-nodes[-1].PBR.turn_on_light(0, True)
-nodes[-1].PBR.turn_on_light(1, True)
-nodes[-1].PBR.set_pump_state(5, False)
-nodes[-1].PBR.set_light_intensity(0, 200)
-nodes[-1].PBR.set_light_intensity(1, 150)
+for node in nodes:
+	node.PBR.set_pwm(50, True)
+	node.PBR.turn_on_light(0, True)
+	node.PBR.turn_on_light(1, True)
+	node.PBR.set_pump_state(5, False)
+	node.PBR.set_light_intensity(0, 60)
+	node.PBR.set_light_intensity(1, 30)
 
 ########################################
 
@@ -72,7 +63,7 @@ print("Setup done.")
 # multiparametric_space = {params[1]: (100, 800), # red light
 # 						 params[2]: (100, 800)} # blue light
 
-multiparametric_space = {params[0]: (15, 35)}
+multiparametric_space = {params[0]: (15, 40)}
 
 print("Creating and starting swarm...")
 
@@ -81,7 +72,7 @@ swarm.type = -1
 swarm.start()
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([19]), np.array([25]), np.array([31])]
+conditions = [np.array([29]), np.array([22]), np.array([26]), np.array([36])]
 
 for i in range(len(nodes)):
 	step = random.uniform(0, 1)
