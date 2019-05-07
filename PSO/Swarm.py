@@ -1,9 +1,12 @@
 import threading
 import numpy as np
-import bioreactor
-
-import matplotlib.pyplot as plt
 import csv
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+import bioreactor
 
 COLOURS = "bgrcmyk"
 
@@ -37,7 +40,7 @@ class Swarm(threading.Thread):
 					str(self.No_of_results) + ", best: " + str(self.swarm_best) + "\n")
 		self.log.flush()
 		self.No_of_results += 1
-		if self.No_of_results > 20:
+		if self.No_of_results > 3:
 			self.stoprequest.set()
 
 	def join(self, timeout=None):

@@ -1,10 +1,14 @@
+import numpy as np
+import csv
+import datetime
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 from .DataHolder import *
 from .GrowthChecker import *
 from .Regression import *
-import numpy as np
-import matplotlib.pyplot as plt
-import csv
-import datetime
 from bioreactor import logger
 
 class Stabiliser(logger.Logger):
