@@ -75,7 +75,7 @@ class PBR(Device):
         '''
         try:
             result = self.parent.execute(self, "measure-od", [channel, 5])[0].rstrip().split()
-            return -log10((int(result[1]) - int(result[2][:-1]))/100000)
+            return -log10((int(result[1]) - int(result[2][:-1]))/40000)
         except Exception as e:
             print(self.id(), e)
             return None

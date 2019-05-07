@@ -14,8 +14,9 @@ params = ["temp", "light-red", "light-blue", "flow"]
 print("Initial setup...")
 
 now =  datetime.datetime.now() + datetime.timedelta(hours=2)
-dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
+# dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
 # dir_name =  ".log/TESTING" # for testing
+dir_name =  ".log/RUNNING"
 os.mkdir(dir_name)
 
 node_IDs = ["PBR02", "PBR03", "PBR07"]
@@ -80,7 +81,7 @@ swarm.type = -1
 swarm.start()
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([21]), np.array([25]), np.array([29])]
+conditions = [np.array([19]), np.array([25]), np.array([31])]
 
 for i in range(len(nodes)):
 	step = random.uniform(0, 1)
@@ -105,7 +106,6 @@ while swarm.is_alive():
 		print("Type exit() to quit the interpreter.\nType swarm.exit() or press Ctrl+D to end the experiment.")
 	except EOFError as e:
 		swarm.exit()
-		time.sleep(10)
 
 swarm.exit()
 
