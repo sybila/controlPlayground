@@ -4,6 +4,7 @@ import csv
 
 import matplotlib
 matplotlib.use('Agg')
+matplotlib.rc('figure', max_open_warning = 0)
 import matplotlib.pyplot as plt
 
 import bioreactor
@@ -40,7 +41,7 @@ class Swarm(threading.Thread):
 					str(self.No_of_results) + ", best: " + str(self.swarm_best) + "\n")
 		self.log.flush()
 		self.No_of_results += 1
-		if self.No_of_results > 20:
+		if self.No_of_results > 100:
 			self.stoprequest.set()
 
 	def join(self, timeout=None):
