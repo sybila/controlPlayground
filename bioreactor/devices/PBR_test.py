@@ -63,6 +63,12 @@ class PBR_test(Device):
     def get_o2(self, raw=True, repeats=5, wait=0):
         return 10
 
+    def get_thermoregulator_settings(self):
+        return {"temp": 25, "min": 0, "max": 100, "on": 1}
+
+    def set_thermoregulator_state(self, on):
+        return True
+
 def to_scheme_bool(value):
     return "#t" if value else "#f" 
 
