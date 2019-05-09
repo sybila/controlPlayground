@@ -80,7 +80,7 @@ class Swarm(threading.Thread):
 
 	def exit(self):
 		self.stoprequest.set()
-		time.sleep(10)
+		time.sleep(45)
 
 	def export_data(self):
 		self.rows = []

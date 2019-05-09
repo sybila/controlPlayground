@@ -14,14 +14,6 @@ params = ["temp", "light-red", "light-blue", "flow"]
 
 print("Initial setup...")
 
-########## TESTING ########
-# TIMEOUT = 0.001
-# conf_tol = 0.99
-# MAX_VALUES = 5
-# TESTING = True
-
-# OD_MIN = 0.43
-# OD_MAX = 0.47
 ####### EXPERIMENTS #######
 TIMEOUT = 60
 conf_tol = 0.06
@@ -30,6 +22,14 @@ TESTING = False
 
 OD_MIN = 0.43
 OD_MAX = 0.47
+########## TESTING ########
+# TIMEOUT = 0.001
+# conf_tol = 0.99
+# MAX_VALUES = 50
+# TESTING = True
+
+# OD_MIN = 0.43
+# OD_MAX = 0.47
 ###########################
 
 now = datetime.datetime.now() + datetime.timedelta(hours=2)
@@ -89,7 +89,7 @@ swarm.type = -1
 swarm.start()
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([24]), np.array([20]), np.array([26]), np.array([30])]
+conditions = [np.array([22]), np.array([20]), np.array([26]), np.array([30])]
 
 for i in range(len(nodes)):
 	step = random.uniform(0, 1)

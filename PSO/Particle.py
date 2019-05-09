@@ -18,7 +18,7 @@ class Particle(threading.Thread, bioreactor.Logger):
 
 		bioreactor.Logger.__init__(self, dir_name, node.PBR.ID)
 
-		self.particle_result = ([], 0)
+		self.particle_best = (position, self.observer.optimum_type*np.inf*(-1))
 		self.particle_trace = []
 
 		self.cognitive_parameter = cognitive_parameter
@@ -40,10 +40,13 @@ class Particle(threading.Thread, bioreactor.Logger):
 			if self.node.stop_working:
 				continue
 			self.log("I have computed:", result)
+			if result == np.inf:
+				result = self.observer.optimum_type*np.inf*(-1)
+
 			self.particle_trace.append((self.position, result))
 			self.observer.swarm_results.append((self.position, result))
-			if result > self.particle_result[1]:
-				self.particle_result = (self.position, result)
+			if result*self.observer.optimum_type > self.particle_best[1]*self.observer.optimum_type:
+				self.particle_best = (self.position, result)
 			self.position = self.next_position()
 
 	# let a bioreactor do its stuff
@@ -53,7 +56,7 @@ class Particle(threading.Thread, bioreactor.Logger):
 	# decide new position for the bioreactor
 	def next_position(self):
 		new_position = self.position + self.inertia_weight * self.step + \
-					   self.cognitive_parameter * random.random() * (self.particle_result[0] - self.position) + \
+					   self.cognitive_parameter * random.random() * (self.particle_best[0] - self.position) + \
 					   self.social_parameter * random.random() * (self.observer.swarm_best[0] - self.position)
 		return self.check_boundaries(new_position)
 
@@ -74,7 +77,7 @@ class Particle(threading.Thread, bioreactor.Logger):
 	def exit(self):
 		self.node.stop_working = True
 		self.stoprequest.set()
-		time.sleep(2)
+		time.sleep(30)
 		self.node.PBR.set_pump_state(5, False)
 		self.node.connection.disconnect()
 		self.log("Particle interrupted, bye sweet world!")

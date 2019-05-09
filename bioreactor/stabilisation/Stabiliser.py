@@ -12,13 +12,14 @@ from .Regression import *
 from bioreactor import logger
 
 class Stabiliser(logger.Logger):
-	def __init__(self, node, dir_name, OD_MAX, OD_MIN, TIMEOUT, linear_tol, confidence_tol):
+	def __init__(self, node, dir_name, OD_MAX, OD_MIN, TIMEOUT, linear_tol, confidence_tol, max_time=48):
 		self.dir_name = dir_name
 		self.node = node
 
 		self.OD_MAX = OD_MAX
 		self.OD_MIN = OD_MIN
 		self.TIMEOUT = TIMEOUT
+		self.max_time = max_time*3600
 
 		self.checker = GrowthChecker(self.node.PBR.ID, self.dir_name, linear_tol, confidence_tol)
 		self.holder = DataHolder(self.node.PBR, [OD_MIN, OD_MAX], self.dir_name)
@@ -80,6 +81,13 @@ class Stabiliser(logger.Logger):
 			self.log("Starting...")
 
 			while not self.checker.is_stable(history_len):
+				if time.time() - self.holder.init_time > self.max_time:
+					if self.checker.values:
+						avg = np.mean(self.checker.values)
+					else:
+						avg = np.inf
+					self.log("Max time", self.max_time, "hours exceeded - returning average ", avg)
+					return avg
 				self.log("Iteration", len(self.checker.values))
 				self.pump_out_population(5)
 				if self.node.stop_working:
@@ -100,9 +108,10 @@ class Stabiliser(logger.Logger):
 
 			save(self.holder, self.checker, history_len, self.dir_name, self.node.PBR.ID, conditions)
 		except Exception as e:
-			self.log_error(e)
+			raise(e)
 		if self.checker.values:
 			return self.checker.values[-1] # which should be stable
+		self.log("lets return inf")
 		return np.inf
 
 # saves data in svg and creates a picture
