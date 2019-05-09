@@ -23,7 +23,7 @@ print("Initial setup...")
 # OD_MIN = 0.43
 # OD_MAX = 0.47
 ####### EXPERIMENTS #######
-TIMEOUT = 1
+TIMEOUT = 60
 conf_tol = 0.06
 MAX_VALUES = 100
 TESTING = False
