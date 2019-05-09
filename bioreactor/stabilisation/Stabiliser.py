@@ -12,7 +12,7 @@ from .Regression import *
 from bioreactor import logger
 
 class Stabiliser(logger.Logger):
-	def __init__(self, node, dir_name, OD_MAX=0.87, OD_MIN=0.83, TIMEOUT=60):
+	def __init__(self, node, dir_name, OD_MAX, OD_MIN, TIMEOUT, linear_tol, confidence_tol):
 		self.dir_name = dir_name
 		self.node = node
 
@@ -20,7 +20,7 @@ class Stabiliser(logger.Logger):
 		self.OD_MIN = OD_MIN
 		self.TIMEOUT = TIMEOUT
 
-		self.checker = GrowthChecker(self.node.PBR.ID, self.dir_name)
+		self.checker = GrowthChecker(self.node.PBR.ID, self.dir_name, linear_tol, confidence_tol)
 		self.holder = DataHolder(self.node.PBR, [OD_MIN, OD_MAX], self.dir_name)
 
 		logger.Logger.__init__(self, self.dir_name, self.node.PBR.ID)
@@ -101,7 +101,9 @@ class Stabiliser(logger.Logger):
 			save(self.holder, self.checker, history_len, self.dir_name, self.node.PBR.ID, conditions)
 		except Exception as e:
 			self.log_error(e)
-		return self.checker.values[-1] # which should be stable
+		if self.checker.values:
+			return self.checker.values[-1] # which should be stable
+		return np.inf
 
 # saves data in svg and creates a picture
 def save(holder, checker, history_len, dir_name, ID, conditions):

@@ -16,7 +16,7 @@ COLOURS = "bgrcmyk"
 # workers append their results to shared list
 # observer takes them one by one and evaluates them
 class Swarm(threading.Thread):
-	def __init__(self, multiparametric_space, dir_name, optimum_type=-1):
+	def __init__(self, multiparametric_space, max_values, dir_name=".log/RUNNING", optimum_type=-1):
 		super(Swarm, self).__init__()
 
 		self.optimum_type = optimum_type # optimum type, -1 for min
@@ -27,6 +27,7 @@ class Swarm(threading.Thread):
 		self.log = open(dir_name + "/history.log", "a")
 		self.dir_name = dir_name
 		self.particles = []
+		self.MAX_VALUES = max_values
 
 	def run(self):
 		while not self.stoprequest.isSet():
@@ -42,7 +43,7 @@ class Swarm(threading.Thread):
 					str(self.No_of_results) + ", best: " + str(self.swarm_best) + "\n")
 		self.log.flush()
 		self.No_of_results += 1
-		if self.No_of_results > 100:
+		if self.No_of_results > self.MAX_VALUES:
 			self.stoprequest.set()
 
 	def join(self, timeout=None):

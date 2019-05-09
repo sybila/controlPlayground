@@ -3,6 +3,7 @@ import random
 import os, sys
 import datetime
 import time
+import shutil
 
 from Particle import *
 from Swarm import *
@@ -13,42 +14,52 @@ params = ["temp", "light-red", "light-blue", "flow"]
 
 print("Initial setup...")
 
-now =  datetime.datetime.now() + datetime.timedelta(hours=2)
-# dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
-# dir_name =  ".log/TESTING" # for testing
-dir_name =  ".log/RUNNING"
-os.mkdir(dir_name)
+########## TESTING ########
+# TIMEOUT = 0.001
+# conf_tol = 0.99
+# MAX_VALUES = 5
+####### EXPERIMENTS #######
+TIMEOUT = 0.001
+conf_tol = 0.06
+MAX_VALUES = 5
+###########################
 
-node_IDs = ["PBR01", "PBR02", "PBR03", "PBR04"]
+OD_MIN = 0.43
+OD_MAX = 0.47
 
-for ID in node_IDs:
-	os.mkdir(dir_name + "/" + ID)
+now = datetime.datetime.now() + datetime.timedelta(hours=2)
+log_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
+working_dir =  ".log/RUNNING"
+
+if os.path.exists(working_dir):
+	name = datetime.datetime.fromtimestamp(os.path.getctime(working_dir)) + datetime.timedelta(hours=2)
+	os.rename(working_dir, '.log/' + '{:%Y%m%d-%H%M%S}'.format(name))
+
+os.mkdir(working_dir)
 
 ####### setup nodes ########
 
 nodes = []
 
-nodes.append(bioreactor.Node(1))
+nodes.append(bioreactor.Node())
 nodes[-1].add_device("PBR", "PBR01", 72700001)
-nodes[-1].setup_stabiliser(dir_name)
 
-nodes.append(bioreactor.Node(2))
+nodes.append(bioreactor.Node())
 nodes[-1].add_device("PBR", "PBR02", 72700002)
-nodes[-1].setup_stabiliser(dir_name)
 
-nodes.append(bioreactor.Node(3))
+nodes.append(bioreactor.Node())
 nodes[-1].add_device("PBR", "PBR03", 72700003)
-nodes[-1].setup_stabiliser(dir_name)
 
-nodes.append(bioreactor.Node(4))
+nodes.append(bioreactor.Node())
 nodes[-1].add_device("PBR", "PBR04", 72700004)
-nodes[-1].setup_stabiliser(dir_name)
 
 print("Devices ready.")
 
 ############ initial setup #############
 
 for node in nodes:
+	os.mkdir(working_dir + "/" + node.PBR.ID)
+	node.setup_stabiliser(OD_MIN, OD_MAX, TIMEOUT, confidence_tol=conf_tol)
 	node.PBR.set_pwm(50, True)
 	node.PBR.turn_on_light(0, True)
 	node.PBR.turn_on_light(1, True)
@@ -67,12 +78,12 @@ multiparametric_space = {params[0]: (15, 40)}
 
 print("Creating and starting swarm...")
 
-swarm = Swarm(multiparametric_space, dir_name)
+swarm = Swarm(multiparametric_space, MAX_VALUES)
 swarm.type = -1
 swarm.start()
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([29]), np.array([22]), np.array([26]), np.array([36])]
+conditions = [np.array([22]), np.array([20]), np.array([26]), np.array([30])]
 
 for i in range(len(nodes)):
 	step = random.uniform(0, 1)
@@ -82,7 +93,7 @@ for i in range(len(nodes)):
 		# random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
 	################################
 	time.sleep(5)
-	swarm.add_particle(Particle(conditions[i], step, swarm, nodes[i], dir_name))
+	swarm.add_particle(Particle(conditions[i], step, swarm, nodes[i]))
 
 print("Swarm started.")
 
@@ -104,3 +115,6 @@ print("Experiment finished.")
 print('Swarm best:', swarm.swarm_best)
 
 swarm.save()
+
+# rename working_dir to log_name
+os.rename(working_dir, log_name)

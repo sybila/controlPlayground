@@ -21,7 +21,7 @@ class Device():
 		self.adress = adress
 		self.definition = DEFINITION_1 + ID + DEFINITION_2 + str(adress) + DEFINITION_3
 		self.command = ["(print (rpc2 " + ID + " `(", ")))"]
-		self.filename = os.path.dirname(os.path.abspath(__file__)) + '/script_' + self.parent.ID + '.scm'
+		self.filename = os.path.dirname(os.path.abspath(__file__)) + '/script_' + self.ID + '.scm'
 
 	def __del__(self):
 		try:

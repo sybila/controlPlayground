@@ -7,7 +7,7 @@ from scipy import interpolate
 import bioreactor
 
 class Particle(threading.Thread, bioreactor.Logger):
-	def __init__(self, position, step, observer, node, dir_name, cognitive_parameter=0.3, social_parameter=0.5, inertia_weight=0.4):
+	def __init__(self, position, step, observer, node, dir_name=".log/RUNNING", cognitive_parameter=0.3, social_parameter=0.5, inertia_weight=0.4):
 		threading.Thread.__init__(self)
 		self.position = position
 		self.step = step
