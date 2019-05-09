@@ -1,7 +1,6 @@
 import os, sys, re, time
 
-from .devices import GMS, GAS, PBR
-from .connection import SSHconnection
+from .devices import GMS, GAS
 from .stabilisation import Stabiliser
 
 HEADER = \
@@ -19,20 +18,25 @@ HEADER = \
 
 '''
 
-types = {"PBR" : PBR, "GMS" : GMS, "GAS" : GAS}
-
 class Node():
-	def __init__(self, user='root', folder='/root/control/', server='192.168.17.13'):
+	def __init__(self, testing=False, user='root', folder='/root/control/', server='192.168.17.13'):
 		self.folder = folder
-		self.connection = SSHconnection(server, user)
 		self.devices = []
 		self.stop_working = False
+		if testing:
+			from .devices import PBR_test as PBR
+			from .devices import SSHconnection
+		else:
+			from .devices import PBR
+			from .connection import SSHconnection
+		self.connection = SSHconnection(server, user)
+		self.types = {"PBR" : PBR, "GMS" : GMS, "GAS" : GAS}
 		
 	def setup_stabiliser(self, OD_MIN, OD_MAX, TIMEOUT=1, linear_tol=0.04, confidence_tol=0.06, dir_name=".log/RUNNING"):
 		self.stabiliser = Stabiliser(self, dir_name, OD_MAX, OD_MIN, TIMEOUT, linear_tol, confidence_tol)
 
 	def add_device(self, name, ID, adress):
-		setattr(self, name, types[name](self, ID, adress))
+		setattr(self, name, self.types[name](self, ID, adress))
 		self.devices.append(name)
 
 	def write_scm_file(self, device, value, args=[]):

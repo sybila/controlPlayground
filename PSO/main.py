@@ -18,14 +18,19 @@ print("Initial setup...")
 # TIMEOUT = 0.001
 # conf_tol = 0.99
 # MAX_VALUES = 5
+# TESTING = True
+
+# OD_MIN = 0.43
+# OD_MAX = 0.47
 ####### EXPERIMENTS #######
-TIMEOUT = 0.001
+TIMEOUT = 1
 conf_tol = 0.06
-MAX_VALUES = 5
-###########################
+MAX_VALUES = 100
+TESTING = False
 
 OD_MIN = 0.43
 OD_MAX = 0.47
+###########################
 
 now = datetime.datetime.now() + datetime.timedelta(hours=2)
 log_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
@@ -41,16 +46,16 @@ os.mkdir(working_dir)
 
 nodes = []
 
-nodes.append(bioreactor.Node())
+nodes.append(bioreactor.Node(TESTING))
 nodes[-1].add_device("PBR", "PBR01", 72700001)
 
-nodes.append(bioreactor.Node())
+nodes.append(bioreactor.Node(TESTING))
 nodes[-1].add_device("PBR", "PBR02", 72700002)
 
-nodes.append(bioreactor.Node())
+nodes.append(bioreactor.Node(TESTING))
 nodes[-1].add_device("PBR", "PBR03", 72700003)
 
-nodes.append(bioreactor.Node())
+nodes.append(bioreactor.Node(TESTING))
 nodes[-1].add_device("PBR", "PBR04", 72700004)
 
 print("Devices ready.")
