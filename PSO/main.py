@@ -65,6 +65,7 @@ print("Devices ready.")
 for node in nodes:
 	os.mkdir(working_dir + "/" + node.PBR.ID)
 	node.setup_stabiliser(OD_MIN, OD_MAX, TIMEOUT, confidence_tol=conf_tol)
+	node.PBR.set_thermoregulator_state(1)
 	node.PBR.set_pwm(50, True)
 	node.PBR.turn_on_light(0, True)
 	node.PBR.turn_on_light(1, True)
@@ -88,7 +89,7 @@ swarm.type = -1
 swarm.start()
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([22]), np.array([20]), np.array([26]), np.array([30])]
+conditions = [np.array([24]), np.array([20]), np.array([26]), np.array([30])]
 
 for i in range(len(nodes)):
 	step = random.uniform(0, 1)

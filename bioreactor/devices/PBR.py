@@ -244,6 +244,41 @@ class PBR(Device):
             print(self.id(), e)
             return False
 
+    def get_thermoregulator_settings(self):
+        '''
+        Get current settings of thermoregulator.
+
+        Returns:
+            dict: The current settings structured in a dictionary.
+            
+        Items: "temp": current temperature in Celsius degrees, 
+            "min": minimal allowed temperature, 
+            "max": maximal allowed temperature,
+            "on": state of thermoregulator (1 -> on, 0 -> freeze, -1 -> off)
+        '''
+        try:
+            result = self.parent.execute(self, "get-thermoregulator-settings")[0].rstrip()[1:-1].split()
+            return {"temp": float(result[1]), "min": float(result[2]), 
+                    "max": float(result[3]), "on": int(result[4])}
+        except Exception as e:
+            print(self.id(), e)
+            return False 
+
+    def set_thermoregulator_state(self, on):
+        '''
+        Set state of thermoregulator.
+
+        Args:
+            on (int): 1 -> on, 0 -> freeze, -1 -> off
+        Returns:
+            bool: True if was succesful, False otherwise.
+        '''
+        try:
+            return self.parent.execute(self, "set-thermoregulator-state", [on])[0].rstrip() == 'ok'
+        except Exception as e:
+            print(self.id(), e)
+            return False
+
 def to_scheme_bool(value):
     return "#t" if value else "#f" 
 
