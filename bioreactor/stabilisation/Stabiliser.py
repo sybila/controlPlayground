@@ -99,7 +99,7 @@ class Stabiliser(logger.Logger):
 				doubling_time = (np.log(2)/value)/3600
 				self.log("New growth rate:", value, "(Doubling time:", doubling_time, "h)")
 				self.checker.values.append(doubling_time)
-				self.checker.times.append(time.time() - self.holder.init_time)
+				self.checker.times.append((time.time() - self.holder.init_time)/3600)
 				self.holder.reset(value)
 
 			self.log("All data measured for this conditions:\n", 

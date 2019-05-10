@@ -17,6 +17,7 @@ print("Initial setup...")
 ####### EXPERIMENTS #######
 TIMEOUT = 60
 conf_tol = 0.06
+lin_tol = 0.04
 MAX_VALUES = 100
 TESTING = False
 
@@ -25,6 +26,7 @@ OD_MAX = 0.47
 ########## TESTING ########
 # TIMEOUT = 0.001
 # conf_tol = 0.99
+# lin_tol = 100
 # MAX_VALUES = 50
 # TESTING = True
 
@@ -64,7 +66,7 @@ print("Devices ready.")
 
 for node in nodes:
 	os.mkdir(working_dir + "/" + node.PBR.ID)
-	node.setup_stabiliser(OD_MIN, OD_MAX, TIMEOUT, confidence_tol=conf_tol)
+	node.setup_stabiliser(OD_MIN, OD_MAX, TIMEOUT, linear_tol=lin_tol, confidence_tol=conf_tol)
 	node.PBR.set_thermoregulator_state(1)
 	node.PBR.set_pwm(50, True)
 	node.PBR.turn_on_light(0, True)
