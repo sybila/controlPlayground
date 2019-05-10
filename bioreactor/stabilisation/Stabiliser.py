@@ -83,7 +83,7 @@ class Stabiliser(logger.Logger):
 			while not self.checker.is_stable(history_len):
 				if time.time() - self.holder.init_time > self.max_time:
 					if self.checker.values:
-						avg = np.mean(self.checker.values)
+						avg = np.mean(self.checker.valuess[-history_len:])
 					else:
 						avg = np.inf
 					self.log("Max time", self.max_time, "hours exceeded - returning average ", avg)
