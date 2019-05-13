@@ -24,6 +24,8 @@ class Stabiliser(logger.Logger):
 		self.checker = GrowthChecker(self.node.PBR.ID, self.dir_name, linear_tol, confidence_tol)
 		self.holder = DataHolder(self.node.PBR, [OD_MIN, OD_MAX], self.dir_name)
 
+		self.pump = 5
+
 		logger.Logger.__init__(self, self.dir_name, self.node.PBR.ID)
 
 	# turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
@@ -68,6 +70,7 @@ class Stabiliser(logger.Logger):
 		return all(success)
 
 	def get_growth_rate(self, conditions, parameter_keys, history_len=5):
+		self.history_len = history_len
 		self.holder.restart()
 		self.checker.restart()
 		try:
@@ -80,16 +83,16 @@ class Stabiliser(logger.Logger):
 			self.holder.set_init_time(time.time())
 			self.log("Starting...")
 
-			while not self.checker.is_stable(history_len):
+			while not self.checker.is_stable(self.history_len):
 				if time.time() - self.holder.init_time > self.max_time:
 					if self.checker.values:
-						avg = np.mean(self.checker.valuess[-history_len:])
+						avg = np.mean(self.checker.values[-self.history_len:])
 					else:
 						avg = np.inf
 					self.log("Max time", self.max_time, "hours exceeded - returning average ", avg)
 					return avg
 				self.log("Iteration", len(self.checker.values))
-				self.pump_out_population(5)
+				self.pump_out_population(self.pump)
 				if self.node.stop_working:
 					return
 				self.holder.reset()
@@ -106,7 +109,7 @@ class Stabiliser(logger.Logger):
 				  "times:", self.holder.time_history, 
 				  "\n data:", self.holder.data_history)
 
-			save(self.holder, self.checker, history_len, self.dir_name, self.node.PBR.ID, conditions)
+			save(self.holder, self.checker, self.history_len, self.dir_name, self.node.PBR.ID, conditions)
 		except Exception as e:
 			raise(e)
 		if self.checker.values:

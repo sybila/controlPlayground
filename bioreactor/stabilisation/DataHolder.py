@@ -18,6 +18,9 @@ class DataHolder(logger.Logger):
 		self.times = []
 		self.outliers = []
 
+		self.upper_outlier_tol = 2.5
+		self.lower_outlier_tol = 2.5
+
 		logger.Logger.__init__(self, dir_name, self.device.ID)
 
 	def set_init_time(self, t):
@@ -56,11 +59,11 @@ class DataHolder(logger.Logger):
 
 	def next_value(self):
 		t, v = self.measure_value()
-		if v < (101.5*self.average)/100 and v > (98.5*self.average)/100: # 1.5% tolerance
+		if v < self.tolerance(self.upper_outlier_tol) and v > self.tolerance(-self.lower_outlier_tol): # 1.5% tolerance
 			self.log("New OD value:", v)
 			self.data.append(v)
 			self.times.append(t)
-			self.average = (self.average + v)/2 # is it OK?
+			self.average = (self.average + v)/2
 			self.outliers = []
 			return v
 		else:
@@ -69,7 +72,7 @@ class DataHolder(logger.Logger):
 			self.outliers.append((t,v))
 			self.log("Outlier No." + str(len(self.outliers)) + 
 					 ":", v, "with allowed range: [{0}, {1}]".format(
-					(98.5*self.average)/100, (101.5*self.average)/100))
+					self.tolerance(-self.lower_outlier_tol), self.tolerance(self.upper_outlier_tol)))
 			return (self.OD_bounds[0] + self.OD_bounds[1])/2 # which is always True in the conditions
 
 	def reset_outliers(self):
@@ -96,3 +99,6 @@ class DataHolder(logger.Logger):
 		self.data = []
 		self.times = []
 		self.outliers = []
+
+	def tolerance(self, value):
+		return ((100 + value)/100)*self.average
