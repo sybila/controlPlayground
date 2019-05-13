@@ -14,6 +14,9 @@ class SSHconnection():
     def execute_cmd(self, command):
         return self.ssh.exec_command(command)
 
+    def disconnect(self):
+        self.__del__()
+
     def __del__(self):
         self.sftp.close()
         self.ssh.close()

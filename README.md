@@ -8,8 +8,8 @@ The repository provides several tools:
 
 ### Bioreactor folder
 
-* provides interface to command photobioreactor
-* three devices are enabled: GasMixer (GMS), GasAnalyser (GAS), Photobioreactor (PBR)
+* provides interface to operate photobioreactor
+* three devices are enabled: Photobioreactor (PBR), GasMixer (GMS), GasAnalyser (GAS)
 
 ```python
 >>> import bioreactor
@@ -24,7 +24,4 @@ The repository provides several tools:
 
 ```
 
-When testing all the functionality, it is useful to use *fake* bioreactor. In order to do it, three files has to be edited:
-* `bioreactor/devices/__init__.py` - change `modules`
-* `bioreactor/node.py` - change `TIMEOUT` to a smaller value
-* `bioreactor/stabilisation/GrowthChecker.py` - change `confidence_tol` to a higher value
+> When testing all the functionality, it is useful to use *fake* bioreactor. In order to do it, uncomment `TESTING` part in main.py file and comment out `EXPERIMENTS` part.

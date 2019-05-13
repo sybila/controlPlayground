@@ -48,7 +48,7 @@ class DataHolder(logger.Logger):
 				data = data[:-1]
 
 	def measure_value(self):
-		od = self.device.measure_od()
+		od = self.device.measure_od(1)
 		if od is None:
 			self.log_error("Cannot measure OD! Trying again...")
 			return self.measure_value() # try it again, should be somehow limited!

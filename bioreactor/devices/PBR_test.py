@@ -3,10 +3,10 @@ from math import log10
 import random
 
 # Fake bioreactor
-class PBR(Device):
+class PBR_test(Device):
     def __init__(self, particle, ID, adress):
-        super(PBR, self).__init__(particle, ID, adress)
-        self.last_value = 0.87
+        super(PBR_test, self).__init__(particle, ID, adress)
+        self.last_value = 0.45
         self.increasing = False
 
     def id(self):
@@ -63,8 +63,22 @@ class PBR(Device):
     def get_o2(self, raw=True, repeats=5, wait=0):
         return 10
 
+    def get_thermoregulator_settings(self):
+        return {"temp": 25, "min": 0, "max": 100, "on": 1}
+
+    def set_thermoregulator_state(self, on):
+        return True
+
 def to_scheme_bool(value):
     return "#t" if value else "#f" 
 
 def from_scheme_bool(value):
     return True if value == "#t" else False
+
+# fake SSH connection
+class SSHconnection():
+    def __init__(self, server, user):
+        pass
+
+    def disconnect(self):
+        return 

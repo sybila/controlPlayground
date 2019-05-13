@@ -3,133 +3,126 @@ import random
 import os, sys
 import datetime
 import time
+import shutil
 
 from Particle import *
 from Swarm import *
 import bioreactor
-
-now =  datetime.datetime.now() + datetime.timedelta(hours=2)
-dir_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
-# dir_name =  ".log/TESTING" # for testing
-os.mkdir(dir_name)
-
-redirect = open(dir_name + '/history.log', 'a')
-sys.stderr = redirect
-sys.stdout = redirect
-
-node_IDs = ["PBR02", "PBR03", "PBR07"]
-
-for ID in node_IDs:
-	os.mkdir(dir_name + "/" + ID)
+from prompt import prompt
 
 params = ["temp", "light-red", "light-blue", "flow"]
 
 print("Initial setup...")
-sys.stdout.flush()
 
-#node1 = bioreactor.Node(1)
-#node1.add_device("PBR", "PBR01", 72700001)
-# node.add_device("GMS", "GMS", 46700003)
-# node.add_device("GAS", "GAS", 42700007)
+####### EXPERIMENTS #######
+TIMEOUT = 60
+conf_tol = 0.06
+lin_tol = 0.04
+MAX_VALUES = 100
+TESTING = False
 
-node2 = bioreactor.Node(2)
-node2.add_device("PBR", "PBR02", 72700002)
-node2.setup_stabiliser(dir_name)
+OD_MIN = 0.43
+OD_MAX = 0.47
+########## TESTING ########
+# TIMEOUT = 0.001
+# conf_tol = 0.99
+# lin_tol = 100
+# MAX_VALUES = 50
+# TESTING = True
 
-node3 = bioreactor.Node(3)
-node3.add_device("PBR", "PBR03", 72700003)
-node3.setup_stabiliser(dir_name)
+# OD_MIN = 0.43
+# OD_MAX = 0.47
+###########################
 
-node7 = bioreactor.Node(7)
-node7.add_device("PBR", "PBR07", 72700007)
-node7.setup_stabiliser(dir_name)
+now = datetime.datetime.now() + datetime.timedelta(hours=2)
+log_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
+working_dir =  ".log/RUNNING"
+
+if os.path.exists(working_dir):
+	name = datetime.datetime.fromtimestamp(os.path.getctime(working_dir)) + datetime.timedelta(hours=2)
+	os.rename(working_dir, '.log/' + '{:%Y%m%d-%H%M%S}'.format(name))
+
+os.mkdir(working_dir)
+
+####### setup nodes ########
+
+nodes = []
+
+nodes.append(bioreactor.Node(TESTING))
+nodes[-1].add_device("PBR", "PBR01", 72700001)
+
+nodes.append(bioreactor.Node(TESTING))
+nodes[-1].add_device("PBR", "PBR02", 72700002)
+
+nodes.append(bioreactor.Node(TESTING))
+nodes[-1].add_device("PBR", "PBR03", 72700003)
+
+nodes.append(bioreactor.Node(TESTING))
+nodes[-1].add_device("PBR", "PBR04", 72700004)
 
 print("Devices ready.")
-sys.stdout.flush()
 
 ############ initial setup #############
-node2.PBR.set_pwm(50, True)
-node2.PBR.turn_on_light(0, True)
-node2.PBR.turn_on_light(1, True)
-node2.PBR.set_pump_state(5, False)
-node2.PBR.set_light_intensity(0, 200)
-node2.PBR.set_light_intensity(1, 150)
 
-node3.PBR.set_pwm(50, True)
-node3.PBR.turn_on_light(0, True)
-node3.PBR.turn_on_light(1, True)
-node3.PBR.set_pump_state(5, False)
-node3.PBR.set_light_intensity(0, 200)
-node3.PBR.set_light_intensity(1, 150)
+for node in nodes:
+	os.mkdir(working_dir + "/" + node.PBR.ID)
+	node.setup_stabiliser(OD_MIN, OD_MAX, TIMEOUT, linear_tol=lin_tol, confidence_tol=conf_tol)
+	node.PBR.set_thermoregulator_state(1)
+	node.PBR.set_pwm(50, True)
+	node.PBR.turn_on_light(0, True)
+	node.PBR.turn_on_light(1, True)
+	node.PBR.set_pump_state(5, False)
+	node.PBR.set_light_intensity(0, 60)
+	node.PBR.set_light_intensity(1, 30)
 
-node7.PBR.set_pwm(50, True)
-node7.PBR.turn_on_light(0, True)
-node7.PBR.turn_on_light(1, True)
-node7.PBR.set_pump_state(5, False)
-node7.PBR.set_light_intensity(0, 200)
-node7.PBR.set_light_intensity(1, 150)
 ########################################
 
 print("Setup done.")
-sys.stdout.flush()
-
-#nodes = [node1, node2, node3]
-nodes = [node2, node3, node7]
 
 # multiparametric_space = {params[1]: (100, 800), # red light
 # 						 params[2]: (100, 800)} # blue light
 
-multiparametric_space = {params[0]: (15, 35)}
+multiparametric_space = {params[0]: (15, 40)}
 
-particles = []
-swarm_results = []  # important variable shared by all particles (including swarm)
+print("Creating and starting swarm...")
 
-swarm = Swarm(swarm_results, multiparametric_space, dir_name)
+swarm = Swarm(multiparametric_space, MAX_VALUES)
 swarm.type = -1
+swarm.start()
 
 # conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
-# conditions = [np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([21]), np.array([25]), np.array([29])]
+conditions = [np.array([22]), np.array([20]), np.array([26]), np.array([30])]
 
-n_of_nodes = len(nodes)
-
-for i in range(n_of_nodes):
-	random_position = []
+for i in range(len(nodes)):
 	step = random.uniform(0, 1)
-	##### JUST TOO KEEP SAME CONDITIONS #######
-	# random_position = [200, 232]
+	##### choose random position #######
+	# random_position = []
 	# for key in swarm.parameter_keys:
 		# random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
 	################################
-	particles.append(Particle(conditions[i], step, swarm, nodes[i], dir_name))
-
-print("Swarm created, starting...")
-sys.stdout.flush()
-
-swarm.start()
-
-for particle in particles:
 	time.sleep(5)
-	particle.start()
+	swarm.add_particle(Particle(conditions[i], step, swarm, nodes[i]))
+
+print("Swarm started.")
 
 while swarm.is_alive():
-	pass # we just have to wait until the swarm particle is finished
+	try:
+		user_input = prompt.command(globals())
+		try:
+			exec(user_input)
+		except Exception as e:
+			print(e)
+	except KeyboardInterrupt as e:
+		print("Type exit() to quit the interpreter.\nType swarm.exit() or press Ctrl+D to end the experiment.")
+	except EOFError as e:
+		swarm.exit()
 
-print("************* Experiment is finishing ***********")
+swarm.exit()
 
-for particle in particles:
-	particle.stoprequest.set()
-
-print("\n++++++++++++ OVERALL RESULTS ++++++++++++\n")
-
-values = []
-for particle in particles:
-	print("------- Results for particle", particle.node.PBR.ID, particle.name)
-	print(particle.particle_trace)
-	values.append(max(column(1, particle.particle_trace)))
-	print("BEST:", values[-1])
-
-print("Actual best:", max(values))
+print("Experiment finished.")
 print('Swarm best:', swarm.swarm_best)
 
-redirect.close()
+swarm.save()
+
+# rename working_dir to log_name
+os.rename(working_dir, log_name)
