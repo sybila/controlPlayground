@@ -95,6 +95,8 @@ class Swarm(threading.Thread):
 				row[i+n_params] = point[1]
 				self.rows.append(row)
 
+		self.rows = np.array(self.rows)
+
 	def save(self):
 		self.export_data()
 		self.save_csv()
@@ -110,12 +112,17 @@ class Swarm(threading.Thread):
 	def save_plot(self, filename='results.png'):
 		f, ax = plt.subplots()
 
-		for i, particle in enumerate(self.particles):
-			temps = temp(particle.particle_trace)
-			ODs = OD(particle.particle_trace)
-			ax.plot(temps, ODs, '-' + COLOURS[i], label=particle.node.PBR.ID)
-			ax.plot(temps[0], ODs[0], '>' + COLOURS[i], label=particle.node.PBR.ID + ' start')
-			ax.plot(temps[-1], ODs[-1], '*'  + COLOURS[i], label=particle.node.PBR.ID + ' end')
+		for i in range(1, len(self.rows[0])):
+			temps = self.rows[:,0]
+			ODs = self.rows[:,i]
+			values = np.array(list(filter(lambda v: v[1] is not None, zip(temps, ODs))))
+			if values.size != 0:
+				temps = values[:,0]
+				ODs = values[:,1]
+				ID = self.header[i]
+				ax.plot(temps, ODs, '-' + COLOURS[i], label=ID)
+				ax.plot(temps[0], ODs[0], '>' + COLOURS[i], label=ID + ' start')
+				ax.plot(temps[-1], ODs[-1], '*'  + COLOURS[i], label=ID + ' end')
 
 		ymin, ymax = ax.get_ylim()
 		ax.set_yticks(np.round(np.linspace(ymin, ymax, 10), 2))
@@ -126,9 +133,3 @@ class Swarm(threading.Thread):
 		legend = ax.legend(shadow=True)
 
 		plt.savefig(self.dir_name + '/' + filename, dpi=150)
-
-def temp(data):
-	return [d[0][0] for d in data]
-
-def OD(data):
-	return [d[1] for d in data]
