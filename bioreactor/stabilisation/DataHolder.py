@@ -20,6 +20,7 @@ class DataHolder(logger.Logger):
 
 		self.upper_outlier_tol = 2.5
 		self.lower_outlier_tol = 2.5
+		self.OD_channel = 1
 
 		logger.Logger.__init__(self, dir_name, self.device.ID)
 
@@ -51,7 +52,7 @@ class DataHolder(logger.Logger):
 				data = data[:-1]
 
 	def measure_value(self):
-		od = self.device.measure_od(1)
+		od = self.device.measure_od(self.OD_channel)
 		if od is None:
 			self.log_error("Cannot measure OD! Trying again...")
 			return self.measure_value() # try it again, should be somehow limited!
