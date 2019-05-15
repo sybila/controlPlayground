@@ -36,7 +36,7 @@ OD_MAX = 0.47
 
 now = datetime.datetime.now() + datetime.timedelta(hours=2)
 log_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
-working_dir =  ".log/RUNNING"
+working_dir =  ".log/RUNNING_light"
 
 if os.path.exists(working_dir):
 	name = datetime.datetime.fromtimestamp(os.path.getctime(working_dir)) + datetime.timedelta(hours=2)
@@ -51,14 +51,14 @@ nodes = []
 nodes.append(bioreactor.Node(TESTING))
 nodes[-1].add_device("PBR", "PBR01", 72700001)
 
-nodes.append(bioreactor.Node(TESTING))
-nodes[-1].add_device("PBR", "PBR02", 72700002)
+# nodes.append(bioreactor.Node(TESTING))
+# nodes[-1].add_device("PBR", "PBR02", 72700002)
 
 nodes.append(bioreactor.Node(TESTING))
 nodes[-1].add_device("PBR", "PBR03", 72700003)
 
-nodes.append(bioreactor.Node(TESTING))
-nodes[-1].add_device("PBR", "PBR04", 72700004)
+# nodes.append(bioreactor.Node(TESTING))
+# nodes[-1].add_device("PBR", "PBR04", 72700004)
 
 print("Devices ready.")
 
@@ -66,32 +66,33 @@ print("Devices ready.")
 
 for node in nodes:
 	os.mkdir(working_dir + "/" + node.PBR.ID)
-	node.setup_stabiliser(OD_MIN, OD_MAX, TIMEOUT, linear_tol=lin_tol, confidence_tol=conf_tol)
+	node.setup_stabiliser(OD_MIN, OD_MAX, TIMEOUT, linear_tol=lin_tol, confidence_tol=conf_tol, dir_name=working_dir)
 	node.PBR.set_thermoregulator_state(1)
 	node.PBR.set_pwm(50, True)
+	node.PBR.set_temp(24)
 	node.PBR.turn_on_light(0, True)
 	node.PBR.turn_on_light(1, True)
 	node.PBR.set_pump_state(5, False)
-	node.PBR.set_light_intensity(0, 60)
-	node.PBR.set_light_intensity(1, 30)
+	# node.PBR.set_light_intensity(0, 60)
+	# node.PBR.set_light_intensity(1, 30)
 
 ########################################
 
 print("Setup done.")
 
-# multiparametric_space = {params[1]: (100, 800), # red light
-# 						 params[2]: (100, 800)} # blue light
+multiparametric_space = {params[1]: (50, 1500), # red light
+						 params[2]: (50, 1500)} # blue light
 
-multiparametric_space = {params[0]: (15, 40)}
+# multiparametric_space = {params[0]: (15, 40)}
 
 print("Creating and starting swarm...")
 
-swarm = Swarm(multiparametric_space, MAX_VALUES)
+swarm = Swarm(multiparametric_space, MAX_VALUES, dir_name=working_dir)
 swarm.type = -1
 swarm.start()
 
-# conditions = [np.array([561, 563]), np.array([211, 164]), np.array([327, 404])]
-conditions = [np.array([22]), np.array([20]), np.array([26]), np.array([30])]
+conditions = [np.array([265, 100]), np.array([130, 50])]
+# conditions = [np.array([22]), np.array([20]), np.array([26]), np.array([30])]
 
 for i in range(len(nodes)):
 	step = random.uniform(0, 1)
@@ -101,7 +102,7 @@ for i in range(len(nodes)):
 		# random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
 	################################
 	time.sleep(5)
-	swarm.add_particle(Particle(conditions[i], step, swarm, nodes[i]))
+	swarm.add_particle(Particle(conditions[i], step, swarm, nodes[i], dir_name=working_dir))
 
 print("Swarm started.")
 
