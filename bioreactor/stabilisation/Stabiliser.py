@@ -143,7 +143,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	# checker's data
 	ax2 = ax1.twinx()
 	ax2.set_ylabel('doubling time (h)')
-	ax2.plot(to_hours(checker.times), checker.values, 'or')
+	ax2.plot(checker.times, checker.values, 'or')
 	ax2.yaxis.label.set_color('red')
 
 	rows += list(map(lambda t, v: (t, None, v, None, None), checker.times, checker.values))
@@ -152,7 +152,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	coeffs = linear_regression(checker.times[-history_len:], checker.values[-history_len:])
 	times = np.linspace(checker.times[-history_len], checker.times[-1], 500)
 	values = coeffs[1] + coeffs[0]*times
-	ax2.plot(to_hours(times), values, '-r')
+	ax2.plot(times, values, '-r')
 
 	rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
 
