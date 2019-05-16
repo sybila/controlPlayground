@@ -19,7 +19,7 @@ class Stabiliser(logger.Logger):
 		self.OD_MAX = OD_MAX
 		self.OD_MIN = OD_MIN
 		self.TIMEOUT = TIMEOUT
-		self.max_time = max_time*3600
+		self.max_time = max_time*3600 # to seconds
 
 		self.checker = GrowthChecker(self.node.PBR.ID, self.dir_name, linear_tol, confidence_tol)
 		self.holder = DataHolder(self.node.PBR, [OD_MIN, OD_MAX], self.dir_name)
@@ -99,10 +99,10 @@ class Stabiliser(logger.Logger):
 				value = self.reach_max_population()
 				if self.node.stop_working:
 					return
-				doubling_time = (np.log(2)/value)/3600
-				self.log("New growth rate:", value, "(Doubling time:", doubling_time, "h)")
+				doubling_time = (np.log(2)/value)
+				self.log("New growth rate:", value, "(Doubling time:", doubling_time/3600, "h)")
 				self.checker.values.append(doubling_time)
-				self.checker.times.append((time.time() - self.holder.init_time)/3600)
+				self.checker.times.append((time.time() - self.holder.init_time))
 				self.holder.reset(value)
 
 			self.log("All data measured for this conditions:\n", 
@@ -143,7 +143,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	# checker's data
 	ax2 = ax1.twinx()
 	ax2.set_ylabel('doubling time (h)')
-	ax2.plot(checker.times, checker.values, 'or')
+	ax2.plot(to_hours(checker.times), checker.values, 'or')
 	ax2.yaxis.label.set_color('red')
 
 	rows += list(map(lambda t, v: (t, None, v, None, None), checker.times, checker.values))
@@ -152,7 +152,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
 	coeffs = linear_regression(checker.times[-history_len:], checker.values[-history_len:])
 	times = np.linspace(checker.times[-history_len], checker.times[-1], 500)
 	values = coeffs[1] + coeffs[0]*times
-	ax2.plot(times, values, '-r')
+	ax2.plot(to_hours(times), values, '-r')
 
 	rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
 
