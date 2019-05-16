@@ -16,11 +16,12 @@ COLOURS = "bgrcmyk"
 # workers append their results to shared list
 # observer takes them one by one and evaluates them
 class Swarm(threading.Thread):
-	def __init__(self, multiparametric_space, max_values, dir_name=".log/RUNNING", optimum_type=-1):
+	def __init__(self, multiparametric_space, max_values, parameter_keys, dir_name=".log/RUNNING", optimum_type=-1):
 		super(Swarm, self).__init__()
 
 		self.optimum_type = optimum_type # optimum type, -1 for min
-		self.swarm_results = [] 
+		self.swarm_results = []
+		self.parameter_keys = parameter_keys
 		self.boundaries = self.create_boundaries(multiparametric_space)
 		self.No_of_results = 0
 		self.stoprequest = threading.Event()
@@ -50,10 +51,6 @@ class Swarm(threading.Thread):
 		super(Swarm, self).join(timeout)
 
 	def create_boundaries(self, space):
-		##### JUST TOO KEEP SAME #######
-		self.parameter_keys = list(space.keys())
-		# self.parameter_keys = ["light-red", "light-blue"]
-		################################
 		self.swarm_best = []
 		boundaries = [[], []]
 		for key in self.parameter_keys:
