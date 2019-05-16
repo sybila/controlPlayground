@@ -15,7 +15,7 @@ from parsing import xml_parse as xml
 print("Initial setup...")
 
 if len(sys.argv) > 1:
-	data = xml.parse(sys.argv[-1])
+	data = xml.read_xml(sys.argv[-1])
 else:
 	from settings import data
 
@@ -72,6 +72,8 @@ for node in data['nodes'].values():
 ########################################
 
 print("Setup done.")
+
+xml.write_xml(data)
 
 while swarm.is_alive():
 	try:
