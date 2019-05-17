@@ -1,10 +1,12 @@
-import encoder
-import decoder
+from .encoder import *
+from .decoder import *
 
-def write_xml(settings_dict):
-	obj = decoder.Dict2XML()
-	print(obj.parse(settings_dict))
+def write_xml(settings_dict, working_dir):
+	obj = Dict2XML()
+	with open(working_dir + "/settings.xml", "w") as text_file:
+		result = obj.parse(settings_dict)
+		text_file.write(result)
 
 def read_xml(filename):
-	tree = ET.parse(filename)
-	root = tree.getroot()
+	obj = XML2Dict(coding='utf-8')
+	return obj.parse(filename)

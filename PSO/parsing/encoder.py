@@ -36,7 +36,7 @@ class XML2Dict(object):
             ctree = self._parse_node(child)
 
             if not ctree:
-                cdict = self._make_dict(ctag, ctext, cattr)
+                cdict = self._make_dict(ctag, ctext.decode('utf-8'), cattr)
             else:
                 cdict = self._make_dict(ctag, ctree, cattr)
 
@@ -90,71 +90,6 @@ class XML2Dict(object):
         '''Parse xml string to python dict
 
         '''
-        EL = ET.fromstring(xml)
+        EL = ET.parse(xml).getroot()
 
         return self._make_dict(EL.tag, self._parse_node(EL), EL.attrib)
-
-
-
-if __name__ == '__main__':
-    test = {'one': '''<rss author="Mc.Spring" version="2.0">
-    <channel>
-        <description>je m' appelle twinsen.</description>
-        <copyright>Copyright 2000-2009 Twinsen Liang all rights reserved</copyright>
-        <title>Twinsen Liang</title>
-        <language>zh-cn</language>
-        <image>
-            <url>http://www.twinsenliang.net/logo.gif</url>
-            <link>http://www.twinsenliang.net/</link>
-            <description>Twinsen Liang</description>
-            <title>Twinsen Liang</title>
-        </image>
-        <generator>TXmlSave 2.0</generator>
-        <item>
-            <category>skill</category>
-            <description>This is the second article content, thanks!</description>
-            <pubDate>Mon, 15 Apr 200902:04:52 +0800</pubDate>
-            <author>twinsenliang@gmail.com(TwinsenLiang)</author>
-            <title>This is the second article title</title>
-            <link target="_blank">http://www.twinsenliang.net/skill/20090414.html</link>
-            <guid>http://www.twinsenliang.net/skill/20090414.html</guid>
-        </item>
-        <item>
-            <category>skill</category>
-            <description>This isthe second article content, thanks!</description>
-            <pubDate>Mon, 15 Apr 2009 02:04:52 +0800</pubDate>
-            <author>twinsenliang@gmail.com(TwinsenLiang)</author>
-            <title>This is the second article title</title>
-            <link target="_blank">http://www.twinsenliang.net/skill/20090414.html</link>
-            <guid>http://www.twinsenliang.net/skill/20090414.html</guid>
-        </item>
-        <link>http://www.twinsenliang.net</link>
-        <webMaster>twinsenliang@gmail.com(twinsen)</webMaster>
-    </channel>
-</rss>''',
-            'two': '''<class id="test">
-    <student id="1234">
-        <age>24</age>
-        <name>thiru</name>
-    </student>
-    <student id="5678">
-        <age>28</age>
-        <name>bharath</name>
-    </student>
-</class>''',
-            'three': '''<class id="test"></class>''',
-            'four': '''<person>
-    <name>spring</name>
-    <age></age>
-    <address />
-</person>''',
-            'five': '''<doc>
-    <x a="1" />
-    <x a="2" />
-</doc>'''}
-
-    for item in test:
-        obj = XML2Dict(coding='utf-8')
-
-        print(obj.parse(test[item]))
-        print

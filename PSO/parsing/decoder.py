@@ -16,6 +16,8 @@ try:
 except:
     import cElementTree as ET # for 2.4
 
+import xml.dom.minidom
+
 __all__ = ['Dict2XML']
 
 class Dict2XML(object):
@@ -109,31 +111,7 @@ class Dict2XML(object):
 
         @attention: every dict must have a root key!
         """
-        return ET.tostring(self._parse_dict(dict))
+        xml_string = ET.tostring(self._parse_dict(dict))
+        dom = xml.dom.minidom.parseString(xml_string)
 
-
-if __name__ == '__main__':
-    test = {'one': {'@class': {'id': 'test'}},
-            'two': {'class': {'student': [{'age': 24, '#student': 'type', 'name': 'thiru'},
-                                          {'age': 28, '#student': {'id': '5678'}, 'name': 'bharath'}], 'bool': True},
-                    '@class': {'id': 'test'}},
-            'three': {'@rss': {'version': '2.0', 'author': 'Mc.Spring'},
-                      'rss': {'channel': {'language': 'en-us',
-                                          'link': 'https://github.com/mcspring',
-                                          'description': "Hello,world.",
-                                          'copyright': 'Copyright 2011-2012 Spring Mc. All rights reserved.',
-                                          'title': 'Spring Mc',
-                                          'item': [{'category': 'skill', 'guid': 'https://github.com/mcspring/googl.go', 'link': 'https://github.com/mcspring/googl.go', '@link': {'target': '_blank'}, 'pubDate': 'Mon, 13 Apr 2011 02:04:52 +0800', 'author': 'Heresy.Mc@gmail.com(Spring Mc)', 'title': 'This is googl.go proejct', 'description': 'This is the first project written in go, thanks!'},
-                                                   {'category': 'skill', 'guid': 'https://github.com/mcspring/XML2Dict', 'link': 'https://github.com/mcspring/XML2Dict', '@link':{'target': '_blank'}, 'pubDate': 'Mon, 15 Apr 2009 02:04:52 +0800', 'author': 'Heresy.Mc@gmail.com(Spring Mc)', 'title': 'This is XML2Dict project', 'description': 'This is the first project written in python, thanks!'}],
-                                          'image': {'url': 'https://github.com/mcspring/logo.gif', 'link': 'https://github.com/mcspring/', 'description': 'Spring Mc', 'title': 'Spring on github'},
-                                          'generator': 'XmlSave 2.0',
-                                          'webMaster': 'Heresy.Mc@gmail.com(Spring)'}}},
-            'four': {'person': {'age': '', 'name': 'spring', 'address': ''}},
-            'five': {'doc': {'x': [{'#x': {'a': '1'}}, {'#x': {'a': '2'}}]}}
-            }
-
-    for item in test:
-        obj = Dict2XML()
-
-        print(obj.parse(test[item]))
-        print
+        return dom.toprettyxml()
