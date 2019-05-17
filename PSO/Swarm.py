@@ -107,26 +107,28 @@ class Swarm(threading.Thread):
 				row_writer.writerow(row)
 
 	def save_plot(self, filename='results.png'):
-		f, ax = plt.subplots()
+		param_names = list(self.parameter_keys)
+		for j in range(len(param_names)):
+			f, ax = plt.subplots()
+			
+			for i in range(len(param_names), len(self.rows[0])):
+				params = self.rows[:,j]
+				ODs = self.rows[:,i]
+				values = np.array(list(filter(lambda v: v[1] is not None, zip(params, ODs))))
+				if values.size != 0:
+					params = values[:,0]
+					ODs = values[:,1]
+					ID = self.header[i]
+					ax.plot(params, ODs, '-' + COLOURS[i], label=ID)
+					ax.plot(params[0], ODs[0], '>' + COLOURS[i], label=ID + ' start')
+					ax.plot(params[-1], ODs[-1], '*'  + COLOURS[i], label=ID + ' end')
 
-		for i in range(1, len(self.rows[0])):
-			temps = self.rows[:,0]
-			ODs = self.rows[:,i]
-			values = np.array(list(filter(lambda v: v[1] is not None, zip(temps, ODs))))
-			if values.size != 0:
-				temps = values[:,0]
-				ODs = values[:,1]
-				ID = self.header[i]
-				ax.plot(temps, ODs, '-' + COLOURS[i], label=ID)
-				ax.plot(temps[0], ODs[0], '>' + COLOURS[i], label=ID + ' start')
-				ax.plot(temps[-1], ODs[-1], '*'  + COLOURS[i], label=ID + ' end')
+			ymin, ymax = ax.get_ylim()
+			ax.set_yticks(np.round(np.linspace(ymin, ymax, 10), 2))
 
-		ymin, ymax = ax.get_ylim()
-		ax.set_yticks(np.round(np.linspace(ymin, ymax, 10), 2))
+			xmin, xmax = ax.get_xlim()
+			ax.set_xticks(np.round(np.linspace(xmin, xmax, 10), 2))
 
-		xmin, xmax = ax.get_xlim()
-		ax.set_xticks(np.round(np.linspace(xmin, xmax, 10), 2))
+			legend = ax.legend(shadow=True)
 
-		legend = ax.legend(shadow=True)
-
-		plt.savefig(self.dir_name + '/' + filename, dpi=150)
+			plt.savefig(self.dir_name + '/' + param_names[j] + "_" + filename, dpi=150)
