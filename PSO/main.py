@@ -55,7 +55,7 @@ for node in data['nodes'].values():
 	for device in node['devices'].values():
 		nodes[-1].add_device(device['name'], device['ID'], int(device['adress']))
 		for command in device['initial_setup'].values():
-			args = ", ".join(command['arguments'].values())
+			args = ", ".join(list(map(str, command['arguments'].values())))
 			eval('nodes[-1].' + device['name'] + '.' + command['command'] + '(' + args + ')')
 
 	os.mkdir(working_dir + "/" + nodes[-1].PBR.ID)
