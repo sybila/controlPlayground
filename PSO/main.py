@@ -15,12 +15,14 @@ from parsing import xml_parse as xml
 print("Initial setup...")
 
 if len(sys.argv) > 1:
-	data = xml.read_xml(sys.argv[-1])
+	original_data = xml.read_xml(sys.argv[-1])
 else:
-	from settings import data
+	from settings import data as original_data
 
 ###########################
 # prepare folders
+
+data = original_data['data']
 
 now = datetime.datetime.now() + datetime.timedelta(hours=2)
 log_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
@@ -73,7 +75,7 @@ for node in data['nodes'].values():
 
 print("Setup done.")
 
-xml.write_xml(data)
+xml.write_xml(original_data, working_dir)
 
 while swarm.is_alive():
 	try:
