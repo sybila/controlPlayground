@@ -3,8 +3,8 @@ data = {
     'settings': {
         'testing': True,
         'max_values': 100,
-        'timeout': 60,
-        'conf_tol': 0.06,
+        'timeout': 0.0001,
+        'conf_tol': 0.99,
         'lin_tol': 0.04,
         'OD_MIN': 0.43,
         'OD_MAX': 0.47,

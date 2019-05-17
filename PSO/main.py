@@ -60,14 +60,14 @@ for node in data['nodes'].values():
 
 	os.mkdir(working_dir + "/" + nodes[-1].PBR.ID)
 	nodes[-1].setup_stabiliser(float(data['settings']['OD_MIN']),
-						  float(data['settings']['OD_MIN']),
+						  float(data['settings']['OD_MAX']),
 						  int(data['settings']['timeout']),
 						  linear_tol=float(data['settings']['lin_tol']),
 						  confidence_tol=float(data['settings']['conf_tol']),
 						  dir_name=working_dir)
 
 	step = random.uniform(0, 1)
-	conditions = eval(node['parameter_values'])
+	conditions = np.array(eval(node['parameter_values']))
 	time.sleep(2)
 	swarm.add_particle(Particle(conditions, step, swarm, nodes[-1], dir_name=working_dir))
 
