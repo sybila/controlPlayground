@@ -8,5 +8,5 @@ def write_xml(settings_dict, working_dir):
 		text_file.write(result)
 
 def read_xml(filename):
-	obj = XML2Dict(coding='utf-8')
+	obj = XML2Dict()
 	return obj.parse(filename)
