@@ -15,14 +15,12 @@ from parsing import xml_parse as xml
 print("Initial setup...")
 
 if len(sys.argv) > 1:
-	original_data = xml.read_xml(sys.argv[-1])
+	data = xml.read_xml(sys.argv[-1])
 else:
-	from settings import data as original_data
+	from settings import data
 
 ###########################
 # prepare folders
-
-data = original_data['data']
 
 now = datetime.datetime.now() + datetime.timedelta(hours=2)
 log_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
@@ -44,30 +42,30 @@ swarm_keys = []
 
 for parameter in data['settings']['parameter_space'].items():
 		swarm_keys.append(parameter[0])
-		multiparametric_space[parameter[0]] = eval(parameter[1])
+		multiparametric_space[parameter[0]] = list(map(float, parameter[1]))
 
 swarm = Swarm(multiparametric_space, int(data['settings']['max_values']), swarm_keys, dir_name=working_dir)
 swarm.type = int(data['settings']['optimum_type'])
 swarm.start()
 
-for node in data['nodes'].values():
+for node in data['nodes']:
 	nodes.append(bioreactor.Node(bool(data['settings']['testing'])))
-	for device in node['devices'].values():
+	for device in node['devices']:
 		nodes[-1].add_device(device['name'], device['ID'], int(device['adress']))
-		for command in device['initial_setup'].values():
-			args = ", ".join(list(map(str, command['arguments'].values())))
+		for command in device['initial_setup']:
+			args = ", ".join(list(map(str, command['arguments'])))
 			eval('nodes[-1].' + device['name'] + '.' + command['command'] + '(' + args + ')')
 
 	os.mkdir(working_dir + "/" + nodes[-1].PBR.ID)
 	nodes[-1].setup_stabiliser(float(data['settings']['OD_MIN']),
 						  float(data['settings']['OD_MAX']),
-						  int(data['settings']['timeout']),
+						  float(data['settings']['timeout']),
 						  linear_tol=float(data['settings']['lin_tol']),
 						  confidence_tol=float(data['settings']['conf_tol']),
 						  dir_name=working_dir)
 
 	step = random.uniform(0, 1)
-	conditions = np.array(eval(node['parameter_values']))
+	conditions = np.array(list(map(float, node['parameter_values'])))
 	time.sleep(2)
 	swarm.add_particle(Particle(conditions, step, swarm, nodes[-1], dir_name=working_dir))
 
@@ -75,7 +73,7 @@ for node in data['nodes'].values():
 
 print("Setup done.")
 
-xml.write_xml(original_data, working_dir)
+xml.write_xml(data, working_dir)
 
 while swarm.is_alive():
 	try:
