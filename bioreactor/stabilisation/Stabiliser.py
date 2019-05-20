@@ -51,7 +51,8 @@ class Stabiliser(logger.Logger):
 		self.log("Max population reached:\n",
 			  "times = ", self.holder.times, 
 			  "\n data = ", self.holder.data)
-		return abs(exponentional_regression(self.holder.times[1:], self.holder.data[1:], self.holder.data[1]))
+		r = exponentional_regression(self.holder.times[1:], self.holder.data[1:], self.holder.data[1])
+		return r if r > 0 else 0 
 
 	# it is called when we start with new conditions
 	# and they are all set for given node
