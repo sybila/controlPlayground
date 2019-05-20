@@ -77,7 +77,8 @@ class Swarm(threading.Thread):
 
 	def exit(self):
 		self.stoprequest.set()
-		time.sleep(45)
+		while any([p.is_alive() for p in self.particles]):
+			time.sleep(5)
 
 	def export_data(self):
 		self.rows = []
