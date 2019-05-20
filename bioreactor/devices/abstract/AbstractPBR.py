@@ -1,13 +1,12 @@
-from math import log10
-from .abstract import AbstractPBR
+from .device import Device
 
-# Bioreactor
-class PBR(AbstractPBR):
+# Abstract Bioreactor
+class AbstractPBR(Device):
     def __init__(self, particle, ID, adress):
-        super(PBR, self).__init__(particle, ID, adress)
+        super(AbstractPBR, self).__init__(particle, ID, adress)
 
     def id(self):
-        return "(" + self.ID + ")"
+        raise NotImplementedError("The method not implemented")
 
     def get_temp_settings(self):
         '''
@@ -17,13 +16,7 @@ class PBR(AbstractPBR):
         Returns:
             dict: The current settings structured in a dictionary.
         '''
-        results = ["set", "min", "max"]
-        try:
-            values = self.parent.execute(self, "get-thermoregulator-settings")[0].rstrip()[1:-1].split()
-        except Exception as e:
-            print(self.id(), e)
-            return None
-        return dict(zip(results, list(map(float, values[1:-1]))))
+        raise NotImplementedError("The method not implemented")
 
     def get_temp(self):
         '''
@@ -32,11 +25,7 @@ class PBR(AbstractPBR):
         Returns:
             float: The current temperature.
         '''
-        try:
-            return float(self.parent.execute(self, "get-current-temperature")[0])
-        except Exception as e:
-            print(self.id(), e)
-            return None
+        raise NotImplementedError("The method not implemented")
 
     def set_temp(self, temp):
         '''
@@ -47,11 +36,7 @@ class PBR(AbstractPBR):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-        try:
-            return self.parent.execute(self, "set-thermoregulator-temp", [temp])[0].rstrip() == 'ok'
-        except Exception as e:
-            print(self.id(), e)
-            return False
+        raise NotImplementedError("The method not implemented")
 
     def get_ph(self):
         '''
@@ -60,11 +45,7 @@ class PBR(AbstractPBR):
         Returns:
             float: The current pH.
         '''
-        try:
-            return float(self.parent.execute(self, "get-ph", [5, 0])[0])
-        except Exception as e:
-            print(self.id(), e)
-            return None
+        raise NotImplementedError("The method not implemented")
 
     def measure_od(self, channel=0):
         '''
@@ -73,12 +54,7 @@ class PBR(AbstractPBR):
         Returns:
             integer: Measured OD
         '''
-        try:
-            result = self.parent.execute(self, "measure-od", [channel, 8])[0].rstrip().split()
-            return -log10((int(result[1]) - int(result[2][:-1]))/40000)
-        except Exception as e:
-            print(self.id(), e)
-            return None
+        raise NotImplementedError("The method not implemented")
 
     def get_pump_params(self, pump):
         '''
@@ -89,14 +65,7 @@ class PBR(AbstractPBR):
         Returns:
             dict: The current settings structured in a dictionary.
         '''
-
-        try:
-            result = self.parent.execute(self, "get-pump-info", [pump])[0].rstrip()[1:-1].split()
-            return {"direction": int(result[1]), "on": from_scheme_bool(result[2]), "valves": int(result[3]),
-                    "flow": float(result[4]), "min": float(result[5]), "max": float(result[6])}
-        except Exception as e:
-            print(self.id(), e)
-            return False
+        raise NotImplementedError("The method not implemented")
 
     def set_pump_params(self, pump, direction, flow):
         '''
@@ -109,12 +78,7 @@ class PBR(AbstractPBR):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-
-        try:
-            return self.parent.execute(self, "set-pump-params", [pump, direction, flow])[0].rstrip() == 'ok'
-        except Exception as e:
-            print(self.id(), e)
-            return False
+        raise NotImplementedError("The method not implemented")
 
     def set_pump_state(self, pump, on):
         '''
@@ -126,12 +90,7 @@ class PBR(AbstractPBR):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-
-        try:
-            return self.parent.execute(self, "set-pump-state", [pump, to_scheme_bool(on)])[0].rstrip() == 'ok'
-        except Exception as e:
-            print(self.id(), e)
-            return False
+        raise NotImplementedError("The method not implemented")
 
     def get_light_intensity(self, channel):
         '''
@@ -146,13 +105,7 @@ class PBR(AbstractPBR):
             "max": maximal intensity (float) in μE, 
             "on": True if light is turned on (bool)
         '''
-
-        try:
-            result = self.parent.execute(self, "get-actinic-continual-settings", [channel])[0].rstrip()[1:-1].split()
-            return {"intensity": float(result[1]), "max": float(result[2]), "on": from_scheme_bool(result[3])}
-        except Exception as e:
-            print(self.id(), e)
-            return None
+        raise NotImplementedError("The method not implemented")
 
     def set_light_intensity(self, channel, intensity):
         '''
@@ -164,12 +117,7 @@ class PBR(AbstractPBR):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-
-        try:
-            return self.parent.execute(self, "set-actinic-continual-intensity", [channel, intensity])[0].rstrip() == 'ok'
-        except Exception as e:
-            print(self.id(), e)
-            return False
+        raise NotImplementedError("The method not implemented")
 
     def turn_on_light(self, channel, on):
         '''
@@ -181,12 +129,7 @@ class PBR(AbstractPBR):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-
-        try:
-            return self.parent.execute(self, "set-actinic-continual-mode", [channel, to_scheme_bool(on)])[0].rstrip() == 'ok'
-        except Exception as e:
-            print(self.id(), e)
-            return False
+        raise NotImplementedError("The method not implemented")
 
     def get_pwm_settings(self):
         '''
@@ -200,13 +143,7 @@ class PBR(AbstractPBR):
             "max": maximal stirring in %,
             "on": True if stirring is turned on (bool)
         '''
-        try:
-            result = self.parent.execute(self, "get-pwm-settings")[0].rstrip()[1:-1].split()
-            return {"pulse": result[1], "min": result[2], 
-                    "max": result[3], "on": from_scheme_bool(result[4])}
-        except Exception as e:
-            print(self.id(), e)
-            return False
+        raise NotImplementedError("The method not implemented")
 
     def set_pwm(self, value, on):
         '''
@@ -219,12 +156,7 @@ class PBR(AbstractPBR):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-
-        try:
-            return self.parent.execute(self, "set-pwm", [value, to_scheme_bool(on)])[0].rstrip() == 'ok'
-        except Exception as e:
-            print(self.id(), e)
-            return False
+        raise NotImplementedError("The method not implemented")
 
     def get_o2(self, raw=True, repeats=5, wait=0):
         '''
@@ -238,11 +170,7 @@ class PBR(AbstractPBR):
             "max": maximal stirring in %,
             "on": True if stirring is turned on (bool)
         '''
-        try:
-            return float(self.parent.execute(self, "get-o2/h2", [repeats, wait, to_scheme_bool(raw)])[0].rstrip())
-        except Exception as e:
-            print(self.id(), e)
-            return False
+        raise NotImplementedError("The method not implemented")
 
     def get_thermoregulator_settings(self):
         '''
@@ -256,13 +184,7 @@ class PBR(AbstractPBR):
             "max": maximal allowed temperature,
             "on": state of thermoregulator (1 -> on, 0 -> freeze, -1 -> off)
         '''
-        try:
-            result = self.parent.execute(self, "get-thermoregulator-settings")[0].rstrip()[1:-1].split()
-            return {"temp": float(result[1]), "min": float(result[2]), 
-                    "max": float(result[3]), "on": int(result[4])}
-        except Exception as e:
-            print(self.id(), e)
-            return False 
+        raise NotImplementedError("The method not implemented")
 
     def set_thermoregulator_state(self, on):
         '''
@@ -273,14 +195,4 @@ class PBR(AbstractPBR):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-        try:
-            return self.parent.execute(self, "set-thermoregulator-state", [on])[0].rstrip() == 'ok'
-        except Exception as e:
-            print(self.id(), e)
-            return False
-
-def to_scheme_bool(value):
-    return "#t" if value else "#f" 
-
-def from_scheme_bool(value):
-    return True if value == "#t" else False
+        raise NotImplementedError("The method not implemented")

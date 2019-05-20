@@ -1,9 +1,9 @@
-from .device import Device
 from math import log10
 import random
+from .abstract import AbstractPBR
 
 # Fake bioreactor
-class PBR_test(Device):
+class PBR_test(AbstractPBR):
     def __init__(self, particle, ID, adress):
         super(PBR_test, self).__init__(particle, ID, adress)
         self.last_value = 0.45

@@ -1,6 +1,6 @@
 import os, sys, re, time
 
-from .devices import GMS, GAS
+from .devices import GAS
 from .stabilisation import Stabiliser
 
 HEADER = \
@@ -25,9 +25,11 @@ class Node():
 		self.stop_working = False
 		if testing:
 			from .devices import PBR_test as PBR
+			from .devices import GMS_test as GMS
 			from .devices import SSHconnection
 		else:
 			from .devices import PBR
+			from .devices import GMS
 			from .connection import SSHconnection
 		self.connection = SSHconnection(server, user)
 		self.types = {"PBR" : PBR, "GMS" : GMS, "GAS" : GAS}

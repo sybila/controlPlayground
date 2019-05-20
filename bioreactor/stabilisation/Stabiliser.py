@@ -55,12 +55,12 @@ class Stabiliser(logger.Logger):
 
 	# it is called when we start with new conditions
 	# and they are all set for given node
-	# assume conditions has form [temp, co2-flow, [channel, intensity]]
+	# assume conditions has form [temp, co2-flow, intensity]
 	def set_up_conditions(self, conditions, parameter_keys):
 		funcs =  {"temp": self.node.PBR.set_temp, 
 			     "light-red": lambda intensity: self.node.PBR.set_light_intensity(0, intensity),
-				 "light-blue": lambda intensity: self.node.PBR.set_light_intensity(1, intensity)}
-				 # "flow": node.GAS.set_flow_target}
+				 "light-blue": lambda intensity: self.node.PBR.set_light_intensity(1, intensity),
+				 "flow": lambda co2_flow: self.node.GMS.set_valve_flow(0, co2_flow)}
 		success = []
 		for i in range(len(parameter_keys)):
 			if type(conditions[i]) == list:

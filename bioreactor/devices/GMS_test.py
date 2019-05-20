@@ -1,9 +1,9 @@
 from .abstract import AbstractGMS
 
 # Gas Mixer
-class GMS(AbstractGMS):
+class GMS_test(AbstractGMS):
     def __init__(self, particle, ID, adress):
-        super(GMS, self).__init__(particle, ID, adress)
+        super(GMS_test, self).__init__(particle, ID, adress)
         self.GAS_TYPES = ["CO2", "Air", "N2"]
 
     def get_valve_flow(self, valve):
@@ -15,15 +15,8 @@ class GMS(AbstractGMS):
         Returns:
             dict: The current settings of the valve flow and actual value, both in (L/min).
         '''
-        results = ["current", "set"]
-        try:
-            values = self.parent.execute(self, "get-valve-flow", [valve])[0].rstrip()[1:-1].split()
-        except Exception:
-            return None
-        return dict(zip(results, list(map(float, values[1:-1]))))
-        '''
-        Set flow to value for the given valve.
-        '''
+        return {"current": 5, "set": 10}
+
     def set_valve_flow(self, valve, value):
         '''
         Set value (L/min) of current flow in the given valve.
@@ -34,10 +27,7 @@ class GMS(AbstractGMS):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-        try:
-            return self.parent.execute(self, "set-valve-tflow", [valve, value])[0].rstrip() == 'ok'
-        except Exception:
-            return None
+        return True
 
     def get_valve_info(self, valve):
         '''
@@ -48,11 +38,5 @@ class GMS(AbstractGMS):
         Returns:
             dict: A dictionary with gas type and maximal allowed flow.
         '''
-        results = ["max_flow", "gas_type"]
-        values = [None, None]
-        try:
-            values = self.parent.execute(self, "get-valve-info", [valve])[0].rstrip()[1:-1].split()
-        except Exception:
-            return None
-        return dict(zip(results, [float(values[1]), self.GAS_TYPES[int(values[3])]]))
+        return {"max_flow": 10, "gas_type": self.GAS_TYPES[0]}
 

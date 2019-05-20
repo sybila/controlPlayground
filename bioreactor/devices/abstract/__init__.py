@@ -1,4 +1,4 @@
-modules = [".GMS", ".GAS", ".PBR", ".PBR_test", ".GMS_test"]
+modules = [".AbstractGAS", ".AbstractGMS", ".AbstractPBR"]
 
 for module in modules:
 	exec("from " + module + " import *")
