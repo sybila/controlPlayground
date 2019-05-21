@@ -3,7 +3,7 @@ import xml.dom.minidom
 
 class Dict2XML():
 
-    def parse_dict(self, dictionary, node=ET.Element('data')):
+    def parse_dict(self, dictionary, node):
         for tag, value in dictionary.items():
             if isinstance(value, dict):
                 node.append(self.parse_dict(value, ET.Element(tag)))
@@ -27,6 +27,7 @@ class Dict2XML():
         return element
 
     def parse(self, dictionary):
-        xml_string = ET.tostring(self.parse_dict(dictionary))
+        node = ET.Element('data')
+        xml_string = ET.tostring(self.parse_dict(dictionary, node))
         dom = xml.dom.minidom.parseString(xml_string)
         return dom.toprettyxml()
