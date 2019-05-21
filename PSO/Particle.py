@@ -1,8 +1,10 @@
 import threading
 import random
 import time
+import os
 import numpy as np
 from scipy import interpolate
+from parsing import xml_parse as xml
 
 import bioreactor
 
@@ -81,3 +83,30 @@ class Particle(threading.Thread, bioreactor.Logger):
 			time.sleep(2)
 		self.node.PBR.set_pump_state(5, False)
 		self.log("Particle interrupted, bye sweet world!")
+
+def import_particle(definition, swarm, working_dir, data, write=True):
+	if not isinstance(definition, dict):
+		definition = xml.read_xml(definition)
+
+	node = bioreactor.Node(bool(data['settings']['testing']))
+	for device in definition['devices']:
+		node.add_device(device['name'], device['ID'], int(device['adress']))
+		for command in device['initial_setup']:
+			args = ", ".join(list(map(str, command['arguments'])))
+			eval('node.' + device['name'] + '.' + command['command'] + '(' + args + ')')
+
+	os.mkdir(working_dir + "/" + node.PBR.ID)
+	node.setup_stabiliser(float(data['settings']['OD_MIN']),
+						  float(data['settings']['OD_MAX']),
+						  float(data['settings']['timeout']),
+						  linear_tol=float(data['settings']['lin_tol']),
+						  confidence_tol=float(data['settings']['conf_tol']),
+						  dir_name=working_dir)
+
+	step = random.uniform(0, 1)
+	conditions = np.array(list(map(float, definition['parameter_values'])))
+	if write:
+		data['nodes'].append(definition)
+		xml.write_xml(data, working_dir)
+	return Particle(conditions, step, swarm, node, dir_name=working_dir)
+

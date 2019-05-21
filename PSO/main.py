@@ -36,7 +36,6 @@ os.mkdir(working_dir)
 # setup nodes
 print("Preparing devices...")
 
-nodes = []
 multiparametric_space = dict()
 swarm_keys = []
 
@@ -49,25 +48,9 @@ swarm.type = int(data['settings']['optimum_type'])
 swarm.start()
 
 for node in data['nodes']:
-	nodes.append(bioreactor.Node(bool(data['settings']['testing'])))
-	for device in node['devices']:
-		nodes[-1].add_device(device['name'], device['ID'], int(device['adress']))
-		for command in device['initial_setup']:
-			args = ", ".join(list(map(str, command['arguments'])))
-			eval('nodes[-1].' + device['name'] + '.' + command['command'] + '(' + args + ')')
-
-	os.mkdir(working_dir + "/" + nodes[-1].PBR.ID)
-	nodes[-1].setup_stabiliser(float(data['settings']['OD_MIN']),
-						  float(data['settings']['OD_MAX']),
-						  float(data['settings']['timeout']),
-						  linear_tol=float(data['settings']['lin_tol']),
-						  confidence_tol=float(data['settings']['conf_tol']),
-						  dir_name=working_dir)
-
-	step = random.uniform(0, 1)
-	conditions = np.array(list(map(float, node['parameter_values'])))
+	particle = import_particle(node, swarm, working_dir, data, write=False)
 	time.sleep(2)
-	swarm.add_particle(Particle(conditions, step, swarm, nodes[-1], dir_name=working_dir))
+	swarm.add_particle(particle)
 
 ########################################
 
@@ -81,7 +64,7 @@ while swarm.is_alive():
 		try:
 			exec(user_input)
 		except Exception as e:
-			print(e)
+			raise(e)
 	except KeyboardInterrupt as e:
 		print("Type exit() to quit the interpreter.\nType swarm.exit() or press Ctrl+D to end the experiment.")
 	except EOFError as e:
