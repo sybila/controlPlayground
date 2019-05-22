@@ -19,7 +19,7 @@ class DataHolder(logger.Logger):
 		self.outliers = []
 
 		self.upper_outlier_tol = 2.5
-		self.lower_outlier_tol = 2.5
+		self.lower_outlier_tol = 3.5
 		self.OD_channel = 1
 
 		logger.Logger.__init__(self, dir_name, self.device.ID)
