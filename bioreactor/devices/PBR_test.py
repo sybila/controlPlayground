@@ -69,6 +69,9 @@ class PBR_test(AbstractPBR):
     def set_thermoregulator_state(self, on):
         return True
 
+    def measure_ft(self, channel):
+        return 13.4
+
 def to_scheme_bool(value):
     return "#t" if value else "#f" 
 

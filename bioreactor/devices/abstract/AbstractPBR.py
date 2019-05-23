@@ -196,3 +196,14 @@ class AbstractPBR(Device):
             bool: True if was succesful, False otherwise.
         '''
         raise NotImplementedError("The method not implemented")
+
+    def measure_ft(self, channel):
+        '''
+        ???
+
+        Args:
+            channel (int): ???
+        Returns:
+            ???: ???
+        '''
+        raise NotImplementedError("The method not implemented")

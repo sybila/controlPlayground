@@ -275,6 +275,20 @@ class PBR(AbstractPBR):
             print(self.id(), e)
             return False
 
+    def measure_ft(self, channel):
+        '''
+        ???
+
+        Args:
+            channel (int): ???
+        Returns:
+            ???: ???
+        '''
+        try:
+            return float(self.parent.execute(self, "measure-ft", [channel])[0].rstrip())
+        except Exception as e:
+            return None
+
 def to_scheme_bool(value):
     return "#t" if value else "#f" 
 
