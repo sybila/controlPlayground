@@ -81,3 +81,12 @@ class AbstractGAS(Device):
             float: The maximal flow in L/min
         '''
         raise NotImplementedError("The method not implemented")
+
+    def get_pressure(self, repeats=5, wait=0):
+        '''
+        Current pressure.
+
+        Returns:
+            float: Current pressure in ???
+        '''
+        raise NotImplementedError("The method not implemented")
