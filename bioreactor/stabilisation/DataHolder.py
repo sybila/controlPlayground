@@ -52,9 +52,10 @@ class DataHolder(logger.Logger):
 				data = data[:-1]
 
 	def measure_value(self):
-		od = self.device.measure_od(self.OD_channel)
-		if od is None:
-			self.log_error("Cannot measure OD! Trying again...")
+		try:
+			od = self.device.measure_od(self.OD_channel)
+		except Exception as e:
+			self.log_error("({}) => Cannot measure OD! Trying again...".format(e))
 			return self.measure_value() # try it again, should be somehow limited!
 		return time.time() - self.init_time, od
 
