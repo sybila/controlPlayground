@@ -14,23 +14,24 @@ DEFINITION_3 = '''")))
 
 '''
 
+
 class Device():
-	def __init__(self, particle, ID, adress):
-		self.parent = particle
-		self.ID = ID
-		self.adress = adress
-		self.definition = DEFINITION_1 + ID + DEFINITION_2 + str(adress) + DEFINITION_3
-		self.command = ["(print (rpc2 " + ID + " `(", ")))"]
-		self.filename = os.path.dirname(os.path.abspath(__file__)) + '/script_' + self.ID + '.scm'
+    def __init__(self, particle, ID, adress):
+        self.parent = particle
+        self.ID = ID
+        self.adress = adress
+        self.definition = DEFINITION_1 + ID + DEFINITION_2 + str(adress) + DEFINITION_3
+        self.command = ["(print (rpc2 " + ID + " `(", ")))"]
+        self.filename = os.path.dirname(os.path.abspath(__file__)) + '/script_' + self.ID + '.scm'
 
-	def __del__(self):
-		try:
-			os.remove(self.filename)
-		except FileNotFoundError:
-			pass
+    def __del__(self):
+        try:
+            os.remove(self.filename)
+        except FileNotFoundError:
+            pass
 
-	def __str__(self):
-		return self.ID + " @ " + str(self.adress)
+    def __str__(self):
+        return self.ID + " @ " + str(self.adress)
 
-	def __repr__(self):
-		return "Device(" + self.ID + ", " + str(self.adress) + ")"
+    def __repr__(self):
+        return "Device(" + self.ID + ", " + str(self.adress) + ")"

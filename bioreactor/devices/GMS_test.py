@@ -1,5 +1,6 @@
 from .abstract import AbstractGMS
 
+
 # Gas Mixer
 class GMS_test(AbstractGMS):
     def __init__(self, particle, ID, adress):
@@ -39,4 +40,3 @@ class GMS_test(AbstractGMS):
             dict: A dictionary with gas type and maximal allowed flow.
         '''
         return {"max_flow": 10, "gas_type": self.GAS_TYPES[0]}
-

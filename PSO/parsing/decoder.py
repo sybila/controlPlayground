@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
 
-class Dict2XML():
 
+class Dict2XML():
     def parse_dict(self, dictionary, node):
         for tag, value in dictionary.items():
             if isinstance(value, dict):

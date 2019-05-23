@@ -2,6 +2,7 @@ from math import log10
 import random
 from .abstract import AbstractPBR
 
+
 # Fake bioreactor
 class PBR_test(AbstractPBR):
     def __init__(self, particle, ID, adress):
@@ -36,7 +37,7 @@ class PBR_test(AbstractPBR):
 
     def get_pump_params(self, pump):
         return {"direction": 1, "on": True, "valves": 10,
-                    "flow": 0.3, "min": 0, "max": 100}
+                "flow": 0.3, "min": 0, "max": 100}
 
     def set_pump_params(self, pump, direction, flow):
         return True
@@ -72,11 +73,14 @@ class PBR_test(AbstractPBR):
     def measure_ft(self, channel):
         return 13.4
 
+
 def to_scheme_bool(value):
-    return "#t" if value else "#f" 
+    return "#t" if value else "#f"
+
 
 def from_scheme_bool(value):
     return True if value == "#t" else False
+
 
 # fake SSH connection
 class SSHconnection():
@@ -84,4 +88,4 @@ class SSHconnection():
         pass
 
     def disconnect(self):
-        return 
+        return

@@ -1,5 +1,6 @@
 from .abstract import AbstractGAS
 
+
 # Gas Analyser
 class GAS(AbstractGAS):
     def __init__(self, particle, ID, adress):
@@ -49,7 +50,7 @@ class GAS(AbstractGAS):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-        modes = {0 : "11111111", 1 : "11101111", 2: "11111001", 3: "11110110"}
+        modes = {0: "11111111", 1: "11101111", 2: "11111001", 3: "11110110"}
         try:
             return self.parent.execute(self, "set-small-valves", [int(modes[mode], 2)])[0].rstrip() == 'ok'
         except Exception:

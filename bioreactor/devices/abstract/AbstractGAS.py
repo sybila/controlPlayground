@@ -1,5 +1,6 @@
 from .device import Device
 
+
 # Abstract Gas Analyser
 class AbstractGAS(Device):
     def __init__(self, particle, ID, adress):

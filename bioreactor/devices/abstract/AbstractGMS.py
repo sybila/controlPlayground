@@ -1,5 +1,6 @@
 from .device import Device
 
+
 # Abstract Gas Mixer
 class AbstractGMS(Device):
     def __init__(self, particle, ID, adress):
@@ -38,4 +39,3 @@ class AbstractGMS(Device):
             dict: A dictionary with gas type and maximal allowed flow.
         '''
         raise NotImplementedError("The method not implemented")
-

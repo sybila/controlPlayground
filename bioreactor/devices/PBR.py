@@ -1,6 +1,7 @@
 from math import log10
 from .abstract import AbstractPBR
 
+
 # Bioreactor
 class PBR(AbstractPBR):
     def __init__(self, particle, ID, adress):
@@ -74,7 +75,7 @@ class PBR(AbstractPBR):
             integer: Measured OD
         '''
         result = self.parent.execute(self, "measure-od", [channel, 8])[0].rstrip().split()
-        return -log10((int(result[1]) - int(result[2][:-1]))/40000)
+        return -log10((int(result[1]) - int(result[2][:-1])) / 40000)
 
     def get_pump_params(self, pump):
         '''
@@ -162,7 +163,8 @@ class PBR(AbstractPBR):
         '''
 
         try:
-            return self.parent.execute(self, "set-actinic-continual-intensity", [channel, intensity])[0].rstrip() == 'ok'
+            return self.parent.execute(self, "set-actinic-continual-intensity", [channel, intensity])[
+                       0].rstrip() == 'ok'
         except Exception as e:
             print(self.id(), e)
             return False
@@ -179,7 +181,8 @@ class PBR(AbstractPBR):
         '''
 
         try:
-            return self.parent.execute(self, "set-actinic-continual-mode", [channel, to_scheme_bool(on)])[0].rstrip() == 'ok'
+            return self.parent.execute(self, "set-actinic-continual-mode", [channel, to_scheme_bool(on)])[
+                       0].rstrip() == 'ok'
         except Exception as e:
             print(self.id(), e)
             return False
@@ -198,7 +201,7 @@ class PBR(AbstractPBR):
         '''
         try:
             result = self.parent.execute(self, "get-pwm-settings")[0].rstrip()[1:-1].split()
-            return {"pulse": result[1], "min": result[2], 
+            return {"pulse": result[1], "min": result[2],
                     "max": result[3], "on": from_scheme_bool(result[4])}
         except Exception as e:
             print(self.id(), e)
@@ -254,11 +257,11 @@ class PBR(AbstractPBR):
         '''
         try:
             result = self.parent.execute(self, "get-thermoregulator-settings")[0].rstrip()[1:-1].split()
-            return {"temp": float(result[1]), "min": float(result[2]), 
+            return {"temp": float(result[1]), "min": float(result[2]),
                     "max": float(result[3]), "on": int(result[4])}
         except Exception as e:
             print(self.id(), e)
-            return False 
+            return False
 
     def set_thermoregulator_state(self, on):
         '''
@@ -289,8 +292,10 @@ class PBR(AbstractPBR):
         except Exception as e:
             return None
 
+
 def to_scheme_bool(value):
-    return "#t" if value else "#f" 
+    return "#t" if value else "#f"
+
 
 def from_scheme_bool(value):
     return True if value == "#t" else False

@@ -1,5 +1,6 @@
 from .abstract import AbstractGMS
 
+
 # Gas Mixer
 class GMS(AbstractGMS):
     def __init__(self, particle, ID, adress):
@@ -24,6 +25,7 @@ class GMS(AbstractGMS):
         '''
         Set flow to value for the given valve.
         '''
+
     def set_valve_flow(self, valve, value):
         '''
         Set value (L/min) of current flow in the given valve.
@@ -55,4 +57,3 @@ class GMS(AbstractGMS):
         except Exception:
             return None
         return dict(zip(results, [float(values[1]), self.GAS_TYPES[int(values[3])]]))
-

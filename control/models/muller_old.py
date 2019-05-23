@@ -1,7 +1,8 @@
 import numpy as np
 
+
 # Define model
-def model(x,t,control_signal):
+def model(x, t, control_signal):
     # Constants
     kH_cp = 0.03
     P_in_atm = 1
@@ -32,15 +33,20 @@ def model(x,t,control_signal):
     # 5 = HCO3_m
     # 6 = dCO2
 
-    xdot[0] = + (kB_f*x[1]-kB_b*x[3] * x[0])
-    xdot[1] = - (kB_f*x[1]-kB_b*x[3] * x[0])
-    xdot[2] = - (k1_m_f*x[2] * x[6]-k1_m_b*x[5]) - (k2_m_f*x[2] * x[5]-k2_m_b*x[4]) + (kW_f-kW_b*x[2] * x[3])
-    xdot[3] = + (k1_p_f*x[6]-k1_p_b*x[3] * x[5]) + (k2_p_f*x[5]-k2_p_b*x[3] * x[4]) + (kB_f*x[1]-kB_b*x[3] * x[0]) + (kW_f-kW_b*x[2] * x[3])
-    xdot[4] = + (k2_m_f*x[2] * x[5]-k2_m_b*x[4]) + (k2_p_f*x[5]-k2_p_b*x[3] * x[4])
-    xdot[5] = + (k1_m_f*x[2] * x[6]-k1_m_b*x[5]) + (k1_p_f*x[6]-k1_p_b*x[3] * x[5]) - (k2_m_f*x[2] * x[5]-k2_m_b*x[4]) - (k2_p_f*x[5]-k2_p_b*x[3] * x[4])
-    xdot[6] = - (k1_m_f*x[2] * x[6]-k1_m_b*x[5]) - (k1_p_f*x[6]-k1_p_b*x[3] * x[5]) + ((kH_cp*control_signal*P_in_atm)/1e+6 * kLa_CO2_eff-kLa_CO2_eff*x[6])
+    xdot[0] = + (kB_f * x[1] - kB_b * x[3] * x[0])
+    xdot[1] = - (kB_f * x[1] - kB_b * x[3] * x[0])
+    xdot[2] = - (k1_m_f * x[2] * x[6] - k1_m_b * x[5]) - (k2_m_f * x[2] * x[5] - k2_m_b * x[4]) + (
+    kW_f - kW_b * x[2] * x[3])
+    xdot[3] = + (k1_p_f * x[6] - k1_p_b * x[3] * x[5]) + (k2_p_f * x[5] - k2_p_b * x[3] * x[4]) + (
+    kB_f * x[1] - kB_b * x[3] * x[0]) + (kW_f - kW_b * x[2] * x[3])
+    xdot[4] = + (k2_m_f * x[2] * x[5] - k2_m_b * x[4]) + (k2_p_f * x[5] - k2_p_b * x[3] * x[4])
+    xdot[5] = + (k1_m_f * x[2] * x[6] - k1_m_b * x[5]) + (k1_p_f * x[6] - k1_p_b * x[3] * x[5]) - (
+    k2_m_f * x[2] * x[5] - k2_m_b * x[4]) - (k2_p_f * x[5] - k2_p_b * x[3] * x[4])
+    xdot[6] = - (k1_m_f * x[2] * x[6] - k1_m_b * x[5]) - (k1_p_f * x[6] - k1_p_b * x[3] * x[5]) + (
+    (kH_cp * control_signal * P_in_atm) / 1e+6 * kLa_CO2_eff - kLa_CO2_eff * x[6])
 
     return xdot
+
 
 # required constants and variables
 VARS = ['A_m', 'HA', 'OH_m', 'H_p', 'CO3_2m', 'HCO3_m', 'dCO2']
@@ -55,19 +61,19 @@ kD = 0.0
 # Initial Conditions
 x0 = np.empty(7)
 
-x0[0] = 0.0075                  # A_m
-x0[1] = 0.0075                  # HA
-x0[2] = 3.16e-08                # OH_m
-x0[3] = 0                       # H_p
-x0[4] = 0                       # CO3_2m
-x0[5] = 0                       # HCO3_m
-x0[6] = 3.164556962025317e-07   # dCO2
+x0[0] = 0.0075  # A_m
+x0[1] = 0.0075  # HA
+x0[2] = 3.16e-08  # OH_m
+x0[3] = 0  # H_p
+x0[4] = 0  # CO3_2m
+x0[5] = 0  # HCO3_m
+x0[6] = 3.164556962025317e-07  # dCO2
 
 # Initial Control Signal
 u_ss = 1000
 
 # Time Interval (min)
-t = np.linspace(0,5,1000)
+t = np.linspace(0, 5, 1000)
 
 # Storage of results
 observables = [np.ones(len(t)) * x0[i] for i in range(7)]
@@ -75,7 +81,7 @@ u = np.ones(len(t)) * u_ss
 
 # set point
 sp = np.zeros(len(t))
-sp[0:] = u_ss*3e-8
+sp[0:] = u_ss * 3e-8
 sp[200:400] = 0.000175
 sp[400:] = 0.0002
 

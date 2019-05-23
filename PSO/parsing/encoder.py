@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
 
+
 class XML2Dict(object):
-    
     def make_dict(self, node):
         d = {}
         for child in node.getchildren():
@@ -29,6 +29,7 @@ class XML2Dict(object):
     def parse(self, xml):
         node = ET.parse(xml).getroot()
         return self.make_dict(node)
+
 
 def has_digit_or_letter(string):
     return any(s.isalnum() for s in string)

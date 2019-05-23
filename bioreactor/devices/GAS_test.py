@@ -1,5 +1,6 @@
 from .abstract import AbstractGAS
 
+
 # Gas Analyser
 class GAS(AbstractGAS):
     def __init__(self, particle, ID, adress):
