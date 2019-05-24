@@ -127,7 +127,7 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
     rows = []
     fig, ax1 = plt.subplots()
 
-    plt.title(ID + " Stable doubling time " + "%.2f" % checker.values[-1] + " h" + \
+    plt.title(ID + " Stable doubling time " + "%.2f" % (checker.values[-1]/3600) + " h" +
               "\n for conditions " + str(conditions))
 
     rows += list(map(lambda t, v: (t, v, None, None, None), holder.time_history, holder.data_history))
@@ -147,16 +147,16 @@ def save(holder, checker, history_len, dir_name, ID, conditions):
     # checker's data
     ax2 = ax1.twinx()
     ax2.set_ylabel('doubling time (h)')
-    ax2.plot(to_hours(checker.times), checker.values, 'or')
+    ax2.plot(to_hours(checker.times), to_hours(checker.values), 'or')
     ax2.yaxis.label.set_color('red')
 
     rows += list(map(lambda t, v: (t, None, v, None, None), checker.times, checker.values))
 
-    # measured growth rates
+    # measured doubling times
     coeffs = linear_regression(checker.times[-history_len:], checker.values[-history_len:])
     times = np.linspace(checker.times[-history_len], checker.times[-1], 500)
     values = coeffs[1] + coeffs[0] * times
-    ax2.plot(to_hours(times), values, '-r')
+    ax2.plot(to_hours(times), to_hours(values), '-r')
 
     rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
 
