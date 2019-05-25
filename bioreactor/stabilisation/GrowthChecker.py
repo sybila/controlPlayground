@@ -29,9 +29,9 @@ class GrowthChecker(logger.Logger):
         return self.regression_criteria(avg, n) and self.confidence_criteria(avg, n)
 
     def regression_criteria(self, avg, n):
-        coeff = abs(linear_regression(self.times[-n:], self.values[-n:])[0])
-        self.log("Regression check:", abs(coeff / avg)*3600, "<", self.linear_tol, "? :", abs(coeff / avg)*3600 < self.linear_tol)
-        return abs((coeff / avg)*3600 < self.linear_tol)
+        coeff = abs(linear_regression(self.times[-n:], self.values[-n:])[0])*3600
+        self.log("Regression check:", abs(coeff / avg), "<", self.linear_tol, "? :", abs(coeff / avg) < self.linear_tol)
+        return abs((coeff / avg) < self.linear_tol)
 
     def confidence_criteria(self, avg, n, confidence=0.95):
         std_err = sem(self.values[-n:])
