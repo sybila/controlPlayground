@@ -124,9 +124,10 @@ class Swarm(threading.Thread):
                         params = values[:, 0]
                         ODs = values[:, 1]
                         ID = self.header[i]
-                        ax.plot(params, ODs, '-' + COLOURS[i], label=ID)
-                        ax.plot(params[0], ODs[0], '>' + COLOURS[i], label=ID + ' start')
-                        ax.plot(params[-1], ODs[-1], '*' + COLOURS[i], label=ID + ' end')
+                        colour = COLOURS[i - len(param_names)]
+                        ax.plot(params, ODs, '-' + colour, label=ID)
+                        ax.plot(params[0], ODs[0], '>' + colour, label=ID + ' start')
+                        ax.plot(params[-1], ODs[-1], '*' + colour, label=ID + ' end')
 
                 ymin, ymax = ax.get_ylim()
                 ax.set_yticks(np.round(np.linspace(ymin, ymax, 10), 2))

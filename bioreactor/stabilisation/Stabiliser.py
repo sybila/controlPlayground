@@ -28,6 +28,8 @@ class Stabiliser(logger.Logger):
 
         self.pump = 5
 
+        self.first_max_time = None
+
         logger.Logger.__init__(self, self.dir_name, self.node.PBR.ID)
 
     # turns on pump and measured OD in cycle intil it reaches OD_MIN (with some tolerance)
@@ -36,6 +38,8 @@ class Stabiliser(logger.Logger):
         self.holder.device.set_pump_state(pump, True)
         while self.holder.next_value() > self.OD_MIN:
             if self.node.stop_working:
+                return
+            if self.reached_max_time():
                 return
             time.sleep(self.TIMEOUT)
         self.holder.device.set_pump_state(pump, False)
@@ -49,7 +53,11 @@ class Stabiliser(logger.Logger):
         while self.holder.next_value() < self.OD_MAX:
             if self.node.stop_working:
                 return
+            if self.reached_max_time():
+                return
             time.sleep(self.TIMEOUT)
+        if not self.first_max_time:
+            self.first_max_time = time.time()
         self.log("Max population reached:\n",
                  "times = ", self.holder.times,
                  "\n data = ", self.holder.data)
@@ -72,7 +80,7 @@ class Stabiliser(logger.Logger):
                 success.append(funcs[parameter_keys[i]](conditions[i]))
         return all(success)
 
-    def get_growth_rate(self, conditions, parameter_keys, history_len=5):
+    def get_growth_rate(self, conditions, parameter_keys, history_len=50):
         self.history_len = history_len
         self.holder.restart()
         self.checker.restart()
@@ -87,12 +95,12 @@ class Stabiliser(logger.Logger):
             self.log("Starting...")
 
             while not self.checker.is_stable(self.history_len):
-                if time.time() - self.holder.init_time > self.max_time:
+                if self.reached_max_time():
                     if self.checker.values:
                         avg = np.mean(self.checker.values[-self.history_len:])
                     else:
                         avg = np.inf
-                    self.log("Max time", self.max_time, "hours exceeded - returning average ", avg)
+                    self.log("Max time", self.max_time/3600, "hours exceeded - returning average ", avg)
                     return avg
                 self.log("Iteration", len(self.checker.values))
                 self.pump_out_population(self.pump)
@@ -102,11 +110,12 @@ class Stabiliser(logger.Logger):
                 value = self.reach_max_population()
                 if self.node.stop_working:
                     return
-                doubling_time = (np.log(2) / value)
-                self.log("New growth rate:", value, "(Doubling time:", doubling_time / 3600, "h)")
-                self.checker.values.append(doubling_time)
-                self.checker.times.append((time.time() - self.holder.init_time))
-                self.holder.reset(value)
+                if value:
+                    doubling_time = (np.log(2) / value)
+                    self.log("New growth rate:", value, "(Doubling time:", doubling_time / 3600, "h)")
+                    self.checker.values.append(doubling_time)
+                    self.checker.times.append((time.time() - self.holder.init_time))
+                    self.holder.reset(value)
 
             self.log("All data measured for this conditions:\n",
                      "times:", self.holder.time_history,
@@ -119,6 +128,15 @@ class Stabiliser(logger.Logger):
             return self.checker.values[-1]  # which should be stable
         self.log("lets return inf")
         return np.inf
+
+    def reached_max_time(self):
+        if time.time() - self.holder.init_time > self.max_time:
+            if self.first_max_time:
+                if time.time() - self.first_max_time > self.max_time:
+                    return True
+                return False
+            return True
+        return False
 
 
 # saves data in svg and creates a picture
