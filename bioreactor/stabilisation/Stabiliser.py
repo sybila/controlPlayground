@@ -80,7 +80,7 @@ class Stabiliser(logger.Logger):
                 success.append(funcs[parameter_keys[i]](conditions[i]))
         return all(success)
 
-    def get_growth_rate(self, conditions, parameter_keys, history_len=50):
+    def get_growth_rate(self, conditions, parameter_keys, history_len=5):
         self.history_len = history_len
         self.holder.restart()
         self.checker.restart()
