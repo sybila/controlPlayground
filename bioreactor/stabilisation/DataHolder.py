@@ -23,6 +23,8 @@ class DataHolder(logger.Logger):
         self.lower_outlier_tol = 3.5
         self.OD_channel = 1
 
+        self.depth = 0
+
         logger.Logger.__init__(self, dir_name, self.device.ID)
 
     def set_init_time(self, t):
@@ -52,12 +54,17 @@ class DataHolder(logger.Logger):
             else:
                 data = data[:-1]
 
-    def measure_value(self):
+    def measure_value(self, depth=0):
         try:
             od = self.device.measure_od(self.OD_channel)
         except Exception as e:
             self.log_error("({}) => Cannot measure OD! Trying again...".format(e))
-            return self.measure_value()  # try it again, should be somehow limited!
+            time.sleep(5)
+            if depth < 5:
+                return self.measure_value(depth + 1)
+            else:
+                time.sleep(60)
+                od = self.device.measure_od(self.OD_channel)
         return time.time() - self.init_time, od
 
     def next_value(self):
