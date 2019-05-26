@@ -14,7 +14,7 @@ from bioreactor import logger
 
 
 class Stabiliser(logger.Logger):
-    def __init__(self, node, dir_name, OD_MAX, OD_MIN, TIMEOUT, linear_tol, confidence_tol, max_time=48):
+    def __init__(self, node, dir_name, OD_MAX, OD_MIN, TIMEOUT, linear_tol, confidence_tol, max_time=5/3600):
         self.dir_name = dir_name
         self.node = node
 
@@ -101,6 +101,7 @@ class Stabiliser(logger.Logger):
                     else:
                         avg = np.inf
                     self.log("Max time", self.max_time/3600, "hours exceeded - returning average ", avg)
+                    save(self.holder, self.checker, self.history_len, self.dir_name, self.node.PBR.ID, conditions)
                     return avg
                 self.log("Iteration", len(self.checker.values))
                 self.pump_out_population(self.pump)
@@ -123,7 +124,7 @@ class Stabiliser(logger.Logger):
 
             save(self.holder, self.checker, self.history_len, self.dir_name, self.node.PBR.ID, conditions)
         except Exception as e:
-            raise (e)
+            self.log_error(e)
         if self.checker.values:
             return self.checker.values[-1]  # which should be stable
         self.log("lets return inf")
