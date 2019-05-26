@@ -1,9 +1,10 @@
-from .device import Device
 from math import log10
 import random
+from .abstract import AbstractPBR
+
 
 # Fake bioreactor
-class PBR_test(Device):
+class PBR_test(AbstractPBR):
     def __init__(self, particle, ID, adress):
         super(PBR_test, self).__init__(particle, ID, adress)
         self.last_value = 0.45
@@ -36,7 +37,7 @@ class PBR_test(Device):
 
     def get_pump_params(self, pump):
         return {"direction": 1, "on": True, "valves": 10,
-                    "flow": 0.3, "min": 0, "max": 100}
+                "flow": 0.3, "min": 0, "max": 100}
 
     def set_pump_params(self, pump, direction, flow):
         return True
@@ -69,11 +70,17 @@ class PBR_test(Device):
     def set_thermoregulator_state(self, on):
         return True
 
+    def measure_ft(self, channel):
+        return 13.4
+
+
 def to_scheme_bool(value):
-    return "#t" if value else "#f" 
+    return "#t" if value else "#f"
+
 
 def from_scheme_bool(value):
     return True if value == "#t" else False
+
 
 # fake SSH connection
 class SSHconnection():
@@ -81,4 +88,4 @@ class SSHconnection():
         pass
 
     def disconnect(self):
-        return 
+        return

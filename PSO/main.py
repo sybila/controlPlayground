@@ -1,122 +1,70 @@
-import numpy as np
-import random
 import os, sys
 import datetime
 import time
-import shutil
 
 from Particle import *
 from Swarm import *
-import bioreactor
 from prompt import prompt
+from parsing import xml_parse as xml
 
-params = ["temp", "light-red", "light-blue", "flow"]
-
+###########################
 print("Initial setup...")
 
-####### EXPERIMENTS #######
-TIMEOUT = 60
-conf_tol = 0.06
-lin_tol = 0.04
-MAX_VALUES = 100
-TESTING = False
+if len(sys.argv) > 1:
+    data = xml.read_xml(sys.argv[-1])
+else:
+    from settings import data
 
-OD_MIN = 0.43
-OD_MAX = 0.47
-########## TESTING ########
-# TIMEOUT = 0.001
-# conf_tol = 0.99
-# lin_tol = 100
-# MAX_VALUES = 50
-# TESTING = True
-
-# OD_MIN = 0.43
-# OD_MAX = 0.47
 ###########################
+# prepare folders
 
 now = datetime.datetime.now() + datetime.timedelta(hours=2)
 log_name = ".log/" + '{:%Y%m%d-%H%M%S}'.format(now)
-working_dir =  ".log/RUNNING_light"
+working_dir = data['settings']['working_dir']
 
 if os.path.exists(working_dir):
-	name = datetime.datetime.fromtimestamp(os.path.getctime(working_dir)) + datetime.timedelta(hours=2)
-	os.rename(working_dir, '.log/' + '{:%Y%m%d-%H%M%S}'.format(name))
+    name = datetime.datetime.fromtimestamp(os.path.getctime(working_dir)) + datetime.timedelta(hours=2)
+    os.rename(working_dir, '.log/' + '{:%Y%m%d-%H%M%S}'.format(name))
 
 os.mkdir(working_dir)
 
-####### setup nodes ########
+###########################
+# setup nodes
+print("Preparing devices...")
 
-nodes = []
+multiparametric_space = dict()
+swarm_keys = []
 
-nodes.append(bioreactor.Node(TESTING))
-nodes[-1].add_device("PBR", "PBR01", 72700001)
+for parameter in data['settings']['parameter_space'].items():
+    swarm_keys.append(parameter[0])
+    multiparametric_space[parameter[0]] = list(map(float, parameter[1]))
 
-# nodes.append(bioreactor.Node(TESTING))
-# nodes[-1].add_device("PBR", "PBR02", 72700002)
+swarm = Swarm(multiparametric_space, int(data['settings']['max_values']), swarm_keys, dir_name=working_dir)
+swarm.type = int(data['settings']['optimum_type'])
+swarm.start()
 
-nodes.append(bioreactor.Node(TESTING))
-nodes[-1].add_device("PBR", "PBR03", 72700003)
-
-# nodes.append(bioreactor.Node(TESTING))
-# nodes[-1].add_device("PBR", "PBR04", 72700004)
-
-print("Devices ready.")
-
-############ initial setup #############
-
-for node in nodes:
-	os.mkdir(working_dir + "/" + node.PBR.ID)
-	node.setup_stabiliser(OD_MIN, OD_MAX, TIMEOUT, linear_tol=lin_tol, confidence_tol=conf_tol, dir_name=working_dir)
-	node.PBR.set_thermoregulator_state(1)
-	node.PBR.set_pwm(50, True)
-	node.PBR.set_temp(24)
-	node.PBR.turn_on_light(0, True)
-	node.PBR.turn_on_light(1, True)
-	node.PBR.set_pump_state(5, False)
-	# node.PBR.set_light_intensity(0, 60)
-	# node.PBR.set_light_intensity(1, 30)
+for node in data['nodes']:
+    particle = import_particle(node, swarm, working_dir, data, write=False)
+    time.sleep(2)
+    swarm.add_particle(particle)
 
 ########################################
 
 print("Setup done.")
 
-multiparametric_space = {params[1]: (50, 1500), # red light
-						 params[2]: (50, 1500)} # blue light
-
-# multiparametric_space = {params[0]: (15, 40)}
-
-print("Creating and starting swarm...")
-
-swarm = Swarm(multiparametric_space, MAX_VALUES, dir_name=working_dir)
-swarm.type = -1
-swarm.start()
-
-conditions = [np.array([265, 100]), np.array([130, 50])]
-# conditions = [np.array([22]), np.array([20]), np.array([26]), np.array([30])]
-
-for i in range(len(nodes)):
-	step = random.uniform(0, 1)
-	##### choose random position #######
-	# random_position = []
-	# for key in swarm.parameter_keys:
-		# random_position.append(random.uniform(min(multiparametric_space[key]), max(multiparametric_space[key])))
-	################################
-	time.sleep(5)
-	swarm.add_particle(Particle(conditions[i], step, swarm, nodes[i], dir_name=working_dir))
-
-print("Swarm started.")
+xml.write_xml(data, working_dir)
 
 while swarm.is_alive():
-	try:
-		user_input = prompt.command(globals())
-		try:
-			exec(user_input)
-		except Exception as e:
-			print(e)
-	except KeyboardInterrupt as e:
-		print("Type exit() to quit the interpreter.\nType swarm.exit() or press Ctrl+D to end the experiment.")
-	except EOFError as e:
-		swarm.exit()
+    try:
+        user_input = prompt.command(globals())
+        try:
+            exec(user_input)
+        except Exception as e:
+            print(e)
+    except KeyboardInterrupt as e:
+        print("Type exit() to quit the interpreter.\nType swarm.exit() or press Ctrl+D to end the experiment.")
+    except EOFError as e:
+        swarm.exit()
 
 swarm.exit()
 

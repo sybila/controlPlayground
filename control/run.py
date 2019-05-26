@@ -7,8 +7,10 @@ import numpy as np
 sys.path.append(os.path.abspath('controllers/'))
 import PID
 
+
 def convergence(signal):
-	return (0.03*signal)/1e+6
+    return (0.03 * signal) / 1e+6
+
 
 class Animator():
     def __init__(self, ax, xar, yar, model):
@@ -36,6 +38,7 @@ class Animator():
 sys.path.append(os.path.abspath('worker/'))
 import ModelThread
 import PIDthread
+
 sys.path.append(os.path.abspath('models/'))
 from muller import *
 import Model
@@ -43,11 +46,11 @@ import Model
 control_signal = [5000]
 set_point = [0.00015]
 current_time = [0]
-output = [(0, [0]*7)]
+output = [(0, [0] * 7)]
 model = Model.Model(x0, VARS, plotting_vars, SCALE, control_signal, REFERENCE, ODEs, parameters)
 
 fig = plt.figure()
-ax = fig.add_subplot(1,1,1)
+ax = fig.add_subplot(1, 1, 1)
 
 xar, yar = [0], [0]
 ud = Animator(ax, xar, yar, model)

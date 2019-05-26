@@ -24,6 +24,7 @@ final_style = merge_styles([
     python_style
 ])
 
+
 class MyCompleter(Completer):
     def __init__(self, key_words):
         Completer.__init__(self)
@@ -36,6 +37,7 @@ class MyCompleter(Completer):
         for m in matches:
             yield Completion(m, start_position=-len(word_before_cursor))
 
+
 def command(key_words):
     prompt_text = [('class:prompt', 'bioarineo'), ('class:arrow', '> ')]
     return prompt(prompt_text,
@@ -44,4 +46,4 @@ def command(key_words):
                   completer=MyCompleter(key_words),
                   lexer=my_lexer,
                   style=final_style
-                 )
+                  )

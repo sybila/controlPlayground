@@ -1,9 +1,10 @@
 from paramiko import SSHClient
 from scp import SCPClient
 
+
 class SSHconnection():
     def __init__(self, server, user):
-        self.ssh = SSHClient() 
+        self.ssh = SSHClient()
         self.ssh.load_system_host_keys()
         self.ssh.connect(server, username=user)
         self.sftp = self.ssh.open_sftp()

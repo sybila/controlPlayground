@@ -20,5 +20,5 @@ time.sleep(1)
 print(node.PBR.set_pwm(50, False))
 print(node.PBR.get_pwm_settings())
 
-#print(node.PBR.get_light_intensity(0))
-#print(node.PBR.turn_on_light(0, True))
+# print(node.PBR.get_light_intensity(0))
+# print(node.PBR.turn_on_light(0, True))

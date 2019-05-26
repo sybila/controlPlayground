@@ -10,10 +10,7 @@ class GAS(AbstractGAS):
         '''
         Returns CO2 in air.
         '''
-        try:
-            return float(self.parent.execute(self, "get-co2-air")[0].rstrip())
-        except Exception:
-            return None
+        return 5.5
 
     def get_small_valves(self):
         '''
@@ -26,11 +23,7 @@ class GAS(AbstractGAS):
         Returns:
             string: byte representation of vents settings.
         '''
-        try:
-            value = int(self.parent.execute(self, "get-small-valves")[0].rstrip())
-        except Exception:
-            return None
-        return bin(value)[2:]
+        return "11111111"
 
     def set_small_valves(self, mode):
         '''
@@ -50,11 +43,7 @@ class GAS(AbstractGAS):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-        modes = {0: "11111111", 1: "11101111", 2: "11111001", 3: "11110110"}
-        try:
-            return self.parent.execute(self, "set-small-valves", [int(modes[mode], 2)])[0].rstrip() == 'ok'
-        except Exception:
-            return None
+        return True
 
     def get_flow(self):
         '''
@@ -63,10 +52,7 @@ class GAS(AbstractGAS):
         Returns:
             float: The current flow in L/min.
         '''
-        try:
-            return float(self.parent.execute(self, "get-flow", [1])[0].rstrip())
-        except Exception:
-            return None
+        return 0.2
 
     def get_flow_target(self):
         '''
@@ -75,10 +61,7 @@ class GAS(AbstractGAS):
         Returns:
             float: The desired flow in L/min.
         '''
-        try:
-            return float(self.parent.execute(self, "get-flow-target")[0].rstrip())
-        except Exception:
-            return None
+        return 0.5
 
     def set_flow_target(self, flow):
         '''
@@ -89,10 +72,7 @@ class GAS(AbstractGAS):
         Returns:
             bool: True if was succesful, False otherwise.
         '''
-        try:
-            return self.parent.execute(self, "set-flow-target", [flow])[0].rstrip() == 'ok'
-        except Exception:
-            return None
+        return True
 
     def get_flow_max(self):
         '''
@@ -101,10 +81,7 @@ class GAS(AbstractGAS):
         Returns:
             float: The maximal flow in L/min
         '''
-        try:
-            return float(self.parent.execute(self, "get-flow-max")[0].rstrip())
-        except Exception:
-            return None
+        return 1.0
 
     def get_pressure(self, repeats=5, wait=0):
         '''
@@ -113,7 +90,4 @@ class GAS(AbstractGAS):
         Returns:
             float: Current pressure in ???
         '''
-        try:
-            return float(self.parent.execute(self, "get-pressure", [repeats, wait])[0].rstrip())
-        except Exception:
-            return None
+        return 10
