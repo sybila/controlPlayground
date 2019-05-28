@@ -14,7 +14,7 @@ from bioreactor import logger
 
 
 class Stabiliser(logger.Logger):
-    def __init__(self, node, dir_name, OD_MAX, OD_MIN, TIMEOUT, linear_tol, confidence_tol, max_time=5/3600):
+    def __init__(self, node, dir_name, OD_MAX, OD_MIN, TIMEOUT, linear_tol, confidence_tol, max_time=24):
         self.dir_name = dir_name
         self.node = node
 
