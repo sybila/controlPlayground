@@ -112,10 +112,11 @@ class Swarm(threading.Thread):
 
     def save_plot(self, filename='results.png'):
         param_names = list(self.parameter_keys)
+        print(param_names)
         if len(self.rows) != 0:
+            colours = plt.cm.rainbow(np.linspace(0, 1, len(self.rows[0]) - len(param_names)))
             for j in range(len(param_names)):
                 f, ax = plt.subplots()
-
                 for i in range(len(param_names), len(self.rows[0])):
                     params = self.rows[:, j]
                     ODs = self.rows[:, i]
@@ -124,17 +125,13 @@ class Swarm(threading.Thread):
                         params = values[:, 0]
                         ODs = values[:, 1]
                         ID = self.header[i]
-                        colour = COLOURS[i - len(param_names)]
-                        ax.plot(params, ODs, '-' + colour, label=ID)
-                        ax.plot(params[0], ODs[0], '>' + colour, label=ID + ' start')
-                        ax.plot(params[-1], ODs[-1], '*' + colour, label=ID + ' end')
+                        ax.plot(params, ODs, ',', color=colours[i - len(param_names)])
+                        ax.quiver(params[:-1], ODs[:-1], params[1:]-params[:-1], ODs[1:]-ODs[:-1],
+                                  scale_units='xy', angles='xy', scale=1, color=colours[i - len(param_names)], label=ID)
 
-                ymin, ymax = ax.get_ylim()
-                ax.set_yticks(np.round(np.linspace(ymin, ymax, 10), 2))
+                box = ax.get_position()
+                ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
-                xmin, xmax = ax.get_xlim()
-                ax.set_xticks(np.round(np.linspace(xmin, xmax, 10), 2))
-
-                legend = ax.legend(shadow=True)
+                legend = ax.legend(loc="center left", bbox_to_anchor=(1, 0.5), shadow=True)
 
                 plt.savefig(self.dir_name + '/' + param_names[j] + "_" + filename, dpi=150)
