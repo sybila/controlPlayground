@@ -29,6 +29,8 @@ class Particle(threading.Thread, bioreactor.Logger):
         self.social_parameter = social_parameter
         self.inertia_weight = inertia_weight
 
+        self.max_step = 1/5
+
         self.stoprequest = threading.Event()
 
     def __str__(self):
@@ -73,6 +75,14 @@ class Particle(threading.Thread, bioreactor.Logger):
         for i in range(len(greater_than_max)):
             if greater_than_max[i]:
                 new_position[i] = self.observer.boundaries[1][i]
+        return self.check_max_step(new_position)
+
+    def check_max_step(self, new_position):
+        differencies = self.position - new_position
+        max_steps = (np.array(self.observer.boundaries[1]) - np.array(self.observer.boundaries[0])) * self.max_step
+        for i in range(len(differencies)):
+            if abs(differencies[i]) > max_steps[i]:
+                new_position[i] = (self.position[i] + max_steps[i]) if differencies[i] < 0 else (self.position[i] - max_steps[i])
         return new_position
 
     def join(self, timeout=None):
