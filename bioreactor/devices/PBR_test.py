@@ -26,11 +26,13 @@ class PBR_test(AbstractPBR):
         return 7
 
     def measure_od(self, channel=0):
+        if random.random() < 0.01:
+            raise Exception("Cannot measure value - some random error.")
         step = 0.002
         sign = 1 if self.increasing else -1
         if random.random() < 0.05:
             step = random.random()
-            if random.random() > 0.001:
+            if random.random() > 0.01:
                 return self.last_value + sign * step
         self.last_value += sign * step
         return self.last_value

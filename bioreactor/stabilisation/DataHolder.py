@@ -64,13 +64,14 @@ class DataHolder(logger.Logger):
             if depth < 5:
                 return self.measure_value(depth + 1)
             else:
-                time.sleep(60)
-                od = self.device.measure_od(self.OD_channel)
+                od = None
         return time.time() - self.init_time, od
 
     def next_value(self):
         t, v = self.measure_value()
-        if v < self.tolerance(self.upper_outlier_tol) and v > self.tolerance(-self.lower_outlier_tol):  # 1.5% tolerance
+        if not v:
+            return (self.OD_bounds[0] + self.OD_bounds[1]) / 2
+        if self.tolerance(self.upper_outlier_tol) > v > self.tolerance(-self.lower_outlier_tol):
             self.log("New OD value:", v)
             self.data.append(v)
             self.times.append(t)
