@@ -19,6 +19,7 @@ class DataHolder(logger.Logger):
         self.times = []
         self.outliers = []
 
+        self.number_of_outliers = 10
         self.upper_outlier_tol = 2.5
         self.lower_outlier_tol = 3.5
         self.OD_channel = 1
@@ -77,7 +78,7 @@ class DataHolder(logger.Logger):
             self.outliers = []
             return v
         else:
-            if len(self.outliers) > 10:
+            if len(self.outliers) > self.number_of_outliers:
                 return self.reset_outliers()
             self.outliers.append((t, v))
             self.log("Outlier No." + str(len(self.outliers)) +

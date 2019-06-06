@@ -30,6 +30,7 @@ class Particle(threading.Thread, bioreactor.Logger):
         self.inertia_weight = inertia_weight
 
         self.max_step = 1/5
+        self.pump = 5
 
         self.stoprequest = threading.Event()
 
@@ -93,7 +94,7 @@ class Particle(threading.Thread, bioreactor.Logger):
         self.stoprequest.set()
         while self.is_alive():
             time.sleep(2)
-        self.node.PBR.set_pump_state(5, False)
+        self.node.PBR.set_pump_state(self.pump, False)
         self.log("Particle interrupted, bye sweet world!")
 
 

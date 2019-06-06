@@ -27,6 +27,7 @@ class Stabiliser(logger.Logger):
         self.holder = DataHolder(self.node.PBR, [OD_MIN, OD_MAX], self.dir_name)
 
         self.pump = 5
+        self.history_len = 5
 
         self.first_max_time = None
 
@@ -80,8 +81,7 @@ class Stabiliser(logger.Logger):
                 success.append(funcs[parameter_keys[i]](conditions[i]))
         return all(success)
 
-    def get_growth_rate(self, conditions, parameter_keys, history_len=5):
-        self.history_len = history_len
+    def get_growth_rate(self, conditions, parameter_keys):
         self.holder.restart()
         self.checker.restart()
         try:
