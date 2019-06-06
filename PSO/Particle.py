@@ -46,7 +46,7 @@ class Particle(threading.Thread, bioreactor.Logger):
             result = self.compute_cost_function()
             if self.node.stop_working:
                 continue
-            self.log("I have computed:", result)
+            self.log("I have computed:", result, "for conditions:\n", list(zip(self.observer.parameter_keys, self.position)))
             if result == np.inf:
                 result = self.observer.optimum_type * np.inf * (-1)
 
@@ -97,6 +97,9 @@ class Particle(threading.Thread, bioreactor.Logger):
         self.node.PBR.set_pump_state(self.pump, False)
         self.log("Particle interrupted, bye sweet world!")
 
+    def change_position(self):
+        self.log("Forcing the position change manually.")
+        self.node.stabiliser.max_time = 0
 
 def import_particle(definition, swarm, working_dir, data, write=True):
     if not isinstance(definition, dict):
