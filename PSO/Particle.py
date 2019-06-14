@@ -52,6 +52,7 @@ class Particle(threading.Thread, bioreactor.Logger):
 
             self.particle_trace.append((self.position, result))
             self.observer.swarm_results.append((self.position, result))
+            time.sleep(1)
             if result * self.observer.optimum_type > self.particle_best[1] * self.observer.optimum_type:
                 self.particle_best = (self.position, result)
             self.position = self.next_position()
