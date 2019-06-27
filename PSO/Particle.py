@@ -113,7 +113,10 @@ def import_particle(definition, swarm, working_dir, data, write=True):
             args = ", ".join(list(map(str, command['arguments'])))
             eval('node.' + device['name'] + '.' + command['command'] + '(' + args + ')')
 
-    os.mkdir(working_dir + "/" + node.PBR.ID)
+    try:
+        os.mkdir(working_dir + "/" + node.PBR.ID)
+    except FileExistsError:
+        pass
     node.setup_stabiliser(float(data['settings']['OD_MIN']),
                           float(data['settings']['OD_MAX']),
                           float(data['settings']['timeout']),
