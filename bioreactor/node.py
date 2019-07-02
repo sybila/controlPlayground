@@ -62,8 +62,10 @@ class Node():
         ssh_stdin, ssh_stdout, ssh_stderr = \
             self.connection.execute_cmd("gosh " + self.folder + re.escape(os.path.basename(device.filename)))
 
-        if ssh_stderr.readlines():
-            print(ssh_stderr.readlines())
+
+        stderr = ssh_stderr.readlines()
+        if stderr:
+            print(stderr)
         output = ssh_stdout.readlines()
 
         return output

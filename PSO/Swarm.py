@@ -112,7 +112,6 @@ class Swarm(threading.Thread):
 
     def save_plot(self, filename='results.png'):
         param_names = list(self.parameter_keys)
-        print(param_names)
         if len(self.rows) != 0:
             colours = plt.cm.rainbow(np.linspace(0, 1, len(self.rows[0]) - len(param_names)))
             for j in range(len(param_names)):
