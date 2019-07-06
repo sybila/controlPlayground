@@ -38,9 +38,8 @@ class Stabiliser(logger.Logger):
         self.log("Reaching min population...")
         self.holder.device.set_pump_state(pump, True)
         while self.holder.next_value() > self.OD_MIN:
-            if self.node.stop_working:
-                return
-            if self.reached_max_time():
+            if self.node.stop_working or self.reached_max_time():
+                self.holder.device.set_pump_state(pump, False)
                 return
             time.sleep(self.TIMEOUT)
         self.holder.device.set_pump_state(pump, False)
@@ -52,9 +51,7 @@ class Stabiliser(logger.Logger):
     def reach_max_population(self):
         self.log("Reaching max population...")
         while self.holder.next_value() < self.OD_MAX:
-            if self.node.stop_working:
-                return
-            if self.reached_max_time():
+            if self.node.stop_working or self.reached_max_time():
                 return
             time.sleep(self.TIMEOUT)
         if not self.first_max_time:
@@ -105,6 +102,8 @@ class Stabiliser(logger.Logger):
                     return avg
                 self.log("Iteration", len(self.checker.values))
                 self.pump_out_population(self.pump)
+                if self.reached_max_time():
+                    continue
                 if self.node.stop_working:
                     return
                 self.holder.reset()
@@ -124,7 +123,7 @@ class Stabiliser(logger.Logger):
 
             save(self.holder, self.checker, self.history_len, self.dir_name, self.node.PBR.ID, conditions)
         except Exception as e:
-            self.log_error(e)
+            print(e)
         if self.checker.values:
             return self.checker.values[-1]  # which should be stable
         self.log("lets return inf")
@@ -142,48 +141,51 @@ class Stabiliser(logger.Logger):
 
 # saves data in svg and creates a picture
 def save(holder, checker, history_len, dir_name, ID, conditions):
-    current_time = '{:%Y%m%d-%H%M%S}'.format(datetime.datetime.now() + datetime.timedelta(hours=2))
-    rows = []
-    fig, ax1 = plt.subplots()
+    try:
+        current_time = '{:%Y%m%d-%H%M%S}'.format(datetime.datetime.now() + datetime.timedelta(hours=2))
+        rows = []
+        fig, ax1 = plt.subplots()
 
-    plt.title(ID + " Stable doubling time " + "%.2f" % (checker.values[-1]/3600) + " h" +
-              "\n for conditions " + str(conditions))
+        plt.title(ID + " Stable doubling time " + "%.2f" % (checker.values[-1]/3600) + " h" +
+                  "\n for conditions " + str(conditions))
 
-    rows += list(map(lambda t, v: (t, v, None, None, None), holder.time_history, holder.data_history))
-    # raw OD data
-    ax1.plot(to_hours(holder.time_history), holder.data_history, 'o', markersize=2)
-    ax1.set_xlabel('time (h)')
-    ax1.set_ylabel('OD')
-    ax1.yaxis.label.set_color('blue')
+        rows += list(map(lambda t, v: (t, v, None, None, None), holder.time_history, holder.data_history))
+        # raw OD data
+        ax1.plot(to_hours(holder.time_history), holder.data_history, 'o', markersize=2)
+        ax1.set_xlabel('time (h)')
+        ax1.set_ylabel('OD')
+        ax1.yaxis.label.set_color('blue')
 
-    # exponencial regression of OD regions
-    for data in holder.reg_history:
-        times = np.linspace(data["start"], data["end"], 1000)
-        values = data["n_0"] * np.exp((times - data["start"]) * data["rate"])
-        ax1.plot(to_hours(times), values, '-b')
-        rows += list(map(lambda t, v: (t, None, None, v, None), times, values))
+        # exponencial regression of OD regions
+        for data in holder.reg_history:
+            times = np.linspace(data["start"], data["end"], 1000)
+            values = data["n_0"] * np.exp((times - data["start"]) * data["rate"])
+            ax1.plot(to_hours(times), values, '-b')
+            rows += list(map(lambda t, v: (t, None, None, v, None), times, values))
 
-    # checker's data
-    ax2 = ax1.twinx()
-    ax2.set_ylabel('doubling time (h)')
-    ax2.plot(to_hours(checker.times), to_hours(checker.values), 'or')
-    ax2.yaxis.label.set_color('red')
+        # checker's data
+        ax2 = ax1.twinx()
+        ax2.set_ylabel('doubling time (h)')
+        ax2.plot(to_hours(checker.times), to_hours(checker.values), 'or')
+        ax2.yaxis.label.set_color('red')
 
-    rows += list(map(lambda t, v: (t, None, v, None, None), checker.times, checker.values))
+        rows += list(map(lambda t, v: (t, None, v, None, None), checker.times, checker.values))
 
-    # measured doubling times
-    coeffs = linear_regression(checker.times[-history_len:], checker.values[-history_len:])
-    times = np.linspace(checker.times[-history_len], checker.times[-1], 500)
-    values = coeffs[1] + coeffs[0] * times
-    ax2.plot(to_hours(times), to_hours(values), '-r')
+        # measured doubling times
+        coeffs = linear_regression(checker.times[-history_len:], checker.values[-history_len:])
+        times = np.linspace(checker.times[-history_len], checker.times[-1], 500)
+        values = coeffs[1] + coeffs[0] * times
+        ax2.plot(to_hours(times), to_hours(values), '-r')
 
-    rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
+        rows += list(map(lambda t, v: (t, None, None, None, v), times, values))
 
-    fig.tight_layout()
-    plt.savefig(dir_name + "/" + ID + "/" + ID + "_" + current_time + "_fig.png", dpi=150)
+        fig.tight_layout()
+        plt.savefig(dir_name + "/" + ID + "/" + ID + "_" + current_time + "_fig.png", dpi=150)
 
-    save_csv(rows, dir_name, ID, current_time)
+        save_csv(rows, dir_name, ID, current_time)
 
+    except Exception:
+        pass
 
 def save_csv(rows, dir_name, ID, current_time):
     rows.sort(key=lambda x: x[0])

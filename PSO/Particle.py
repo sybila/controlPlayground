@@ -44,7 +44,8 @@ class Particle(threading.Thread, bioreactor.Logger):
         while not self.stoprequest.isSet():
             self.log("_" * 30, "\nI'm computing:\n", list(zip(self.observer.parameter_keys, self.position)))
             result = self.compute_cost_function()
-            self.node.stabiliser.max_time = self.max_time
+            if self.node.stabiliser.max_time == 0:
+                self.node.stabiliser.max_time = self.max_time
             if self.node.stop_working:
                 continue
             self.log("I have computed:", result, "for conditions:\n", list(zip(self.observer.parameter_keys, self.position)))
