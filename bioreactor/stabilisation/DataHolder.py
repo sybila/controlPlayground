@@ -79,9 +79,9 @@ class DataHolder(logger.Logger):
             self.outliers = []
             return v
         else:
-            if len(self.outliers) > self.number_of_outliers:
-                return self.reset_outliers()
             self.outliers.append((t, v))
+            if len(self.outliers) >= self.number_of_outliers:
+                return self.reset_outliers()
             self.log("Outlier No." + str(len(self.outliers)) +
                      ":", v, "with allowed range: [{0}, {1}]".format(
                 self.tolerance(-self.lower_outlier_tol), self.tolerance(self.upper_outlier_tol)))
