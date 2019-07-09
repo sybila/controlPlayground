@@ -79,7 +79,9 @@ class DataHolder(logger.Logger):
             self.outliers = []
             return v
         else:
-            self.outliers.append((t, v))
+            self.data.append(v)
+            self.times.append(t)
+            self.outliers.append(v)
             if len(self.outliers) >= self.number_of_outliers:
                 return self.reset_outliers()
             self.log("Outlier No." + str(len(self.outliers)) +
@@ -89,8 +91,9 @@ class DataHolder(logger.Logger):
 
     def reset_outliers(self):
         self.log("Too many outliers, considering them as correct data.")
-        self.data += [x[1] for x in self.outliers]
-        self.times += [x[0] for x in self.outliers]
+        self.log("New OD value:", self.data[-1])
+        # self.data += [x[1] for x in self.outliers]
+        # self.times += [x[0] for x in self.outliers]
         self.average = sum(self.data[-2:]) / 2
         self.outliers = []
         return self.data[-1]
