@@ -74,7 +74,7 @@ class PBR(AbstractPBR):
         Returns:
             integer: Measured OD
         '''
-        result = self.parent.execute(self, "measure-od", [channel, 30])[0].rstrip().split()
+        result = self.parent.execute(self, "measure-od", [channel, 60])[0].rstrip().split()
         return -log10((int(result[1]) - int(result[2][:-1])) / 40000)
 
     def get_pump_params(self, pump):
