@@ -61,10 +61,8 @@ while swarm.is_alive():
             exec(user_input)
         except Exception as e:
             print(e)
-    except KeyboardInterrupt as e:
-        print("Type exit() to quit the interpreter.\nType swarm.exit() or press Ctrl+D to end the experiment.")
-    except EOFError as e:
-        swarm.exit()
+    except (KeyboardInterrupt, EOFError) as e:
+        print("Type exit() to quit the interpreter.\nType swarm.exit() to end the experiment.")
 
 swarm.exit()
 

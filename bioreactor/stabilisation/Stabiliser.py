@@ -123,9 +123,9 @@ class Stabiliser(logger.Logger):
 
             save(self.holder, self.checker, self.history_len, self.dir_name, self.node.PBR.ID, conditions)
         except Exception as e:
-            print(e)
+            self.log_error(e)
         if self.checker.values:
-            return self.checker.values[-1]  # which should be stable
+            return np.mean(self.checker.values[-self.history_len:])  # average from last n measurements after stabilisation
         self.log("lets return inf")
         return np.inf
 
